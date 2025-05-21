@@ -20,7 +20,7 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
                 button.onClick.AddListener(() =>
                 {
                     gameObject.SetActive(false);
-                    // ClickManager.Instance.selectedObject = null;
+                    ClickManager.Instance.selectedObject = null;
                 });
                 break;
             }

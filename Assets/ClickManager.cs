@@ -46,7 +46,8 @@ public class ClickManager : MonoBehaviour
 			// {
 			// 	if (GetPointerTouchUI(clickToShowUI.currentUI)) hitSelected = true;
 			// }
-			if (hitTarget != null 
+			if (selectedObject == null
+				&& hitTarget != null 
 			    && hitTarget.TryGetComponent(out ISelectable availableTarget))
 			{
 				availableTarget.OnSelected();
