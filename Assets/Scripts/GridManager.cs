@@ -1,11 +1,12 @@
 using System.Text;
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 public class GridManager : MonoBehaviour
 {
 	public static GridManager Instance;
-	public Dictionary<Vector3Int, bool> occupiedMap = new Dictionary<Vector3Int, bool>();
+	public Dictionary<Vector3Int, BlockProperties> occupiedMap = new Dictionary<Vector3Int, BlockProperties>();
 
 	void Awake()
 	{
@@ -15,10 +16,13 @@ public class GridManager : MonoBehaviour
 	
 	public bool IsOccupied(Vector3Int gridPos)
 	{
-		return occupiedMap.ContainsKey(gridPos) && occupiedMap[gridPos];
+		return occupiedMap.ContainsKey(gridPos);
 	}
-
-	public void SetOccupied(Vector3Int gridPos, bool state)
+	public void RemoveOccupied(Vector3Int gridPos)
+	{
+		occupiedMap.Remove(gridPos);
+	}
+	public void SetOccupied(Vector3Int gridPos, BlockProperties state)
 	{
 		occupiedMap[gridPos] = state;
 	}
@@ -79,7 +83,7 @@ public class GridOccupiedWindow : EditorWindow
 
 		foreach (var cell in occupiedCells)
 		{
-			EditorGUILayout.LabelField(cell.ToString());
+			EditorGUILayout.LabelField(cell + " " + occupiedMap[cell].blockName);
 		}
 
 		EditorGUILayout.EndScrollView();

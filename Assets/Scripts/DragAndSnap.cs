@@ -5,8 +5,8 @@ using UnityEngine;
 public class DragAndSnapWithAnchors : MonoBehaviour
 {
     public List<Transform> bottomAnchors;  // ⬅️ 多个锚点
-    public List<Vector3Int> regPositions;
-    private EditorManager editorManager;
+    public List<Vector3Int> regPositions { get; private set; } = new List<Vector3Int>();
+    
     public float targetY = 0f;             // 吸附高度
     public bool autoSnapOnStart = true;
     private Vector3 startPosition;
@@ -18,6 +18,9 @@ public class DragAndSnapWithAnchors : MonoBehaviour
     public Color anchorColor = Color.yellow;
     public Color snappedColor = Color.green;
     public Color lineColor = Color.cyan;
+    // 同物体插件引用
+    private BlockProperties blockProperties;
+    private EditorManager editorManager;
     
     void OnDrawGizmos()
     {
@@ -51,14 +54,12 @@ public class DragAndSnapWithAnchors : MonoBehaviour
         }
     }
 
-    
-    List<Vector3Int> SnapToAnchorsGrid()
+    private bool TrySnapToAnchorsGrid()
     {
-        if (bottomAnchors == null || bottomAnchors.Count == 0) return null;
-
+        if (bottomAnchors == null || bottomAnchors.Count == 0) return false;
         List<Vector3Int> proposedGridCells = new List<Vector3Int>();
         Vector3 moveDelta = Vector3.zero;
-
+        // 预加载要保留的cell坐标
         foreach (var anchor in bottomAnchors)
         {
             Vector3 snapped = new Vector3(
@@ -75,27 +76,53 @@ public class DragAndSnapWithAnchors : MonoBehaviour
             Vector3Int gridPos = Vector3Int.RoundToInt(anchorSnappedWorld);
             proposedGridCells.Add(gridPos);
         }
-
-        transform.position -= moveDelta;
-
+        // 检查是否所有 proposed 格子都未被其他占用（除去自己之前的 reg）
         foreach (var cell in proposedGridCells)
         {
-            if (GridManager.Instance != null && GridManager.Instance.IsOccupied(cell))
+            if (!regPositions.Contains(cell) && GridManager.Instance.IsOccupied(cell))
             {
-                Debug.LogError("位置被占用，这不合理，重新调整位置");
+                Debug.Log("发现放置目标被占用 " + cell);
+                return false;
             }
-            GridManager.Instance?.SetOccupied(cell, true);
         }
-        return proposedGridCells;
+
+        // 应用移动吸附
+        transform.position -= moveDelta;
+        // 释放之前占用
+        foreach (var cell in regPositions)
+        {
+            GridManager.Instance.RemoveOccupied(cell);
+        }
+        // 注册新的占用
+        foreach (var cell in proposedGridCells)
+        {
+            GridManager.Instance.SetOccupied(cell, blockProperties);
+        }
+        // 更新记录
+        regPositions = proposedGridCells;
+        return true;
     }
+    
 
     void Start()
     {
+        // 自身应该存在属性
+        // 属性设置应该在snapToAnchor 之前
+        if (!gameObject.TryGetComponent<BlockProperties>(out blockProperties))
+            Debug.LogError("DragAndSnapWithAnchors: BlockProperties 无法找到");
+        
         cam = Camera.main;
         groundPlane = new Plane(Vector3.up, Vector3.zero);
-        if (editorManager == null) editorManager = FindObjectOfType<EditorManager>();
-        if (autoSnapOnStart) regPositions = SnapToAnchorsGrid();
-
+        if (editorManager == null) editorManager = FindFirstObjectByType<EditorManager>();
+        if (autoSnapOnStart)
+        {
+            if (!TrySnapToAnchorsGrid())
+            {
+                Debug.LogError("[DragAndSnap] 放置出错，物体放置坐标存在占用，请检查占用，先已经删除物体");
+                Destroy(this);
+            }
+        }
+        
     }
     
     
@@ -132,66 +159,10 @@ public class DragAndSnapWithAnchors : MonoBehaviour
             // 如果结束拖动
             if (Input.GetMouseButtonUp(0) && isDragging)
             {
-                Debug.Log(String.Format("尝试放置Cube {0}", gameObject.name));
+                Debug.Log("尝试放置Cube " + gameObject.name);
                 isDragging = false;
-
-                // 拟议坐标吸附后所有锚点对应的格子
-                List<Vector3Int> proposedGridCells = new List<Vector3Int>();
-                Vector3 moveDelta = Vector3.zero;
-
-                foreach (var anchor in bottomAnchors)
-                {
-                    // 吸附 anchor 到整数网格
-                    Vector3 snapped = new Vector3(
-                        Mathf.Round(anchor.position.x),
-                        targetY,
-                        Mathf.Round(anchor.position.z)
-                    );
-
-                    // 偏移量 = anchor 当前位置 - snapped
-                    Vector3 offset = anchor.position - snapped;
-
-                    // 第一次锚点决定整体偏移
-                    if (moveDelta == Vector3.zero)
-                        moveDelta = offset;
-
-                    Vector3 anchorSnappedWorld = anchor.position - offset;
-                    Vector3Int gridPos = Vector3Int.RoundToInt(anchorSnappedWorld);
-                    proposedGridCells.Add(gridPos);
-                }
-
-                // 检查是否全部未被占用
-                bool canPlace = true;
-                foreach (var cell in proposedGridCells)
-                {
-                    // 排除自己 并且 Grid 中不存在占用
-                    if (!regPositions.Contains(cell) && GridManager.Instance.IsOccupied(cell))
-                    {
-                        Debug.Log(String.Format("发现放置目标被占用 {0}", cell));
-                        canPlace = false;
-                        break;
-                    }
-                }
-
-                if (canPlace)
-                {
-                    // 应用偏移吸附
-                    transform.position -= moveDelta;
-                    
-                    // 注册所有格子
-                    foreach (var cell in proposedGridCells)
-                        GridManager.Instance.SetOccupied(cell, true);
-                    // 删除占用
-                    foreach (var cell in regPositions)
-                    {
-                        GridManager.Instance.SetOccupied(cell, false);
-                    }
-                    regPositions = proposedGridCells;
-                }
-                else
-                {
+                if (!TrySnapToAnchorsGrid())
                     CancelDrag();
-                }
             }
         }
         else // 如果不在编辑模式，但是当前缺在拖动

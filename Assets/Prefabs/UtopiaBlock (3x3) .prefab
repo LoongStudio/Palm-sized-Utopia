@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6236428745503343740}
   - component: {fileID: 7886792773370708079}
   - component: {fileID: 9128071570378422262}
+  - component: {fileID: 6407808894784843764}
   m_Layer: 0
   m_Name: 'UtopiaBlock (3x3) '
   m_TagString: Untagged
@@ -147,6 +148,19 @@ MonoBehaviour:
   anchorColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   snappedColor: {r: 0, g: 1, b: 0, a: 1}
   lineColor: {r: 0, g: 1, b: 1, a: 1}
+--- !u!114 &6407808894784843764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 553576290612653786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b222378d55a05a40bab0af9f420c975, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathFindingCost: 1
 --- !u!1 &3500487778213564512
 GameObject:
   m_ObjectHideFlags: 0
