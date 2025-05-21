@@ -28,7 +28,7 @@ public class CropAttributes : MonoBehaviour
 				    && farmer.currentNPCState == NPCStates.Harvesting 
 				    && !farmer.IsItemFull(Items.Crops))
 				{
-					Debug.Log(farmer.name + " 增加Crops " + farmer.NPCbackpack[Items.Crops]);
+					// Debug.Log(farmer.name + " 增加Crops " + farmer.NPCbackpack[Items.Crops]);
 					farmer.AddItem(Items.Crops, 1);
 				}
 			}
@@ -68,10 +68,11 @@ public class CropAttributes : MonoBehaviour
 	{
 		if (other.transform.CompareTag("Player"))
 		{
-			BehaviorController farmerInventory = other.transform.GetComponent<BehaviorController>();
-			if (farmerInventory != null)
+			BehaviorController farmer = other.transform.GetComponent<BehaviorController>();
+			if (farmer != null)
 			{
-				farmersInRange.Remove(farmerInventory);
+				farmersInRange.Remove(farmer);
+				farmer.EnterWanderingMode();
 			}
 		}
 	}

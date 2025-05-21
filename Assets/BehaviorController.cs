@@ -18,18 +18,6 @@ public enum NPCStates
     Storaging,      // 5
 } 
 
-// [Serializable]
-// public struct StateWeight
-// {
-//     public NPCStates state;
-//     public int weights;
-// }
-// [Serializable]
-// public struct StateWeights
-// {
-//     public NPCStates state;
-//     public StateWeight[] stateWeights;
-// }
 
 public class BehaviorController : MonoBehaviour
 {
@@ -41,14 +29,12 @@ public class BehaviorController : MonoBehaviour
         { Items.TreePlants, 5 }
     };
 
-    // public StateWeights[] stateWeights;
     
     public Transform currentTarget;
     public NavMeshAgent agent;
     public Dictionary<Items, int> NPCbackpack = new Dictionary<Items, int>();
     
     public NPCStates currentNPCState = NPCStates.Wandering;
-    // private Dictionary<NPCStates, Dictionary<NPCStates, float>> _stateProbabilitiesDict;
     private float _decisionTimer = 0f;
     public float decisionInterval = 1f; // 每隔多少秒尝试一次决策
     public GameObject tempPoint;
@@ -70,51 +56,7 @@ public class BehaviorController : MonoBehaviour
             Gizmos.DrawLine(transform.position, currentTarget.position);
         }
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        // // 初始化 有序列化的Dictionary
-        // _stateProbabilitiesDict = new Dictionary<NPCStates, Dictionary<NPCStates, float>>();
-        // foreach (var states in stateWeights)
-        // {
-        //     Dictionary<NPCStates, int> stateWeightDict = new Dictionary<NPCStates, int>();
-        //     int totalWeight = 0;
-        //     foreach (var stateWeight in states.stateWeights)
-        //     {
-        //         stateWeightDict.Add(stateWeight.state, stateWeight.weights);
-        //         totalWeight += stateWeight.weights;
-        //     }
-        //     Dictionary<NPCStates, float> stateAccumulateProbabilityDict = new Dictionary<NPCStates, float>();
-        //     float accumulateProbability = 0f;
-        //     foreach (var npcState in Enum.GetValues(typeof(NPCStates)).Cast<NPCStates>())
-        //     {
-        //         if (stateWeightDict.TryGetValue(npcState, out int weight))
-        //             accumulateProbability += weight / totalWeight;
-        //         else
-        //             accumulateProbability += 0;
-        //         
-        //         stateAccumulateProbabilityDict.Add(npcState, accumulateProbability);
-        //     }
-        //     _stateProbabilitiesDict.Add(states.state, stateAccumulateProbabilityDict);
-        // }
-        // // 补充不存在的定义 为0
-        // Dictionary<NPCStates, float> emptyMap = new Dictionary<NPCStates, float>();
-        // foreach (var npcState in Enum.GetValues(typeof(NPCStates)).Cast<NPCStates>())
-        // {
-        //     emptyMap.Add(npcState, 0f);
-        // }
-        // foreach (var npcState in Enum.GetValues(typeof(NPCStates)).Cast<NPCStates>())
-        // {
-        //     if (!_stateProbabilitiesDict.ContainsKey(npcState))
-        //     {
-        //         _stateProbabilitiesDict.Add(npcState, new Dictionary<NPCStates, float>(emptyMap));
-        //     }
-        // }
-        // //
-        
-        
-    }
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -129,66 +71,60 @@ public class BehaviorController : MonoBehaviour
                     _decisionTimer = 0f;
                     float rand = Random.value; // 0 ~ 1
                     if (rand < 0.3f)
-                        EnterWalkingTowardsMode(FindFirstObjectByType<CropAttributes>().transform);
+                        EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<CropAttributes>());
                     else if (rand < 0.6f)
                         EnterWanderingMode();
                 }
                 break;
             case NPCStates.Harvesting:
                 if (IsItemFull(Items.Crops))
-                    EnterWalkingTowardsMode(FindFirstObjectByType<StorageAttributes>().transform);
+                    EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<StorageAttributes>());
                 else
                     agent.isStopped = true;
-                
                 break;
             case NPCStates.Wandering:
                 // 如果不存在 目标点 则尝试
                 if (!tempPoint)
                 {
-                    // EnterWanderingMode();
                     float rand = Random.value; // 0 ~ 1
-                    if (rand < 0.3f)
+                    if (rand < 0.2f)            // 0.2
                         EnterIdleMode();
-                    else if (rand < 0.6f)
-                        EnterWalkingTowardsMode(FindFirstObjectByType<StorageAttributes>().transform);
-                    else
+                    else if (rand < 0.4f)       // 0.2
+                        EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<StorageAttributes>());
+                    else if (rand < 0.6f)       // 0.2
+                        EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<CropAttributes>());
+                    else                        // 0.4
                         EnterWanderingMode();
                 }
                 break;
             case NPCStates.Storaging:
                 agent.isStopped = true;
-                bool isEmpty = true;
                 
-                foreach (Items item in Enum.GetValues(typeof(Items)))
-                {
-                    int carried = GetItemAmount(item);
-                    if (carried > 0) { isEmpty = false; break; }
-                }
-                
-                if (isEmpty)
+                if (IsItemEmpty())
                 {
                     Debug.Log("已清空，开始随机游荡");
                     EnterWanderingMode();
                 }
-                break;
-            default:
-                agent.isStopped = false;
-                if (currentTarget != null)
-                    agent.destination = currentTarget.position;
                 break;
         }
         
         agent.destination = currentTarget.position;
     }
     
+    // =======================================
+    // 角色状态机管理
+    // =======================================
+    
     public void EnterIdleMode()
     {
+        Debug.Log("========= [BehaviorController] 挂机模式 =========");
         currentNPCState = NPCStates.Idle;
         currentTarget = FindFirstObjectByType<CropAttributes>().transform;
         agent.isStopped = true;
     }
     public void EnterWalkingTowardsMode(Transform target)
     {
+        Debug.Log("========= [BehaviorController] 移动模式 =========");
         currentNPCState = NPCStates.Walking;
         currentTarget = target;
         agent.isStopped = false;
@@ -196,7 +132,7 @@ public class BehaviorController : MonoBehaviour
     
     public void EnterWanderingMode()
     {
-        Debug.Log("========= [BehaviorController] EnterWanderingMode =========");
+        Debug.Log("========= [BehaviorController] 游荡模式 =========");
         if (!tempPoint)
         {
             List<BlockProperties> blocks = FindObjectsByType<BlockProperties>(FindObjectsSortMode.None).ToList();
@@ -229,6 +165,9 @@ public class BehaviorController : MonoBehaviour
             }
         }
     }
+    // =======================================
+    // 实用工具
+    // =======================================
     Tuple<Vector3, bool> GetRandomPointOnTopOfBlock(BlockProperties block)
     {
         // 获取 Collider（必须存在）
@@ -258,6 +197,46 @@ public class BehaviorController : MonoBehaviour
             Debug.LogWarning("Random point on top is not on NavMesh.");
             return Tuple.Create(block.transform.position, false); // 回退
         }
+    }
+    
+    public Transform GetRandomClassTransformWithDistanceWeight<T>() where T : MonoBehaviour
+    {
+        var targets = FindObjectsByType<T>(FindObjectsSortMode.None);
+        List<(T target, float weight)> weightedCrops = new();
+
+        foreach (var target in targets)
+        {
+            float distance = Vector3.Distance(transform.position, target.transform.position);
+            float weight = 1f / Mathf.Max(distance, 0.1f); // 或使用 Mathf.Exp(-distance * factor)
+            weightedCrops.Add((target, weight));
+        }
+
+        float totalWeight = weightedCrops.Sum(e => e.weight);
+        float randomValue = Random.Range(0f, totalWeight);
+        float sum = 0f;
+
+        foreach (var (target, weight) in weightedCrops)
+        {
+            sum += weight;
+            if (randomValue <= sum)
+                return target.transform;
+        }
+
+        return null; // fallback
+    }
+
+    // =======================================
+    // 背包管理系统
+    // =======================================
+    public bool IsItemEmpty()
+    {
+        bool isEmpty = true;
+        foreach (Items item in Enum.GetValues(typeof(Items)))
+        {
+            int carried = GetItemAmount(item);
+            if (carried > 0) { isEmpty = false; break; }
+        }
+        return isEmpty;
     }
     public int GetItemAmount(Items item)
     {

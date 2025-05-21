@@ -93,6 +93,7 @@ public class StorageAttributes : MonoBehaviour
                 farmersInRange.Remove(farmer);
                 // farmer.currentNPCState = NPCStates.Wandering;
                 Debug.Log("农夫 " + farmer.name + " 离开仓库区域");
+                farmer.EnterWanderingMode();
             }
         }
     }

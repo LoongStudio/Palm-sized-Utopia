@@ -32,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.5, y: 1.323, z: 1.182}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.3, y: 0.15, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -149,10 +149,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentTarget: {fileID: 0}
   agent: {fileID: 1584446780790844326}
-  currentNPCState: 0
+  currentNPCState: 3
   decisionInterval: 1
   tempPoint: {fileID: 0}
   checkpointPrefab: {fileID: 4244373989465364656, guid: 85dafd5e41cf1154294c94493bd871d7, type: 3}
+  debugDraw: 1
 --- !u!54 &1945647976487198171
 Rigidbody:
   m_ObjectHideFlags: 0
