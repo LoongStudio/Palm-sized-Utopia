@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 8177823643072313077}
   - component: {fileID: 286090549774966419}
   - component: {fileID: 5408810085647817891}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: UtopiaBlock (2x2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,7 +224,6 @@ MonoBehaviour:
   - {fileID: 7548255465878972842}
   - {fileID: 1153476723261277156}
   - {fileID: 8406910871106310455}
-  regPositions: []
   targetY: 0
   autoSnapOnStart: 1
   debugDrawAnchors: 1

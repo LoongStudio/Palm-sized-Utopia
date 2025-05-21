@@ -43,6 +43,17 @@ public class GridManager : MonoBehaviour
 		Debug.Log(sb.ToString());
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
 #if UNITY_EDITOR
 public class GridOccupiedWindow : EditorWindow
 {

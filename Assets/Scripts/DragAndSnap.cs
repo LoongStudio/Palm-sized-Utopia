@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DragAndSnapWithAnchors : MonoBehaviour
 {
@@ -100,6 +102,10 @@ public class DragAndSnapWithAnchors : MonoBehaviour
         }
         // 更新记录
         regPositions = proposedGridCells;
+        // 更新NavMesh
+        NavMeshSurface navMeshSurface = FindFirstObjectByType<NavMeshSurface>();
+        navMeshSurface.BuildNavMesh();
+        
         return true;
     }
     

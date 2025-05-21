@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7886792773370708079}
   - component: {fileID: 9128071570378422262}
   - component: {fileID: 6407808894784843764}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 'UtopiaBlock (3x3) '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +141,6 @@ MonoBehaviour:
   - {fileID: 6814790714849790931}
   - {fileID: 4943940594285634197}
   - {fileID: 4261319318568624492}
-  regPositions: []
   targetY: 0
   autoSnapOnStart: 1
   debugDrawAnchors: 1

@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 5625955666568891890}
   - component: {fileID: 8019695679038928333}
   - component: {fileID: 7619436721878299558}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: UtopiaBlock (1x1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bottomAnchors:
   - {fileID: 4984492125317876632}
-  regPositions: []
   targetY: 0
   autoSnapOnStart: 1
   debugDrawAnchors: 1
