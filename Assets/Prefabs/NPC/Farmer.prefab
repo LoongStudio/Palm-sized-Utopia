@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1584446780790844326}
   - component: {fileID: 1501335880507295549}
   - component: {fileID: 1945647976487198171}
+  - component: {fileID: -4184887475976619482}
   m_Layer: 10
   m_Name: Farmer
   m_TagString: Player
@@ -181,3 +182,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-4184887475976619482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6580500713033438376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab8289cdf401c5f4e893c712214e9307, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
+  canvas: {fileID: 0}
+  nameTagPrefab: {fileID: 7882436654799285155, guid: 27d0533b3f3ed9141a998b4d90b563f4, type: 3}
