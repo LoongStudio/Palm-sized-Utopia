@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 // CITE FROM: https://github.com/desdinovait/Transparent-Window-Controller/blob/main/TransparentWindowController.cs
-namespace Desdinova
+namespace WindowManager
 {
     public class TransparentWindowController : MonoBehaviour
     {

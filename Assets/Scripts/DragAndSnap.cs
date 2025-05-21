@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
@@ -105,7 +106,28 @@ public class DragAndSnapWithAnchors : MonoBehaviour
         // 更新NavMesh
         NavMeshSurface navMeshSurface = FindFirstObjectByType<NavMeshSurface>();
         navMeshSurface.BuildNavMesh();
-        
+        // 获取所有的player 重置他们的 状态
+        List<BehaviorController> npcs = FindObjectsByType<BehaviorController>(FindObjectsSortMode.None).ToList();
+        foreach (var npc in npcs)
+        {
+            if (npc == null || npc.currentTarget == null)
+                continue;
+
+            Vector3 targetPos = npc.currentTarget.position;
+            NavMeshHit hit;
+
+            // 判断目标点是否在可导航区域内（例如半径 1f 内有 NavMesh）
+            bool isReachable = NavMesh.SamplePosition(targetPos, out hit, 1.0f, NavMesh.AllAreas);
+
+            if (!isReachable)
+            {
+                Debug.Log("NPC " + npc.name + " 存在不可抵达的目标，重置目标");
+                // npc.currentTarget = gameObject.transform;
+                DestroyImmediate(npc.tempPoint);
+                npc.tempPoint = null;
+                npc.EnterWanderingMode();
+            }
+        }
         return true;
     }
     
