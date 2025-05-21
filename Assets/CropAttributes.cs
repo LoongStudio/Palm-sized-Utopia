@@ -49,7 +49,21 @@ public class CropAttributes : MonoBehaviour
 			}
 		}
 	}
-	
+
+	private void OnTriggerStay(Collider other)
+	{
+		if (other.transform.CompareTag("Player"))
+		{
+			
+			BehaviorController farmerInventory = other.transform.GetComponent<BehaviorController>();
+			if (farmerInventory != null && farmerInventory.currentNPCState == NPCStates.Walking)
+			{
+				Debug.Log("农夫 " + other.transform.name + " 开始采摘");
+				farmerInventory.currentNPCState = NPCStates.Harvesting;
+				farmersInRange.Add(farmerInventory);
+			}
+		}
+	}
 	void OnTriggerExit(Collider other)
 	{
 		if (other.transform.CompareTag("Player"))

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DataType;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Assertions;
@@ -9,17 +10,30 @@ using Random = UnityEngine.Random;
 
 public enum NPCStates
 {
-    Idle,
-    Harvesting,
-    Walking,
-    Wandering,
-    Sleeping,
-    Storaging,
+    Idle,           // 0
+    Harvesting,     // 1
+    Walking,        // 2
+    Wandering,      // 3
+    Sleeping,       // 4
+    Storaging,      // 5
 } 
+
+// [Serializable]
+// public struct StateWeight
+// {
+//     public NPCStates state;
+//     public int weights;
+// }
+// [Serializable]
+// public struct StateWeights
+// {
+//     public NPCStates state;
+//     public StateWeight[] stateWeights;
+// }
 
 public class BehaviorController : MonoBehaviour
 {
-    public Dictionary<Items, int> maxItemCarry = new Dictionary<Items, int>
+    public Dictionary<Items, int> MaxItemCarry = new Dictionary<Items, int>
     {
         { Items.Crops, 10 },
         { Items.Seeds, 20 },
@@ -27,69 +41,104 @@ public class BehaviorController : MonoBehaviour
         { Items.TreePlants, 5 }
     };
 
+    // public StateWeights[] stateWeights;
     
     public Transform currentTarget;
     public NavMeshAgent agent;
     public Dictionary<Items, int> NPCbackpack = new Dictionary<Items, int>();
     
     public NPCStates currentNPCState = NPCStates.Wandering;
-    private float decisionTimer = 0f;
+    // private Dictionary<NPCStates, Dictionary<NPCStates, float>> _stateProbabilitiesDict;
+    private float _decisionTimer = 0f;
     public float decisionInterval = 1f; // 每隔多少秒尝试一次决策
     public GameObject tempPoint;
     public GameObject checkpointPrefab;
-    public 
+    
+    // DEBUG
+    public bool debugDraw = true;
+
+    private void OnDrawGizmos()
+    {
+        if (!debugDraw) return;
+        if (currentTarget != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawCube(transform.position, Vector3.one * 0.1f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(currentTarget.position, 0.05f);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(transform.position, currentTarget.position);
+        }
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // // 初始化 有序列化的Dictionary
+        // _stateProbabilitiesDict = new Dictionary<NPCStates, Dictionary<NPCStates, float>>();
+        // foreach (var states in stateWeights)
+        // {
+        //     Dictionary<NPCStates, int> stateWeightDict = new Dictionary<NPCStates, int>();
+        //     int totalWeight = 0;
+        //     foreach (var stateWeight in states.stateWeights)
+        //     {
+        //         stateWeightDict.Add(stateWeight.state, stateWeight.weights);
+        //         totalWeight += stateWeight.weights;
+        //     }
+        //     Dictionary<NPCStates, float> stateAccumulateProbabilityDict = new Dictionary<NPCStates, float>();
+        //     float accumulateProbability = 0f;
+        //     foreach (var npcState in Enum.GetValues(typeof(NPCStates)).Cast<NPCStates>())
+        //     {
+        //         if (stateWeightDict.TryGetValue(npcState, out int weight))
+        //             accumulateProbability += weight / totalWeight;
+        //         else
+        //             accumulateProbability += 0;
+        //         
+        //         stateAccumulateProbabilityDict.Add(npcState, accumulateProbability);
+        //     }
+        //     _stateProbabilitiesDict.Add(states.state, stateAccumulateProbabilityDict);
+        // }
+        // // 补充不存在的定义 为0
+        // Dictionary<NPCStates, float> emptyMap = new Dictionary<NPCStates, float>();
+        // foreach (var npcState in Enum.GetValues(typeof(NPCStates)).Cast<NPCStates>())
+        // {
+        //     emptyMap.Add(npcState, 0f);
+        // }
+        // foreach (var npcState in Enum.GetValues(typeof(NPCStates)).Cast<NPCStates>())
+        // {
+        //     if (!_stateProbabilitiesDict.ContainsKey(npcState))
+        //     {
+        //         _stateProbabilitiesDict.Add(npcState, new Dictionary<NPCStates, float>(emptyMap));
+        //     }
+        // }
+        // //
+        
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        // DEBUG
-        if (currentTarget != null)
-        {
-            Debug.DrawLine(transform.position, currentTarget.transform.position, Color.red);
-        }
         
         switch (currentNPCState)
         {
             case NPCStates.Idle:
-                agent.isStopped = true;
-
                 // 间隔时间 + 概率判断
-                decisionTimer += Time.deltaTime;
-                if (decisionTimer >= decisionInterval)
+                _decisionTimer += Time.deltaTime;
+                if (_decisionTimer >= decisionInterval)
                 {
-                    decisionTimer = 0f;
-
+                    _decisionTimer = 0f;
                     float rand = Random.value; // 0 ~ 1
                     if (rand < 0.3f)
-                    {
-                        // 30% 进入 移动
-                        currentNPCState = NPCStates.Walking;
-                        currentTarget = FindFirstObjectByType<CropAttributes>().transform;
-                    }
-                    else if (rand < 0.5f)
-                    {
-                        // 20% 进入 闲逛
+                        EnterWalkingTowardsMode(FindFirstObjectByType<CropAttributes>().transform);
+                    else if (rand < 0.6f)
                         EnterWanderingMode();
-                    }
-                    // 否则继续 Idle
                 }
                 break;
             case NPCStates.Harvesting:
                 if (IsItemFull(Items.Crops))
-                {
-                    currentNPCState = NPCStates.Walking;
-                    currentTarget = FindFirstObjectByType<StorageAttributes>().transform;
-                    agent.isStopped = false;
-                }
+                    EnterWalkingTowardsMode(FindFirstObjectByType<StorageAttributes>().transform);
                 else
-                {
                     agent.isStopped = true;
-                }
                 
                 break;
             case NPCStates.Wandering:
@@ -99,23 +148,11 @@ public class BehaviorController : MonoBehaviour
                     // EnterWanderingMode();
                     float rand = Random.value; // 0 ~ 1
                     if (rand < 0.3f)
-                    {
-                        // 60% 进入 移动
-                        currentNPCState = NPCStates.Idle;
-                        currentTarget = FindFirstObjectByType<CropAttributes>().transform;
-                    }
+                        EnterIdleMode();
                     else if (rand < 0.6f)
-                    {
-                        // 30% 进入 闲逛
-                        currentNPCState = NPCStates.Walking;
-                        currentTarget = FindFirstObjectByType<StorageAttributes>().transform;
-                        agent.isStopped = false;
-                    }
+                        EnterWalkingTowardsMode(FindFirstObjectByType<StorageAttributes>().transform);
                     else
-                    {
                         EnterWanderingMode();
-                    }
-                    
                 }
                 break;
             case NPCStates.Storaging:
@@ -143,7 +180,20 @@ public class BehaviorController : MonoBehaviour
         
         agent.destination = currentTarget.position;
     }
-
+    
+    public void EnterIdleMode()
+    {
+        currentNPCState = NPCStates.Idle;
+        currentTarget = FindFirstObjectByType<CropAttributes>().transform;
+        agent.isStopped = true;
+    }
+    public void EnterWalkingTowardsMode(Transform target)
+    {
+        currentNPCState = NPCStates.Walking;
+        currentTarget = target;
+        agent.isStopped = false;
+    }
+    
     public void EnterWanderingMode()
     {
         Debug.Log("========= [BehaviorController] EnterWanderingMode =========");
@@ -226,14 +276,14 @@ public class BehaviorController : MonoBehaviour
         {
             NPCbackpack.Add(item, 0);
         }
-        return maxItemCarry[item] <= NPCbackpack[item];
+        return MaxItemCarry[item] <= NPCbackpack[item];
     }
 
     public int AddItem(Items item, int amount)
     {
         if (!NPCbackpack.ContainsKey(item))
             NPCbackpack.Add(item, 0);
-        int toAdd = Mathf.Min(amount, maxItemCarry[item] - NPCbackpack[item]);
+        int toAdd = Mathf.Min(amount, MaxItemCarry[item] - NPCbackpack[item]);
         NPCbackpack[item] += toAdd;
         return toAdd;
     }

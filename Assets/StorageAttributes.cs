@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using DataType;
@@ -55,6 +56,20 @@ public class StorageAttributes : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            BehaviorController farmer = other.GetComponent<BehaviorController>();
+            if (farmer != null && farmer.currentNPCState == NPCStates.Walking)
+            {
+                farmersInRange.Add(farmer);
+                farmer.currentNPCState = NPCStates.Storaging;
+                Debug.Log("农夫 " + farmer.name + " 开始卸货");
+            }
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Player"))
         {
