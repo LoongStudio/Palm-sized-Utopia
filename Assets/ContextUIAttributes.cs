@@ -23,7 +23,13 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
                     gameObject.SetActive(false);
                     ClickManager.Instance.selectedObject = null;
                 });
-                break;
+            }
+            if (button.CompareTag("UI_STACK_TO"))
+            {
+                button.onClick.AddListener(() =>
+                {
+                    stackToBelong = true;
+                });
             }
         }
     }
