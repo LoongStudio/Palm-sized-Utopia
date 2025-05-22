@@ -124,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interval: 1
   transferRate: 5
+  itemPrefab: {fileID: 3645803516892852860, guid: 5304540848816b4419094b8eb8186672, type: 3}
 --- !u!114 &551404955198071981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,3 +138,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nameTagPrefab: {fileID: 7882436654799285155, guid: 042bee4c6a8beb841aa6d83d2ecc3bed, type: 3}
+  currentUI: {fileID: 0}

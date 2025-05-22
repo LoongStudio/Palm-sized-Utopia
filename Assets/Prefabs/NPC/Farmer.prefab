@@ -154,6 +154,7 @@ MonoBehaviour:
   decisionInterval: 1
   tempPoint: {fileID: 0}
   checkpointPrefab: {fileID: 4244373989465364656, guid: 85dafd5e41cf1154294c94493bd871d7, type: 3}
+  itemPrefab: {fileID: 3645803516892852860, guid: 5304540848816b4419094b8eb8186672, type: 3}
   debugDraw: 1
 --- !u!54 &1945647976487198171
 Rigidbody:
@@ -194,6 +195,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab8289cdf401c5f4e893c712214e9307, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
-  canvas: {fileID: 0}
   nameTagPrefab: {fileID: 7882436654799285155, guid: 27d0533b3f3ed9141a998b4d90b563f4, type: 3}
+  currentUI: {fileID: 0}

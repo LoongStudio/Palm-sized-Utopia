@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using DataType;
+using TMPro;
+using UnityEngine.UI;
 
 public class StorageAttributes : MonoBehaviour
 {
@@ -15,7 +17,10 @@ public class StorageAttributes : MonoBehaviour
 
     // 仓库数据（你可以换成 ScriptableObject 或其他管理器）
     public Dictionary<Items, int> warehouseInventory = new Dictionary<Items, int>();
-
+    
+    // UI
+    public GameObject itemPrefab;
+    
     void Update()
     {
         if (farmersInRange.Count == 0) return;
@@ -52,6 +57,20 @@ public class StorageAttributes : MonoBehaviour
                 }
                 
             }
+            
+            // 更新 UI 内容
+            Transform contentParent = GetComponent<ClickToShowUI>()
+                .currentUI
+                .GetComponentInChildren<ScrollRect>()
+                .content;
+            for (int i = contentParent.childCount - 1; i >= 0; i--)
+                Destroy(contentParent.GetChild(i).gameObject);
+            foreach (var item in warehouseInventory.Keys)
+            {
+                GameObject itemText = Instantiate(itemPrefab, contentParent);
+                itemText.GetComponent<TMP_Text>().text = item + " - " + warehouseInventory[item];
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent.GetComponent<RectTransform>());
         }
     }
 

@@ -211,7 +211,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43f50dd292e144f0a66bc7290dfd6b8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentSelectedObject: {fileID: 0}
+  selectedObject: {fileID: 0}
+  openedWindowObjects: []
 --- !u!1 &82815514
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,6 +2266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interval: 1
   transferRate: 5
+  itemPrefab: {fileID: 0}
 --- !u!1 &1341748394
 GameObject:
   m_ObjectHideFlags: 0
@@ -2277,7 +2279,6 @@ GameObject:
   - component: {fileID: 1341748397}
   - component: {fileID: 1341748396}
   - component: {fileID: 1341748395}
-  - component: {fileID: 1341748399}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2334,7 +2335,7 @@ Canvas:
   m_GameObject: {fileID: 1341748394}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -2374,22 +2375,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1341748399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1341748394}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 267b4d9f54369e941956deda4ebbd596, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  editUIButton: {fileID: 595113574}
-  buttonActiveColor: {r: 1, g: 0, b: 0, a: 1}
-  buttonInactiveColor: {r: 0.1764706, g: 0.1764706, b: 0.1764706, a: 1}
-  editorManager: {fileID: 594208887}
 --- !u!1 &1643950586
 GameObject:
   m_ObjectHideFlags: 0

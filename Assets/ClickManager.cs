@@ -45,7 +45,7 @@ public class ClickManager : MonoBehaviour
 			    && hitTarget.TryGetComponent(out ISelectable availableTarget)
 			    && !openedWindowObjects.Contains(hitTarget))
 			{
-				// Debug.Log("创建新的窗口： " + hitTarget.name);
+				Debug.Log("创建新的窗口： " + hitTarget.name);
 				availableTarget.OnSelected();
 				selectedObject = hitTarget;
 				openedWindowObjects.Add(hitTarget);

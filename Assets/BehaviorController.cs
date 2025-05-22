@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DataType;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Assertions;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public enum NPCStates
@@ -40,6 +42,9 @@ public class BehaviorController : MonoBehaviour
     public GameObject tempPoint;
     public GameObject checkpointPrefab;
     
+    // UI
+    public GameObject itemPrefab;
+
     // DEBUG
     public bool debugDraw = true;
 
@@ -70,10 +75,11 @@ public class BehaviorController : MonoBehaviour
                 {
                     _decisionTimer = 0f;
                     float rand = Random.value; // 0 ~ 1
-                    if (rand < 0.3f)
+                    if (rand < 0.3f)            // 0.3
                         EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<CropAttributes>());
-                    else if (rand < 0.6f)
+                    else if (rand < 0.6f)       // 0.3
                         EnterWanderingMode();
+                                                // 0.4 Self
                 }
                 break;
             case NPCStates.Harvesting:
@@ -87,13 +93,13 @@ public class BehaviorController : MonoBehaviour
                 if (!tempPoint)
                 {
                     float rand = Random.value; // 0 ~ 1
-                    if (rand < 0.2f)            // 0.2
+                    if (rand < 0.1f)            // 0.1
                         EnterIdleMode();
-                    else if (rand < 0.4f)       // 0.2
+                    else if (rand < 0.2f)       // 0.1
                         EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<StorageAttributes>());
-                    else if (rand < 0.6f)       // 0.2
+                    else if (rand < 0.7f)       // 0.5
                         EnterWalkingTowardsMode(GetRandomClassTransformWithDistanceWeight<CropAttributes>());
-                    else                        // 0.4
+                    else                        // 0.3
                         EnterWanderingMode();
                 }
                 break;
@@ -109,6 +115,23 @@ public class BehaviorController : MonoBehaviour
         }
         
         agent.destination = currentTarget.position;
+
+        if (!IsItemEmpty())
+        {
+            // 更新 UI 内容
+            Transform contentParent = GetComponent<ClickToShowUI>()
+                .currentUI
+                .GetComponentInChildren<ScrollRect>()
+                .content;
+            for (int i = contentParent.childCount - 1; i >= 0; i--)
+                Destroy(contentParent.GetChild(i).gameObject);
+            foreach (var item in NPCbackpack.Keys)
+            {
+                GameObject itemText = Instantiate(itemPrefab, contentParent);
+                itemText.GetComponent<TMP_Text>().text = item + " - " + NPCbackpack[item];
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent.GetComponent<RectTransform>());
+        }
     }
     
     // =======================================
