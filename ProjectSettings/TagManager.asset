@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Clickable
   - UI_CLOSE
+  - UI_TITLEBAR
   layers:
   - Default
   - TransparentFX

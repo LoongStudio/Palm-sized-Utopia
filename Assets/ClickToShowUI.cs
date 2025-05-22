@@ -25,17 +25,7 @@ public class ClickToShowUI : MonoBehaviour, ISelectable
 		currentUI.SetActive(showUI);
 		//
 	}
-
-	private void Update()
-	{
-		if (currentUI)
-		{
-			Vector3 screenPos = mainCamera.WorldToScreenPoint(
-				gameObject.transform.position 
-				+ new Vector3(0.0f, gameObject.transform.localScale.y * 1.5f, 0.0f));
-			currentUI.transform.position = screenPos;
-		}
-	}
+	
 	public void OnSelected()
 	{
 		currentUI.SetActive(true);

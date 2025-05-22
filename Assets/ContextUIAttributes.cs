@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
 {
     public GameObject belongTo;
+    public bool stackToBelong = true;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,6 +35,13 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
             && ClickManager.Instance.GetPointerTouchUI(gameObject))
         {
             transform.SetAsLastSibling();
+        }
+        if (stackToBelong)
+        {
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(
+                belongTo.transform.position 
+                + new Vector3(0.0f, gameObject.transform.localScale.y * 1.5f, 0.0f));
+            transform.position = screenPos;
         }
     }
 
