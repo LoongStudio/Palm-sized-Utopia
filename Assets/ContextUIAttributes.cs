@@ -20,8 +20,7 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
             {
                 button.onClick.AddListener(() =>
                 {
-                    gameObject.SetActive(false);
-                    ClickManager.Instance.selectedObject = null;
+                    ClickManager.Instance.CloseWindow(belongTo);
                 });
             }
             if (button.CompareTag("UI_STACK_TO"))

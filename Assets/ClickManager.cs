@@ -42,6 +42,7 @@ public class ClickManager : MonoBehaviour
 				hitTarget = hit.collider.gameObject;
 			}
 			if (hitTarget != null 
+			    && !FindFirstObjectByType<EditorManager>().inEditMode			// 不在编辑模式中
 			    && hitTarget.TryGetComponent(out ISelectable availableTarget)
 			    && !openedWindowObjects.Contains(hitTarget))
 			{
@@ -83,13 +84,11 @@ public class ClickManager : MonoBehaviour
 					// 比较层级，关闭下面的并标记移除
 					if (openedWindowObjects.IndexOf(objA) < openedWindowObjects.IndexOf(objB))
 					{
-						uiA.SetActive(false);
-						toRemove.Add(objA);
+						CloseWindow(objA);
 					}
 					else
 					{
-						uiB.SetActive(false);
-						toRemove.Add(objB);
+						CloseWindow(objB);
 					}
 				}
 			}
@@ -103,7 +102,7 @@ public class ClickManager : MonoBehaviour
 		}
 	}
 
-
+	
 	private bool IsOverlapping(RectTransform rectA, RectTransform rectB)
 	{
 		Vector3[] cornersA = new Vector3[4];
@@ -118,7 +117,23 @@ public class ClickManager : MonoBehaviour
 		return aRect.Overlaps(bRect);
 	}
 
-	
+	public void CloseWindow(GameObject objBelongTo)
+	{
+		objBelongTo.GetComponent<ClickToShowUI>().currentUI.SetActive(false);
+		openedWindowObjects.Remove(objBelongTo);
+		if (selectedObject == objBelongTo)
+			selectedObject = null;
+	}
+	public void CloseAllWindows()
+	{
+		Debug.Log("清空所有窗口");
+		foreach (var obj in openedWindowObjects)
+		{
+			obj.GetComponent<ClickToShowUI>().currentUI.SetActive(false);
+		}
+		openedWindowObjects.Clear();
+		selectedObject = null;
+	}
 	public bool GetPointerTouchUI(GameObject targetUI)
 	{
 		GraphicRaycaster raycaster = targetUI.GetComponent<GraphicRaycaster>();

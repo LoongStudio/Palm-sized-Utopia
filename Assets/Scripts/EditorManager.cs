@@ -47,8 +47,9 @@ public class EditorManager : MonoBehaviour
         return prefabs;
     }
 
-    public bool toggleEditMode()
+    public void toggleEditMode()
     {
+        Debug.Log("切换编辑模式");
         inEditMode = !inEditMode;
         if (inEditMode)
         {
@@ -64,7 +65,8 @@ public class EditorManager : MonoBehaviour
             {
                 prefabs = GenerateGrid(startPosition, spacing, extendX, extendY, extendZ);
             }
-            
+            // 清空窗口
+            ClickManager.Instance.CloseAllWindows();
         }
         else
         {
@@ -74,7 +76,7 @@ public class EditorManager : MonoBehaviour
                 prefabs[i].SetActive(false);
             }
         }
-        return inEditMode;
+        // return inEditMode;
     }
     private void CallGenerateGrid(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
@@ -96,17 +98,5 @@ public class EditorManager : MonoBehaviour
     {
         _inputSystem.UI.Edit.performed -= CallGenerateGrid;
         _inputSystem.Disable();
-    }
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
