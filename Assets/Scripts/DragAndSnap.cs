@@ -24,7 +24,7 @@ public class DragAndSnapWithAnchors : MonoBehaviour
     // 同物体插件引用
     private BlockProperties blockProperties;
     private EditorManager editorManager;
-    
+    public int GridSize => Mathf.RoundToInt(Mathf.Sqrt(bottomAnchors.Count));
     void OnDrawGizmos()
     {
         if (!debugDrawAnchors || bottomAnchors == null || bottomAnchors.Count == 0)
