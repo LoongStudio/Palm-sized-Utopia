@@ -3,28 +3,26 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
-public class GridManager : MonoBehaviour
+public class GridManager : SingletonManager<GridManager>
 {
-	public static GridManager Instance;
-	public Dictionary<Vector3Int, BlockProperties> occupiedMap = new Dictionary<Vector3Int, BlockProperties>();
-
-	void Awake()
+	protected override void Awake()
 	{
-		Instance = this;
+		base.Awake();
 	}
-
+	private Dictionary<Vector2Int, BlockProperties> _occupiedMap = new Dictionary<Vector2Int, BlockProperties>();
 	
-	public bool IsOccupied(Vector3Int gridPos)
+	
+	public bool IsOccupied(Vector2Int gridPos)
 	{
-		return occupiedMap.ContainsKey(gridPos);
+		return _occupiedMap.ContainsKey(gridPos);
 	}
-	public void RemoveOccupied(Vector3Int gridPos)
+	public void RemoveOccupied(Vector2Int gridPos)
 	{
-		occupiedMap.Remove(gridPos);
+		_occupiedMap.Remove(gridPos);
 	}
-	public void SetOccupied(Vector3Int gridPos, BlockProperties state)
+	public void 2(Vector2Int gridPos, BlockProperties state)
 	{
-		occupiedMap[gridPos] = state;
+		_occupiedMap[gridPos] = state;
 	}
 	
 	// 新增：打印所有占用格子
@@ -34,13 +32,18 @@ public class GridManager : MonoBehaviour
 		StringBuilder sb = new StringBuilder();
 		sb.AppendLine("Occupied grid cells:");
 
-		foreach (var kvp in occupiedMap)
+		foreach (var kvp in _occupiedMap)
 		{
 			if (kvp.Value)
 				sb.AppendLine(kvp.Key.ToString());
 		}
 
 		Debug.Log(sb.ToString());
+	}
+	
+	public Dictionary<Vector2Int, BlockProperties> GetMap() 
+	{
+		return _occupiedMap;
 	}
 }
 
@@ -75,7 +78,7 @@ public class GridOccupiedWindow : EditorWindow
 			return;
 		}
 
-		var occupiedMap = GridManager.Instance.occupiedMap;
+		var occupiedMap = GridManager.Instance.GetMap();
 		List<Vector3Int> occupiedCells = new List<Vector3Int>();
 
 		foreach (var kvp in occupiedMap)

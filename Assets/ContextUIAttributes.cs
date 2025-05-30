@@ -88,7 +88,7 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
         foreach (var offset in anchorOffsets)
         {
             Vector3Int pos = basePos + offset;
-            if (GridManager.Instance.occupiedMap.ContainsKey(pos))
+            if (GridManager.Instance.GetMap().ContainsKey(pos))
             {
                 Debug.Log("[UI] Find Contains: " + pos);
                 return false;

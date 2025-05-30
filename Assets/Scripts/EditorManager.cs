@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 public class EditorManager : MonoBehaviour
 {
+    public static EditorManager Instance { get; private set; }
     private InputSystem_Actions _inputSystem;
     [Header("生成设置")]
     public GameObject prefab;             // 要生成的预制体
@@ -19,6 +20,7 @@ public class EditorManager : MonoBehaviour
     [Header("生成间隔")]
     public float spacing = 1.0f;
 
+    
     [ContextMenu("生成 Grid")]
     public List<GameObject> GenerateGrid(Vector3 startPosition, float spacing, int extendX, int extendY, int extendZ)
     {
@@ -83,8 +85,15 @@ public class EditorManager : MonoBehaviour
         toggleEditMode();
     }
     
+    
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
         _inputSystem = new InputSystem_Actions();
     }
 
