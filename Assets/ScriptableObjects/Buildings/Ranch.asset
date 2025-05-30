@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df57aeeda4f0193438d3a5daaed6414d, type: 3}
+  m_Name: Ranch
+  m_EditorClassIdentifier: 
+  buildingType: 1
+  buildingName: "\u7267\u573A"
+  description: "\u8FD9\u662F\u7267\u573A"
+  icon: {fileID: 0}
+  prefab: {fileID: 6494522336201322117, guid: be8b133c12ecc2f48975f33e0d11b292, type: 3}
+  buildCosts:
+  - resourceType: 5
+    amount: 200
+  maxLevel: 3
+  canBeUpgraded: 1
+  npcCapacity: 2
+  equipmentSlots: 0
+  size: {x: 1, y: 1}
+  isProductionBuilding: 1
+  producedResources: 04000000
+  baseProductionRate: 0.5
+  storageCapacity: 5
+  upgradeLevels:
+  - level: 0
+    upgradeCosts: []
+    productionRateMultiplier: 0
+    storageCapacityBonus: 0
+    npcCapacityBonus: 0
+    equipmentSlotsBonus: 0
+    upgradeDescription: 
+  isDecorative: 0
+  beautyValue: 0
+  npcMoodBonus: 0
