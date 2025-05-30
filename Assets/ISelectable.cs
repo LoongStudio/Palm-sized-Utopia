@@ -1,9 +1,5 @@
-namespace WindowManager
+public interface ISelectable
 {
-	public interface ISelectable
-	{
-		void OnSelected();
-		void OnDeselected();
-	}
-
+    void OnSelected();
+    void OnDeselected();
 }

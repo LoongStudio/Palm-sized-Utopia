@@ -1,7 +1,4 @@
-namespace DataType.Bulidings
+public class FarmProperties
 {
-	public class FarmProperties
-	{
-		
-	}
+	
 }
