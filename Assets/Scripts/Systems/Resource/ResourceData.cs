@@ -23,6 +23,8 @@ public class ResourceData : ScriptableObject
     public int stackLimit = 999;        // 堆叠上限
     public bool hasExpiration = false;  // 是否有过期时间
     public float expirationTime = 0;    // 过期时间（小时）
+
+    
 }
 
 [System.Serializable]

@@ -36,17 +36,48 @@ public class ReportManager : SingletonManager<ReportManager>
     private void InitializeReportSystem()
     {
         historicalReports = new List<ReportData>();
-        ResetCurrentReport();
-        lastReportTime = DateTime.Now;
-        
+    
         // 初始化追踪字典
         dailyResourceProduction = new Dictionary<ResourceType, int>();
         dailyResourceConsumption = new Dictionary<ResourceType, int>();
         
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        // 安全地初始化资源追踪
+        InitializeResourceTracking();
+        
+        // 最后重置当前报告
+        ResetCurrentReport();
+        lastReportTime = DateTime.Now;
+    }
+
+    private void InitializeResourceTracking()
+    {
+        try
         {
-            dailyResourceProduction[type] = 0;
-            dailyResourceConsumption[type] = 0;
+            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+            {
+                dailyResourceProduction[type] = 0;
+                dailyResourceConsumption[type] = 0;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"初始化资源追踪时出错: {e.Message}");
+            // 手动初始化已知的资源类型
+            dailyResourceProduction[ResourceType.Seed] = 0;
+            dailyResourceProduction[ResourceType.Crop] = 0;
+            dailyResourceProduction[ResourceType.Feed] = 0;
+            dailyResourceProduction[ResourceType.BreedingAnimal] = 0;
+            dailyResourceProduction[ResourceType.Livestock] = 0;
+            dailyResourceProduction[ResourceType.Gold] = 0;
+            dailyResourceProduction[ResourceType.RewardTicket] = 0;
+            
+            dailyResourceConsumption[ResourceType.Seed] = 0;
+            dailyResourceConsumption[ResourceType.Crop] = 0;
+            dailyResourceConsumption[ResourceType.Feed] = 0;
+            dailyResourceConsumption[ResourceType.BreedingAnimal] = 0;
+            dailyResourceConsumption[ResourceType.Livestock] = 0;
+            dailyResourceConsumption[ResourceType.Gold] = 0;
+            dailyResourceConsumption[ResourceType.RewardTicket] = 0;
         }
     }
     
@@ -296,12 +327,31 @@ public class ReportManager : SingletonManager<ReportManager>
     private void ResetCurrentReport()
     {
         currentReport = new ReportData();
-        
-        // 重置日常追踪数据
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        // 确保追踪字典已初始化
+        if (dailyResourceProduction == null)
         {
-            dailyResourceProduction[type] = 0;
-            dailyResourceConsumption[type] = 0;
+            dailyResourceProduction = new Dictionary<ResourceType, int>();
+        }
+        if (dailyResourceConsumption == null)
+        {
+            dailyResourceConsumption = new Dictionary<ResourceType, int>();
+        }
+        // 安全地重置日常追踪数据
+        try
+        {
+            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+            {
+                dailyResourceProduction[type] = 0;
+                dailyResourceConsumption[type] = 0;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"重置当前报告时出错: {e.Message}");
+            // 如果枚举遍历失败，清空字典并重新初始化
+            dailyResourceProduction.Clear();
+            dailyResourceConsumption.Clear();
+            InitializeResourceTracking();
         }
         
         dailyGoldEarned = 0;

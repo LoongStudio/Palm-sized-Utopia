@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f93e7abd33adcb46baca58ec45a1881, type: 3}
+  m_Name: Gold
+  m_EditorClassIdentifier: 
+  resourceType: 5
+  resourceName: "\u91D1\u5E01"
+  description: "\u8FD9\u662F\u91D1\u5E01"
+  icon: {fileID: 0}
+  basePrice: 1
+  canBeSold: 1
+  canBeBought: 0
+  canBeConverted: 0
+  conversions: []
+  stackLimit: 999
+  hasExpiration: 0
+  expirationTime: 0
