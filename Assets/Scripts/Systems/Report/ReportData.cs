@@ -36,6 +36,8 @@ public class ReportData
         resourcesConsumed = new Dictionary<ResourceType, int>();
         resourcesNet = new Dictionary<ResourceType, int>();
         buildingActivities = new List<BuildingActivityRecord>();
+
+        
     }
     
     // 计算净资源变化

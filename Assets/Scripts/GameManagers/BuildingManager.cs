@@ -220,6 +220,9 @@ public class BuildingManager : SingletonManager<BuildingManager>
    {
        OnBuildingUpgraded?.Invoke(building);
        OnBuildingChanged?.Invoke(building, BuildingAction.Upgraded);
+
+       // 通知资源管理器建筑升级
+        ResourceManager.Instance?.HandleBuildingUpgraded(building);
    }
    
    private void HandleResourceProduced(Building building, ResourceType resourceType, int amount)
@@ -233,6 +236,9 @@ public class BuildingManager : SingletonManager<BuildingManager>
        if (building == null || !allBuildings.Contains(building))
            return false;
        
+        // 处理关联的转化任务
+        ResourceManager.Instance?.HandleBuildingDestroyed(building);
+
        // 收集剩余资源
        building.CollectResources();
        

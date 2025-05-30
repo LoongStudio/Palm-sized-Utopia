@@ -45,6 +45,8 @@ public class NPC : MonoBehaviour
             personality = new NPCPersonality();
         }
         
+        personality.Initialize();
+
         if (string.IsNullOrEmpty(npcName))
         {
             GenerateRandomName();

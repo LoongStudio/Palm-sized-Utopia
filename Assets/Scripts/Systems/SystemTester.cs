@@ -51,6 +51,12 @@ public class SystemTester : MonoBehaviour
         {
             TestIntegratedSystems();
         }
+
+        // 转化系统测试
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            TestConversionSystem();
+        }
         
         // 自动收集资源
         if (Input.GetKeyDown(KeyCode.C))
@@ -170,6 +176,53 @@ public class SystemTester : MonoBehaviour
         StartCoroutine(IntegratedTestSequence());
     }
     
+    private void TestConversionSystem()
+    {
+        Debug.Log("=== 测试转化系统 ===");
+        
+        // 创建一个简单的转化配方
+        ResourceConversion conversion = new ResourceConversion
+        {
+            outputType = ResourceType.Crop,
+            outputAmount = 5,
+            conversionTime = 10f,
+            inputCosts = new ResourceCost[] 
+            {
+                new ResourceCost { resourceType = ResourceType.Seed, amount = 2 }
+            }
+        };
+        
+        // 开始转化
+        var task = ResourceManager.Instance.StartResourceConversion(ResourceType.Seed, conversion);
+        if (task != null)
+        {
+            Debug.Log($"开始转化任务: {task.taskId}");
+            
+            // 测试暂停
+            StartCoroutine(TestConversionControls(task.taskId));
+        }
+    }
+
+    private IEnumerator TestConversionControls(string taskId)
+    {
+        yield return new WaitForSeconds(3f);
+        
+        // 暂停任务
+        Debug.Log("暂停转化任务");
+        ResourceManager.Instance.PauseConversion(taskId);
+        
+        yield return new WaitForSeconds(2f);
+        
+        // 恢复任务
+        Debug.Log("恢复转化任务");
+        ResourceManager.Instance.ResumeConversion(taskId);
+        
+        // 或者测试取消
+        // yield return new WaitForSeconds(2f);
+        // Debug.Log("取消转化任务");
+        // ResourceManager.Instance.CancelConversion(taskId, true);
+    }
+
     private IEnumerator IntegratedTestSequence()
     {
         Debug.Log("开始综合测试序列...");

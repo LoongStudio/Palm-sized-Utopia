@@ -17,7 +17,18 @@ public class NPCPersonality
     
     public NPCPersonality()
     {
-        // 随机生成个性
+        // 设置默认值，不调用随机生成
+        workEfficiency = 1f;
+        learningSpeed = 1f;
+        errorRate = 0.1f;
+        favorabilityGainRate = 1f;
+        teamworkBonus = 1f;
+        traits = new PersonalityTrait[0]; // 空数组
+    }
+
+    // 添加一个专门的初始化方法
+    public void Initialize()
+    {
         GenerateRandomPersonality();
     }
     
