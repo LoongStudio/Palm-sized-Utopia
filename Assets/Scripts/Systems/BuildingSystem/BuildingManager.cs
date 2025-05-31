@@ -9,7 +9,10 @@ public class BuildingManager : SingletonManager<BuildingManager>
     public static event System.Action<Building> OnBuildingBuilt;
     public static event System.Action<Building> OnBuildingUpgraded;
     public static event System.Action<Building> OnBuildingDestroyed;
-    
+    protected override void Awake()
+    {
+        base.Awake();
+    }
     public void Initialize() { }
     
     // 建筑管理

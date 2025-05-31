@@ -8,7 +8,10 @@ public class ResourceManager : SingletonManager<ResourceManager>
     
     // 事件
     public static event System.Action<ResourceType, int, int> OnResourceChanged;
-    
+    protected override void Awake()
+    {
+        base.Awake();
+    }
     // 初始化
     public void Initialize() { }
     
