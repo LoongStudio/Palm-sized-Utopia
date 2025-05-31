@@ -6,11 +6,11 @@ public class Ranch : ProductionBuilding
     [Header("牧场专属")]
     public AnimalSubType animalType = AnimalSubType.Cattle;
     
-    public override void OnBuilt()
+    public new void OnTryBuilt()
     {
         status = BuildingStatus.Active;
         SetupProductionRule();
-        Debug.Log($"牧场建造完成，位置: {position}");
+        Debug.Log($"牧场建造完成，位置: {string.Join(" ", positions)}");
     }
     
     public override void OnUpgraded()
@@ -21,7 +21,7 @@ public class Ranch : ProductionBuilding
     public override void OnDestroyed()
     {
         StopProduction();
-        Debug.Log($"牧场被摧毁，位置: {position}");
+        Debug.Log($"牧场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
     private void SetupProductionRule()

@@ -2,13 +2,12 @@ using UnityEngine;
 
 public class WaterTower : BuffBuilding
 {
-    public override void OnBuilt()
+    public new void OnTryBuilt()
     {
         buffRadius = 4f;
         buffValue = 0.15f;
         targetBuildingType = BuildingType.Production;
-        base.OnBuilt();
-        Debug.Log($"水塔建造完成，位置: {position}，影响范围: {buffRadius}");
+        Debug.Log($"水塔建造完成，位置: {string.Join(" ", positions)}，影响范围: {buffRadius}");
     }
     
     public override void OnUpgraded()
@@ -20,7 +19,7 @@ public class WaterTower : BuffBuilding
     public override void OnDestroyed()
     {
         base.OnDestroyed();
-        Debug.Log($"水塔被摧毁，位置: {position}");
+        Debug.Log($"水塔被摧毁，位置: {string.Join(" ", positions)}");
     }
 
     public override float GetCurrentEfficiency()
