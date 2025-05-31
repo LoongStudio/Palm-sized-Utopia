@@ -11,8 +11,18 @@ public class NPCManager : SingletonManager<NPCManager>
     public static event System.Action<NPC> OnNPCHired;
     public static event System.Action<NPC> OnNPCFired;
     public static event System.Action<NPC, NPCState> OnNPCStateChanged;
-    
-    public void Initialize() { }
+    protected override void Awake()
+    {
+        base.Awake();
+    }
+    public void Initialize() 
+    { 
+        if (socialSystem == null)
+        {
+            socialSystem = new SocialSystem();
+        }
+        socialSystem.Initialize(allNPCs);
+    }
     
     // NPC管理
     public bool HireNPC(NPCData npcData) { return false; }

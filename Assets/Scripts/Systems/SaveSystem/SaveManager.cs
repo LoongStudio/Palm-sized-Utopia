@@ -3,7 +3,10 @@ using UnityEngine;
 public class SaveManager : SingletonManager<SaveManager>
 {
     private string saveFilePath;
-    
+    protected override void Awake()
+    {
+        base.Awake();
+    }
     public void Initialize() { }
     
     public void SaveGame() { }

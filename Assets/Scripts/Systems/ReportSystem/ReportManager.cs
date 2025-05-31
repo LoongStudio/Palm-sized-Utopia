@@ -5,8 +5,16 @@ public class ReportManager : SingletonManager<ReportManager>
 {
     private DataCollector dataCollector;
     private List<Report> historicalReports;
-    
-    public void Initialize() { }
+    protected override void Awake()
+    {
+        base.Awake();
+    }
+    public void Initialize() 
+    { 
+        // 初始化数据收集器
+        if (dataCollector == null)
+            dataCollector = new DataCollector();
+    }
     
     public void GenerateDailyReport() { }
     public void GenerateWeeklyReport() { }
