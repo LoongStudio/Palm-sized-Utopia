@@ -67,7 +67,7 @@ public class TradeMarket : Building
             case ResourceType.Crop: return 10;
             case ResourceType.Feed: return 8;
             case ResourceType.Livestock: return 50;
-            case ResourceType.Animal: return 100;
+            case ResourceType.BreedingStock: return 100;
             default: return 1;
         }
     }
