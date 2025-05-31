@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public class ResourceData
+public class ResourceData : ScriptableObject
 {
     [Header("基本信息")]
     public ResourceSubType resourceType; // 资源类型
@@ -14,10 +14,6 @@ public class ResourceData
     public int basePrice; // 资源价格
     public bool canBuy; // 是否可购买
     public bool canSell; // 是否可销售
-    
-    [Header("存储属性")]
-    public int defaultStackLimit; // 默认堆叠上限
-    public int baseStorageLimit; // 
     
     [Header("转化属性")]
     public bool canTransform; 

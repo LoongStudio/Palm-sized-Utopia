@@ -59,11 +59,16 @@ public class GameManager : SingletonManager<GameManager>
 	/// <param name="deltaTime"></param>
 	public void Tick(float deltaTime)
 	{
-		BuildingManager.Instance.UpdateBuildings();
-		NPCManager.Instance.UpdateNPCs();
+		// BuildingManager.Instance.UpdateBuildings();
+		// NPCManager.Instance.UpdateNPCs();
 		
 	}
-	
+
+	private void FixedUpdate()
+	{
+		Tick(Time.deltaTime);
+	}
+
 	// 暂停/恢复游戏
 	public void PauseGame() { }
 	public void ResumeGame() { }

@@ -20,7 +20,7 @@ public class GridManager : SingletonManager<GridManager>
 	{
 		_occupiedMap.Remove(gridPos);
 	}
-	public void 2(Vector2Int gridPos, BlockProperties state)
+	public void SetOccupied(Vector2Int gridPos, BlockProperties state)
 	{
 		_occupiedMap[gridPos] = state;
 	}
@@ -79,7 +79,7 @@ public class GridOccupiedWindow : EditorWindow
 		}
 
 		var occupiedMap = GridManager.Instance.GetMap();
-		List<Vector3Int> occupiedCells = new List<Vector3Int>();
+		List<Vector2Int> occupiedCells = new List<Vector2Int>();
 
 		foreach (var kvp in occupiedMap)
 		{

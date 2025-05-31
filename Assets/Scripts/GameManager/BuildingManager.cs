@@ -1,15 +1,21 @@
 using UnityEngine;
-using System.Collections; 
+using System.Collections;
+using System.Collections.Generic;
 
 public class BuildingManager : SingletonManager<BuildingManager>
 {
     public List<BuildingBase> registedBuildings = new();
-
-    public void UpdateBuildings()
+    // public List<BuildingBase> buildings;
+    
+    public void FixedUpdate()
     {
-        foreach (var building in registedBuildings)
+        foreach (BuildingBase building in registedBuildings)
         {
-            building.UpdateState();
+            // ResourceManager.Instance.Append(); building.GetResourceData();
         }
     }
+    
+    
+    
+    
 }

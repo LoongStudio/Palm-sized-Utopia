@@ -1,9 +1,6 @@
 using UnityEngine;
 
-namespace DataType.Bulidings
+public class StorageProperties : MonoBehaviour
 {
-	public class StorageProperties : MonoBehaviour
-	{
 		
-	}
 }

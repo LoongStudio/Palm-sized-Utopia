@@ -1,7 +1,4 @@
-namespace DataType.Bulidings
+public class MarketProperties
 {
-	public class MarketProperties
-	{
 		
-	}
 }

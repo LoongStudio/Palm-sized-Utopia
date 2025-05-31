@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using WindowManager;
 public class ClickToShowUI : MonoBehaviour, ISelectable
 {
 	private Camera mainCamera;

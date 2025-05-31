@@ -52,10 +52,10 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
     // ==========================================
     // 附近生成有效放置算法
     // ==========================================
-    private List<Vector3Int> GetBottomAnchorOffsets(GameObject prefab)
+    private List<Vector2Int> GetBottomAnchorOffsets(GameObject prefab)
     {
         Debug.Log("[UI] Get Bottom Anchor Offsets");
-        List<Vector3Int> offsets = new List<Vector3Int>();
+        List<Vector2Int> offsets = new List<Vector2Int>();
         Vector3 scale = prefab.transform.localScale;
         List<Transform> children = prefab.GetComponent<DragAndSnapWithAnchors>().bottomAnchors;
         Vector3 basePosition = children[0].localPosition;
@@ -69,12 +69,11 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
         {
             Vector3 childAnchor = new Vector3(
                 child.localPosition.x * scale.x, 
-                child.localPosition.y * scale.y, 
+                child.localPosition.z * scale.y,
                 child.localPosition.z * scale.z);
             Vector3 delta = childAnchor - basePosition;
-            offsets.Add(new Vector3Int(
+            offsets.Add(new Vector2Int(
                 Mathf.RoundToInt(delta.x),
-                0,
                 Mathf.RoundToInt(delta.z)
             ));
             Debug.Log("[UI] offset: " + offsets.Last() + " origin: " + childAnchor);
@@ -83,11 +82,11 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
         return offsets;
     }
 
-    private bool CheckAnchorFitAt(Vector3Int basePos, List<Vector3Int> anchorOffsets)
+    private bool CheckAnchorFitAt(Vector2Int basePos, List<Vector2Int> anchorOffsets)
     {
         foreach (var offset in anchorOffsets)
         {
-            Vector3Int pos = basePos + offset;
+            Vector2Int pos = basePos + offset;
             if (GridManager.Instance.GetMap().ContainsKey(pos))
             {
                 Debug.Log("[UI] Find Contains: " + pos);
@@ -98,11 +97,11 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
         return true;
     }
 
-    private void InstantiatePrefabAtAnchor(GameObject prefab, Vector3Int basePos, Transform baseAnchor)
+    private void InstantiatePrefabAtAnchor(GameObject prefab, Vector2Int basePos, Transform baseAnchor)
     {
-        Vector3 anchorOffset = baseAnchor.localPosition;
-        Vector3 spawnWorldPos = basePos - anchorOffset;
-        // spawnWorldPos.y = belongTo.transform.position.y;
+        Vector2 anchorOffset = baseAnchor.localPosition;
+        Vector2 spawnWorldPos = basePos - anchorOffset;
+        // spawnWorldPos.z = belongTo.transform.position.z;
         Debug.Log("[UI] Instantiate Anchor: " + spawnWorldPos);
         GameObject obj = Instantiate(prefab, spawnWorldPos, Quaternion.identity);
         
@@ -112,34 +111,33 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
     {
         if (prefab == null) return;
 
-        List<Vector3Int> anchorOffsets = GetBottomAnchorOffsets(prefab);
+        List<Vector2Int> anchorOffsets = GetBottomAnchorOffsets(prefab);
         if (anchorOffsets.Count == 0) return;
 
         Transform baseAnchor = prefab.GetComponent<DragAndSnapWithAnchors>().bottomAnchors[0];
 
-        Vector3 baseWorldPos = belongTo.transform.position;
-        Vector3Int baseGrid = new Vector3Int(
+        Vector2 baseWorldPos = belongTo.transform.position;
+        Vector2Int baseGrid = new Vector2Int(
             Mathf.RoundToInt(baseWorldPos.x),
-            0,
-            Mathf.RoundToInt(baseWorldPos.z)
+            Mathf.RoundToInt(baseWorldPos.y)
         );
 
-        Queue<Vector3Int> queue = new Queue<Vector3Int>();
-        HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+        Queue<Vector2Int> queue = new Queue<Vector2Int>();
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
         queue.Enqueue(baseGrid);
         visited.Add(baseGrid);
 
-        Vector3Int[] directions = 
+        Vector2Int[] directions = 
         {
-            new Vector3Int(1, 0, 0),
-            new Vector3Int(-1, 0, 0),
-            new Vector3Int(0, 0, 1),
-            new Vector3Int(0, 0, -1)
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
         };
 
         while (queue.Count > 0)
         {
-            Vector3Int current = queue.Dequeue();
+            Vector2Int current = queue.Dequeue();
             Debug.Log("[UI] BFS 遍历: " + current);
             if (CheckAnchorFitAt(current, anchorOffsets))
             {
@@ -149,7 +147,7 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
 
             foreach (var dir in directions)
             {
-                Vector3Int next = current + dir;
+                Vector2Int next = current + dir;
                 if (!visited.Contains(next))
                 {
                     visited.Add(next);
@@ -172,9 +170,9 @@ public class ContextUIAttributes : MonoBehaviour, IPointerClickHandler
         }
         if (stackToBelong)
         {
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(
+            Vector2 screenPos = Camera.main.WorldToScreenPoint(
                 belongTo.transform.position 
-                + new Vector3(0.0f, gameObject.transform.localScale.y * 1.5f, 0.0f));
+                + new Vector3(0.0f, gameObject.transform.localScale.z * 1.5f, 0.0f));
             transform.position = screenPos;
         }
     }

@@ -8,7 +8,7 @@ using UnityEngine.AI;
 public class DragAndSnapWithAnchors : MonoBehaviour
 {
     public List<Transform> bottomAnchors;  // ⬅️ 多个锚点
-    public List<Vector3Int> regPositions { get; private set; } = new List<Vector3Int>();
+    public List<Vector2Int> regPositions { get; private set; } = new List<Vector2Int>();
     
     public float targetY = 0f;             // 吸附高度
     public bool autoSnapOnStart = true;
@@ -60,23 +60,22 @@ public class DragAndSnapWithAnchors : MonoBehaviour
     private bool TrySnapToAnchorsGrid()
     {
         if (bottomAnchors == null || bottomAnchors.Count == 0) return false;
-        List<Vector3Int> proposedGridCells = new List<Vector3Int>();
-        Vector3 moveDelta = Vector3.zero;
+        List<Vector2Int> proposedGridCells = new List<Vector2Int>();
+        Vector2 moveDelta = Vector2.zero;
         // 预加载要保留的cell坐标
         foreach (var anchor in bottomAnchors)
         {
-            Vector3 snapped = new Vector3(
+            Vector2 snapped = new Vector2(
                 Mathf.Round(anchor.position.x),
-                targetY,
                 Mathf.Round(anchor.position.z)
             );
 
-            Vector3 offset = anchor.position - snapped;
-            if (moveDelta == Vector3.zero)
+            Vector2 offset = new Vector2(anchor.position.x, anchor.position.z) - snapped;
+            if (moveDelta == Vector2.zero)
                 moveDelta = offset;
 
-            Vector3 anchorSnappedWorld = anchor.position - offset;
-            Vector3Int gridPos = Vector3Int.RoundToInt(anchorSnappedWorld);
+            Vector2 anchorSnappedWorld = new Vector2(anchor.position.x, anchor.position.z) - offset;
+            Vector2Int gridPos = Vector2Int.RoundToInt(anchorSnappedWorld);
             proposedGridCells.Add(gridPos);
         }
         // 检查是否所有 proposed 格子都未被其他占用（除去自己之前的 reg）
@@ -90,7 +89,10 @@ public class DragAndSnapWithAnchors : MonoBehaviour
         }
 
         // 应用移动吸附
-        transform.position -= moveDelta;
+        transform.position = new Vector3(
+            transform.position.x - moveDelta.x,
+            0.51f,
+            transform.position.z - moveDelta.y);
         // 释放之前占用
         foreach (var cell in regPositions)
         {
