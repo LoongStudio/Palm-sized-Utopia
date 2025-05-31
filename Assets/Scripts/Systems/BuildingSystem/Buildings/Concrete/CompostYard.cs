@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class CompostYard : ProductionBuilding
 {
-    public override void OnBuilt()
+    public new void OnTryBuilt()
     {
         status = BuildingStatus.Active;
         SetupProductionRule();
-        Debug.Log($"堆肥场建造完成，位置: {position}");
+        Debug.Log($"堆肥场建造完成，位置: {string.Join(" ", positions)}");
     }
     
     public override void OnUpgraded()
@@ -18,7 +18,7 @@ public class CompostYard : ProductionBuilding
     public override void OnDestroyed()
     {
         StopProduction();
-        Debug.Log($"堆肥场被摧毁，位置: {position}");
+        Debug.Log($"堆肥场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
     private void SetupProductionRule()

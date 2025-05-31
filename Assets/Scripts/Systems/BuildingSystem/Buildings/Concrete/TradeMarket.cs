@@ -5,10 +5,10 @@ public class TradeMarket : Building
     [Header("贸易市场专属")]
     public float tradeEfficiencyMultiplier = 1.0f;
     
-    public override void OnBuilt()
+    public new void OnTryBuilt()
     {
         status = BuildingStatus.Active;
-        Debug.Log($"贸易市场建造完成，位置: {position}");
+        Debug.Log($"贸易市场建造完成，位置: {string.Join(" ", positions)}");
     }
     
     public override void OnUpgraded()
@@ -19,7 +19,7 @@ public class TradeMarket : Building
     
     public override void OnDestroyed()
     {
-        Debug.Log($"贸易市场被摧毁，位置: {position}");
+        Debug.Log($"贸易市场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
     public override float GetCurrentEfficiency()

@@ -4,7 +4,7 @@ public class Farm : ProductionBuilding
     [Header("农田专属")]
     public CropSubType cropType;
     
-    public override void OnBuilt() { }
+    public new void OnTryBuilt() { }
     public override void OnUpgraded() { }
     public override void OnDestroyed() { }
     

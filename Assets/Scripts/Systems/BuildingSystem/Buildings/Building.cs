@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -7,14 +8,27 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingData data;
     public BuildingStatus status;
     public int currentLevel;
-    public Vector2Int position;
+    public List<Vector2Int> positions;
     
     [Header("槽位管理")]
     public List<NPC> assignedNPCs;
     public List<Equipment> installedEquipment;
     
+    /// <summary>
+    /// Try Snap 会先给其赋值 positions, 然后调用它，
+    /// 如果回传是 true 登记成功
+    /// 如果回传是 false 它会把内容 Deactive 保存到未使用空间
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool OnTryBuilt()
+    {
+        if (BuildingManager.Instance.BuildingBuilt(this))
+            return true;
+        BuildingManager.Instance.RegistBuilding(this);
+        status = BuildingStatus.Inactive;
+        return false;
+    }
     // 抽象方法
-    public abstract void OnBuilt();
     public abstract void OnUpgraded();
     public abstract void OnDestroyed();
     public abstract float GetCurrentEfficiency();
@@ -31,4 +45,19 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // 接口实现
     public virtual SaveData SaveToData() { return null; }
     public virtual void LoadFromData(SaveData data) { }
+    
+    // 游戏循环
+    public void Start() {
+        // LoadFromData(); // TODO: 开始时 如果数据并没有正常加载，尝试重新从Data中读取
+        if (!OnTryBuilt())
+        {
+            Debug.LogError($"[Building] 建筑 {this.ToString()} 放置失败, 游戏开始时所有建筑应正常被放置成功");    
+        }
+        
+    }
+
+    public override string ToString()
+    {
+        return $"[{data.buildingName} - {data.buildingType}/{data.subType}] Pos: {string.Join(" ", positions)}";
+    }
 }
