@@ -4,7 +4,7 @@ using UnityEngine;
 public class Ranch : ProductionBuilding
 {
     [Header("牧场专属")]
-    public AnimalSubType animalType = AnimalSubType.Cattle;
+    public LivestockSubType animalType = LivestockSubType.Cattle;
     
     public override void OnBuilt()
     {
@@ -31,18 +31,18 @@ public class Ranch : ProductionBuilding
             inputs = new List<Resource> 
             { 
                 new Resource(ResourceType.Feed, 0, 2),
-                new Resource(ResourceType.Livestock, (int)animalType, 1)
+                new Resource(ResourceType.BreedingStock, (int)animalType, 1)
             },
             outputs = new List<Resource> 
             { 
-                new Resource(ResourceType.Animal, (int)animalType, 1)
+                new Resource(ResourceType.Livestock, (int)animalType, 1)
             },
             conversionTime = 20f
         };
         productionCooldown = productionRule.conversionTime;
     }
     
-    public void ChangeAnimalType(AnimalSubType newAnimalType)
+    public void ChangeAnimalType(LivestockSubType newAnimalType)
     {
         if (productionTimer <= 0)
         {
