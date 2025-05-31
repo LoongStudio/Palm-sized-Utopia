@@ -5,11 +5,11 @@ public class Warehouse : Building
     [Header("仓库专属")]
     public int storageCapacity = 500;
     
-    public override void OnBuilt()
+    public new void OnTryBuilt()
     {
         status = BuildingStatus.Active;
         IncreaseStorageCapacity();
-        Debug.Log($"仓库建造完成，位置: {position}，容量: {storageCapacity}");
+        Debug.Log($"仓库建造完成，位置: {string.Join(" ", positions)}，容量: {storageCapacity}");
     }
     
     public override void OnUpgraded()
@@ -21,7 +21,7 @@ public class Warehouse : Building
     public override void OnDestroyed()
     {
         DecreaseStorageCapacity();
-        Debug.Log($"仓库被摧毁，位置: {position}");
+        Debug.Log($"仓库被摧毁，位置: {string.Join(" ", positions)}");
     }
     
     public override float GetCurrentEfficiency()

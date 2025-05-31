@@ -10,7 +10,7 @@ public abstract class BuffBuilding : Building
     
     protected List<Building> affectedBuildings;
     
-    public override void OnBuilt()
+    public new void OnTryBuilt()
     {
         FindAffectedBuildings();
         ApplyBuffs();
