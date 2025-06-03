@@ -1,22 +1,49 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class ResourceManager : SingletonManager<ResourceManager>
 {
-    private Dictionary<ResourceType, Dictionary<int, int>> resources;
-    private Dictionary<ResourceType, int> storageLimit;
-    
+    [SerializeField] public List<Resource> resourcesData;      // 当前资源信息, 以类的形式存储
+    private Dictionary<ResourceType, Dictionary<int, int>> resources;      // 当前资源数量
+    private Dictionary<ResourceType, int> storageLimit;                   // 存储上限, 同类资源共用一个存储上限
+
     // 事件
     public static event System.Action<ResourceType, int, int> OnResourceChanged;
     protected override void Awake()
     {
         base.Awake();
+        
     }
     // 初始化
-    public void Initialize() { }
-    
-    // 资源操作API
+    public void Initialize()
+    {
+
+        resources = new Dictionary<ResourceType, Dictionary<int, int>>();
+        storageLimit = new Dictionary<ResourceType, int>();
+        // 设置初始资源量和存储上限
+        InitializeResources();
+    }
+
+    private void InitializeResources()
+    {
+        // 设置初始资源量和存储上限
+        foreach (var resource in resourcesData)
+        {
+            resources[resource.type] = new Dictionary<int, int>();
+            resources[resource.type][resource.subType] = resource.amount;
+            Debug.Log($"[ResourceManager] 名为 {resource.type} 的资源被设置为 {resource.amount}");
+        }
+
+        foreach (var resource in resourcesData)
+        {
+            storageLimit[resource.type] = resource.storageLimit;
+            Debug.Log($"[ResourceManager] 名为 {resource.type} 的存储上限被设置为 {resource.storageLimit}");
+        }
+    }
+
+    #region 资源操作API
     // 类型安全的资源操作API - 推荐使用
     public bool AddResource<T>(ResourceType type, T subType, int amount) where T : System.Enum
     {
@@ -41,47 +68,83 @@ public class ResourceManager : SingletonManager<ResourceManager>
     }
 
     // 内部使用的int版本API
-    public bool AddResource(ResourceType type, int subType, int amount) 
-    { 
+    [Obsolete("使用int为subType的AddResource 已过时，请使用泛型版本替代。")]
+    public bool AddResource(ResourceType type, int subType, int amount)
+    {
         ValidateSubType(type, subType);
-        
-        if (!resources.ContainsKey(type))
-            resources[type] = new Dictionary<int, int>();
-        
-        if (!resources[type].ContainsKey(subType))
-            resources[type][subType] = 0;
-            
+        EnsureResourceEntry(type, subType);
+        // 边缘条件判断
+        if (amount <= 0)
+        {
+            Debug.Log($"[ResourceManager] 添加的资源数量不能小于等于0");
+            return false;
+        }
+        // 存储空间判断
+        if (IsStorageFull(type, subType))
+        {
+            Debug.Log($"[ResourceManager] 名为 {type} 的资源存储已满, 无法添加 {amount} 个");
+            return false;
+        }
+
+        // 存储空间不足判断
+        if (resources[type][subType] + amount > storageLimit[type])
+        {
+            Debug.Log($"[ResourceManager] 名为 {type} 的资源存储空间不足, 原本数量为 {resources[type][subType]}, 无法添加 {amount} 个, 已将资源数量设置为存储上限 {storageLimit[type]}");
+            resources[type][subType] = storageLimit[type];
+            return true;
+        }
+
+        // 更新资源数量
         int oldAmount = resources[type][subType];
         resources[type][subType] += amount;
-        
+
+        Debug.Log($"[ResourceManager] 名为 {type} 的资源被添加了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
+
         OnResourceChanged?.Invoke(type, oldAmount, resources[type][subType]);
-        return true; 
-    
+        return true;
+
     }
-    public bool RemoveResource(ResourceType type, int subType, int amount) 
-    { 
+    [Obsolete("使用int为subType的RemoveResource 已过时，请使用泛型版本替代。")]
+    public bool RemoveResource(ResourceType type, int subType, int amount)
+    {
         ValidateSubType(type, subType);
-        
-        if (!HasEnoughResource(type, subType, amount))
+        EnsureResourceEntry(type, subType);
+
+        if (amount <= 0)
+        {
+            Debug.Log($"[ResourceManager] 移除的资源数量不能小于等于0");
             return false;
+        }
+
+        if (!HasEnoughResource(type, subType, amount))
+        {
+            Debug.Log($"[ResourceManager] 名为 {type} 的资源数量不足, 原本为 {resources[type][subType]}, 无法移除 {amount} 个, 已将资源数量设置为0");
+            resources[type][subType] = 0;
+            return true;
+        }
             
         int oldAmount = resources[type][subType];
         resources[type][subType] -= amount;
-        
+
+        Debug.Log($"[ResourceManager] 名为 {type} 的资源被移除了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
+
         OnResourceChanged?.Invoke(type, oldAmount, resources[type][subType]);
-        return true; 
-    
+        return true;
+
     }
-    public int GetResourceAmount(ResourceType type, int subType) 
-    { 
+    
+    [Obsolete("使用int为subType的GetResourceAmount 已过时，请使用泛型版本替代。")]
+    public int GetResourceAmount(ResourceType type, int subType)
+    {
         ValidateSubType(type, subType);
-        
+
         if (!resources.ContainsKey(type) || !resources[type].ContainsKey(subType))
             return 0;
-            
+
         return resources[type][subType];
     }
-    public bool HasEnoughResource(ResourceType type, int subType, int amount) 
+    [Obsolete("使用int为subType的HasEnoughResource 已过时，请使用泛型版本替代。")]
+    public bool HasEnoughResource(ResourceType type, int subType, int amount)
     {
         ValidateSubType(type, subType);
         return GetResourceAmount(type, subType) >= amount;
@@ -93,7 +156,7 @@ public class ResourceManager : SingletonManager<ResourceManager>
         if (!ResourceSubTypeHelper.IsValidSubType(type, subType))
         {
             throw new System.ArgumentException(
-                $"Invalid subType {subType} for ResourceType {type}. " +
+                $"[ResourceManager]Invalid subType {subType} for ResourceType {type}. " +
                 $"Valid range: {GetValidSubTypeRange(type)}");
         }
     }
@@ -104,11 +167,47 @@ public class ResourceManager : SingletonManager<ResourceManager>
         var values = System.Enum.GetValues(enumType);
         return $"0-{values.Length - 1} ({string.Join(", ", values.Cast<object>())})";
     }
-    // 存储管理
-    public void SetStorageLimit(ResourceType type, int limit) { }
-    public int GetStorageLimit(ResourceType type) { return 0; }
-    public bool IsStorageFull(ResourceType type) { return false; }
-    
-    // 数据访问
-    public Dictionary<ResourceType, Dictionary<int, int>> GetAllResources() { return null; }
+
+    private void EnsureResourceEntry(ResourceType type, int subType)
+    {
+        if (!resources.ContainsKey(type))
+            resources[type] = new Dictionary<int, int>();
+
+        if (!resources[type].ContainsKey(subType))
+            resources[type][subType] = 0;
+    }
+
+    #endregion
+
+    #region 存储管理
+    public void SetStorageLimit(ResourceType type, int limit)
+    {
+        storageLimit[type] = limit;
+        Debug.Log($"[ResourceManager]名为 {type} 的存储上限被设置为{limit}");
+    }
+    public int GetStorageLimit(ResourceType type)
+    {
+        return storageLimit[type];
+    }
+    public bool IsStorageFull<T>(ResourceType type, T subType) where T : System.Enum
+    {
+        return GetResourceAmount(type, subType) >= GetStorageLimit(type);
+    }
+    [Obsolete("使用int为subType的IsStorageFull 已过时，请使用泛型版本替代。")]
+    public bool IsStorageFull(ResourceType type, int subType)
+    {
+        return GetResourceAmount(type, subType) >= GetStorageLimit(type);
+    }
+    #endregion
+
+    #region 数据访问
+    public Dictionary<ResourceType, Dictionary<int, int>> GetAllResources()
+    {
+        return resources;
+    }
+    public Dictionary<ResourceType, int> GetAllStorageLimits()
+    {
+        return storageLimit;
+    }
+    #endregion
 }
