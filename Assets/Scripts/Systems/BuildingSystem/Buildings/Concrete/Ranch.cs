@@ -23,7 +23,26 @@ public class Ranch : ProductionBuilding
         StopProduction();
         Debug.Log($"牧场被摧毁，位置: {string.Join(" ", positions)}");
     }
-    
+
+    public override void InitialSelfStorage()
+    {
+        currentSubResource = new List<SubResourceValue<int>>()
+        {
+            new SubResourceValue<int>(FeedSubType.Feed, 0),
+            new SubResourceValue<int>(BreedingStockSubType.Cattle, 0),
+            new SubResourceValue<int>(BreedingStockSubType.Sheep, 0),
+            new SubResourceValue<int>(LivestockSubType.Cattle, 0),
+            new SubResourceValue<int>(LivestockSubType.Sheep, 0),
+        };
+        maximumSubResource = new List<SubResourceValue<int>>()
+        {
+            new SubResourceValue<int>(FeedSubType.Feed, 50),
+            new SubResourceValue<int>(BreedingStockSubType.Cattle, 10),
+            new SubResourceValue<int>(BreedingStockSubType.Sheep, 10),
+            new SubResourceValue<int>(LivestockSubType.Cattle, 10),
+            new SubResourceValue<int>(LivestockSubType.Sheep, 10),
+        };
+    }
     protected override void SetupProductionRule()
     {
         base.SetupProductionRule();
@@ -54,10 +73,6 @@ public class Ranch : ProductionBuilding
                 }
             }
         };
-    }
-    protected override void UpdateProduction()
-    {
-        base.UpdateProduction();
     }
     
     public void ChangeAnimalType(LivestockSubType newAnimalType)
