@@ -37,7 +37,7 @@ public class TimeManager : SingletonManager<TimeManager>
     protected override void Awake()
     {
         base.Awake();
-        InitializeTime();
+        Initialize();
     }
     
     private void Start()
@@ -49,7 +49,7 @@ public class TimeManager : SingletonManager<TimeManager>
     
     #region 初始化 (Initialization)
     
-    private void InitializeTime()
+    public void Initialize()
     {
         if (settings != null)
         {
