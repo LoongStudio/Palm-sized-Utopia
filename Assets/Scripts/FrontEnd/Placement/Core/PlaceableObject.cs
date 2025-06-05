@@ -16,6 +16,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     [Header("预览设置")]
     [SerializeField] private GameObject previewPrefab;
     [SerializeField] private Renderer[] renderers;
+    private bool isHiddenForDrag = false;
     
     private IGridSystem gridSystem;
     private Vector3Int[] currentPositions;
@@ -56,6 +57,60 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         {
             Debug.LogError("[PlaceableObject] GridSystem not found!");
         }
+
+        // 如果物体已经在场景中，自动注册到网格系统
+        if (!IsPlaced && gridSystem != null)
+        {
+            AutoRegisterToGrid();
+        }
+    }
+
+    /// <summary>
+    /// 自动注册到网格系统（用于预先放置在场景中的物体）
+    /// </summary>
+    private void AutoRegisterToGrid()
+    {
+        if (anchorPoints == null || anchorPoints.Length == 0)
+        {
+            if (autoCalculateAnchors)
+            {
+                CalculateAnchorPoints();
+            }
+            else
+            {
+                Debug.LogWarning($"[PlaceableObject] {name} 没有锚点，无法自动注册");
+                return;
+            }
+        }
+        
+        // 1. 基于当前位置计算最近的网格位置
+        var currentPositions = GetPreviewPositions(transform.position);
+        
+        // 2. 先对齐到网格位置
+        if (currentPositions.Length > 0)
+        {
+            SnapToGrid(currentPositions);
+            
+            // 3. 重新计算对齐后的网格位置
+            currentPositions = GetPreviewPositions(transform.position);
+            
+            // 4. 尝试注册到网格系统
+            if (gridSystem.TryReserve(currentPositions, this))
+            {
+                this.currentPositions = currentPositions;
+                IsPlaced = true;
+                
+                Debug.Log($"[PlaceableObject] {name} 自动注册并对齐到网格，占用 {currentPositions.Length} 个位置");
+                
+                // 触发放置事件
+                OnPlaced?.Invoke(this);
+                PlacementEvents.TriggerObjectPlaced(this);
+            }
+            else
+            {
+                Debug.LogWarning($"[PlaceableObject] {name} 自动注册失败，位置可能有冲突");
+            }
+        }
     }
     
     public Vector3Int[] GetOccupiedPositions()
@@ -93,10 +148,16 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         
         // 检查是否有位置冲突（排除自己当前占用的位置）
         var currentOccupied = GetOccupiedPositions();
-        var conflictPositions = positions.Where(pos => 
-            gridSystem.IsOccupied(pos) && !currentOccupied.Contains(pos));
+        foreach (var pos in positions)
+        {
+            // 如果位置被占用，且不是自己当前占用的位置，则冲突
+            if (gridSystem.IsOccupied(pos) && !System.Array.Exists(currentOccupied, p => p == pos))
+            {
+                return false;
+            }
+        }
         
-        return !conflictPositions.Any();
+        return true;
     }
     
     public void PlaceAt(Vector3Int[] positions)
@@ -164,24 +225,33 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         Debug.Log($"[PlaceableObject] 对齐到网格: 基准网格位置 {baseGridPos}, 最终世界位置 {finalPosition}");
     }
     
+    /// <summary>
+    /// 修正的锚点计算方法 - 考虑父物体Scale的影响
+    /// </summary>
     private void CalculateAnchorPoints()
     {
         // 清理旧的锚点
         ClearOldAnchors();
         
-        // 获取物体的实际尺寸
-        var bounds = GetObjectBounds();
+        // 获取网格大小和父物体缩放
         var gridSize = GetGridSize();
+        var parentScale = transform.localScale;
         
-        Debug.Log($"[PlaceableObject] 物体边界: {bounds.size}, 网格大小: {gridSize}");
+        Debug.Log($"[PlaceableObject] 网格大小: {gridSize}, 父物体缩放: {parentScale}");
         
         // 计算锚点数量
         int anchorCountX = customSize.x;
         int anchorCountZ = customSize.z;
         var anchors = new Transform[anchorCountX * anchorCountZ];
         
+        // 计算在本地空间中的实际间距（需要除以父物体的缩放）
+        float localSpacingX = gridSize / parentScale.x;
+        float localSpacingZ = gridSize / parentScale.z;
+        
+        Debug.Log($"[PlaceableObject] 本地空间间距: X={localSpacingX}, Z={localSpacingZ}");
+        
         // 计算锚点的起始偏移（让锚点网格以物体中心为基准）
-        Vector3 startOffset = CalculateStartOffset(anchorCountX, anchorCountZ, gridSize);
+        Vector3 startOffset = CalculateStartOffset(anchorCountX, anchorCountZ, localSpacingX, localSpacingZ);
         
         Debug.Log($"[PlaceableObject] 起始偏移: {startOffset}");
         
@@ -190,11 +260,11 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         {
             for (int z = 0; z < anchorCountZ; z++)
             {
-                // 计算锚点的本地位置
+                // 计算锚点的本地位置（使用修正后的间距）
                 Vector3 anchorLocalPos = startOffset + new Vector3(
-                    x * gridSize,  // X方向按网格大小递增
+                    x * localSpacingX,  // X方向使用本地空间间距
                     0,
-                    z * gridSize   // Z方向按网格大小递增
+                    z * localSpacingZ   // Z方向使用本地空间间距
                 );
                 
                 // 创建锚点子对象
@@ -204,32 +274,66 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
                 
                 anchors[index++] = anchorGO.transform;
                 
-                Debug.Log($"[PlaceableObject] 创建锚点 [{x},{z}] 在本地位置: {anchorLocalPos}");
+                // 验证世界空间位置
+                var worldPos = anchorGO.transform.position;
+                Debug.Log($"[PlaceableObject] 创建锚点 [{x},{z}] 本地位置: {anchorLocalPos}, 世界位置: {worldPos}");
             }
         }
         
         anchorPoints = anchors;
         
         Debug.Log($"[PlaceableObject] 总共创建了 {anchorPoints.Length} 个锚点");
+        
+        // 验证锚点间的世界距离
+        ValidateAnchorSpacing();
     }
-
+    
     /// <summary>
     /// 计算起始偏移，使锚点网格以物体中心为基准
     /// </summary>
-    private Vector3 CalculateStartOffset(int countX, int countZ, float gridSize)
+    private Vector3 CalculateStartOffset(int countX, int countZ, float localSpacingX, float localSpacingZ)
     {
-        // 计算锚点网格的总尺寸
-        float totalGridWidth = (countX - 1) * gridSize;
-        float totalGridDepth = (countZ - 1) * gridSize;
+        // 计算锚点网格在本地空间的总尺寸
+        float totalLocalWidth = (countX - 1) * localSpacingX;
+        float totalLocalDepth = (countZ - 1) * localSpacingZ;
         
         // 计算起始偏移，使网格居中
         Vector3 offset = new Vector3(
-            -totalGridWidth * 0.5f,   // X轴居中
+            -totalLocalWidth * 0.5f,   // X轴居中
             0,
-            -totalGridDepth * 0.5f    // Z轴居中
+            -totalLocalDepth * 0.5f    // Z轴居中
         );
         
         return offset;
+    }
+    
+    /// <summary>
+    /// 验证锚点间距是否正确
+    /// </summary>
+    private void ValidateAnchorSpacing()
+    {
+        if (anchorPoints == null || anchorPoints.Length < 2) return;
+        
+        var gridSize = GetGridSize();
+        
+        // 检查相邻锚点的世界距离
+        for (int i = 0; i < anchorPoints.Length - 1; i++)
+        {
+            if (anchorPoints[i] != null && anchorPoints[i + 1] != null)
+            {
+                var distance = Vector3.Distance(anchorPoints[i].position, anchorPoints[i + 1].position);
+                
+                // 对于网格对齐的锚点，距离应该等于网格大小
+                if (Mathf.Abs(distance - gridSize) < 0.001f)
+                {
+                    Debug.Log($"[PlaceableObject] ✅ 锚点 {i} 到 {i + 1} 距离正确: {distance:F3}");
+                }
+                else if (distance > 0.001f) // 忽略同位置的锚点
+                {
+                    Debug.Log($"[PlaceableObject] ⚠️ 锚点 {i} 到 {i + 1} 距离: {distance:F3}, 期望: {gridSize}");
+                }
+            }
+        }
     }
     
     /// <summary>
@@ -397,5 +501,18 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
                 Gizmos.DrawWireCube(worldPos, Vector3.one * gridSystem.GridSize);
             }
         }
+    }
+
+    // 添加方法
+    public void SetVisibility(bool visible)
+    {
+        if (renderers == null)
+            renderers = GetComponentsInChildren<Renderer>();
+            
+        foreach (var renderer in renderers)
+        {
+            renderer.enabled = visible;
+        }
+        isHiddenForDrag = !visible;
     }
 }
