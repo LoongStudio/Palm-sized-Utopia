@@ -1,17 +1,23 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ProductionBuilding : Building, IResourceProducer
 {
     [Header("生产属性")]
-    public ConversionRule productionRule;
+    public List<ConversionRule> productionRules;
     public float productionTimer;
-    public float productionCooldown;
-    
+    public float productionCooldown = 5f;
+
+    private new void Start()
+    {
+        base.Start();
+        SetupProductionRule();
+    }
     protected virtual void Update()
     {
         UpdateProduction();
     }
-    
+    protected virtual void SetupProductionRule() { }
     protected virtual void UpdateProduction() { }
     public virtual void StartProduction() { }
     public virtual void StopProduction() { }

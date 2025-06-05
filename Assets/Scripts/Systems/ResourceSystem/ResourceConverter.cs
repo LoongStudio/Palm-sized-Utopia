@@ -2,8 +2,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class ConversionRule
 {
-    public List<Resource> inputs;
-    public List<Resource> outputs;
+    public List<ConversionResource> inputs;
+    public List<ConversionResource> outputs;
     public float conversionTime;
 }
 
