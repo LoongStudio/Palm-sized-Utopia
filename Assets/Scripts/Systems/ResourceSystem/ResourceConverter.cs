@@ -2,9 +2,9 @@ using System.Collections.Generic;
 [System.Serializable]
 public class ConversionRule
 {
-    public List<Resource> inputs;
-    public List<Resource> outputs;
-    public float conversionTime;
+    public List<SubResourceValue<int>> inputs;
+    public List<SubResourceValue<int>> outputs;
+    // public float conversionTime; TODO: 现在 Conversion 时间都交给建筑单独控制
 }
 
 public class ResourceConverter
