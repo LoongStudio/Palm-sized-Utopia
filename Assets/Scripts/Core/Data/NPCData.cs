@@ -6,14 +6,13 @@ public class NPCData
 {
     public string npcName;
     public int baseSalary;
-    public TimeSpan restTimeStart;
-    public TimeSpan restTimeEnd;
-    public TimeSpan workTimeStart;
-    public TimeSpan workTimeEnd;
+    public int restTimeStart;
+    public int restTimeEnd;
+    public int workTimeStart;
+    public int workTimeEnd;
     public int baseWorkAbility;
-    public int farmingSkill;
-    public int livestockSkill;
-    public int managementSkill;
+    public int itemCapacity;
     public NPCPersonalityType personality;
     public List<NPCTraitType> traits;
+
 } 
