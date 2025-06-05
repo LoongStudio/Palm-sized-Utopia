@@ -6,6 +6,7 @@ public class NPCGenerationConfig : ScriptableObject
     [Header("基础属性范围")]
     [SerializeField] private Vector2Int salaryRange = new Vector2Int(1, 3);
     [SerializeField] private Vector2Int baseWorkAbilityRange = new Vector2Int(40, 100);
+    [SerializeField] private Vector2Int itemCapacityRange = new Vector2Int(10, 50);
     
     [Header("时间设置")]
     [SerializeField] private Vector2Int restStartHourRange = new Vector2Int(21, 23);  // 休息开始时间范围
@@ -72,6 +73,7 @@ public class NPCGenerationConfig : ScriptableObject
     // 属性访问器
     public Vector2Int SalaryRange => salaryRange;
     public Vector2Int BaseWorkAbilityRange => baseWorkAbilityRange;
+    public Vector2Int ItemCapacityRange => itemCapacityRange;
     public Vector2Int RestStartHourRange => restStartHourRange;
     public Vector2Int RestEndHourRange => restEndHourRange;
     public Vector2Int WorkStartHourRange => workStartHourRange;

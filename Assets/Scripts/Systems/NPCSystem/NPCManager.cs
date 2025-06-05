@@ -46,6 +46,7 @@ public class NPCManager : SingletonManager<NPCManager>
         npcData.npcName = GenerateRandomName(activeConfig);
         npcData.baseSalary = GenerateRandomValue(activeConfig.SalaryRange);
         npcData.baseWorkAbility = GenerateRandomValue(activeConfig.BaseWorkAbilityRange);
+        npcData.itemCapacity = GenerateRandomValue(activeConfig.ItemCapacityRange);
         
         // 生成时间属性 - 确保时间逻辑合理
         npcData.restTimeStart = GenerateRandomValue(activeConfig.RestStartHourRange);
@@ -222,4 +223,11 @@ public class NPCManager : SingletonManager<NPCManager>
     }
     
     private void UpdateNPCStates() { }
+
+    [ContextMenu("Test Generate NPC")]
+    public void TestGenerateNPC()
+    {
+        var npcData = GenerateRandomNPCData();
+        Debug.Log($"[NPCManager] 生成了新NPC: {npcData.ToString()}");
+    }
 }
