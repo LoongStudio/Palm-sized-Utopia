@@ -45,6 +45,12 @@ public class DragHandler : MonoBehaviour, IDragHandler_Utopia
             var mouseWorldPos = GetMouseWorldPosition();
             dragOffset = originalPosition - mouseWorldPos;
         }
+
+        // 隐藏原物体
+        if (target is PlaceableObject placeableObj)
+        {
+            placeableObj.SetVisibility(false);
+        }
         
         // 触发事件
         PlacementEvents.TriggerDragStarted(target);
@@ -143,6 +149,12 @@ public class DragHandler : MonoBehaviour, IDragHandler_Utopia
     
     private void CleanupDrag()
     {
+        // 恢复原物体显示
+        if (currentTarget is PlaceableObject placeableObj)
+        {
+            placeableObj.SetVisibility(true);
+        }
+            
         PlacementEvents.TriggerPreviewCleared();
         currentTarget = null;
         IsDragging = false;

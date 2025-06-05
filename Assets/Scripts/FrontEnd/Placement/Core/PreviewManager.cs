@@ -42,17 +42,25 @@ public class PreviewManager : MonoBehaviour
         // 清除旧预览
         ClearPreview();
         
-        // 检查是否可以放置
-        bool canPlace = placeable.CanPlaceAt(positions);
-        Material previewMaterial = canPlace ? validPreviewMaterial : invalidPreviewMaterial;
-        
-        // 创建新预览
+        // 检查每个位置的冲突状态
         foreach (var gridPos in positions)
         {
             var worldPos = gridSystem.GridToWorld(gridPos);
+            bool isConflict = gridSystem.IsOccupied(gridPos) && 
+                            !IsOwnPosition(placeable, gridPos); // 排除自己的位置
+            
+            // 创建预览对象
+            Material previewMaterial = isConflict ? invalidPreviewMaterial : validPreviewMaterial;
             var previewObj = CreatePreviewCube(worldPos, previewMaterial);
             previewObjects[gridPos] = previewObj;
         }
+    }
+
+    // 添加辅助方法
+    private bool IsOwnPosition(IPlaceable placeable, Vector3Int gridPos)
+    {
+        var currentPositions = placeable.GetOccupiedPositions();
+        return currentPositions != null && System.Array.Exists(currentPositions, pos => pos == gridPos);
     }
     
     private void ClearPreview()
