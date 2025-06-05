@@ -22,7 +22,7 @@ public class TradeMarket : Building
         Debug.Log($"贸易市场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
-    public override float GetCurrentEfficiency()
+    public override float UpdateCurrentEfficiency()
     {
         return tradeEfficiencyMultiplier * (1 + (currentLevel - 1) * 0.1f);
     }
@@ -34,7 +34,7 @@ public class TradeMarket : Building
             
         // 获取基础价格（这里应该从配置中读取）
         int basePrice = GetResourceBasePrice(type);
-        int totalPrice = Mathf.RoundToInt(basePrice * amount * GetCurrentEfficiency());
+        int totalPrice = Mathf.RoundToInt(basePrice * amount * UpdateCurrentEfficiency());
         
         ResourceManager.Instance.RemoveResource(type, subType, amount);
         ResourceManager.Instance.AddResource(ResourceType.Coin, 0, totalPrice);
