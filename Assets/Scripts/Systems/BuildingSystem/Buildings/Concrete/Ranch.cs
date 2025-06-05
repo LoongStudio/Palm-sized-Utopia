@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,7 @@ public class Ranch : ProductionBuilding
 
     public override void InitialSelfStorage()
     {
+        AcceptResources = new List<Enum>() { FeedSubType.Feed, BreedingStockSubType.Cattle, BreedingStockSubType.Sheep };
         currentSubResource = new List<SubResourceValue<int>>()
         {
             new SubResourceValue<int>(FeedSubType.Feed, 0),

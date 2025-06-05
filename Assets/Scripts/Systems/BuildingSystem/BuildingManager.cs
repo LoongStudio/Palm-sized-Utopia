@@ -1,12 +1,15 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
 public class BuildingManager : SingletonManager<BuildingManager>
 {
-    private HashSet<Building> _buildings;
+    private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
+    // 历史资源变化记录（可用于曲线绘制）
+    private Dictionary<(ResourceType, Enum), List<int>> resourceHistory = new();
     // 事件
     public static event System.Action<Building> OnBuildingBuilt;
     public static event System.Action<Building> OnBuildingUpgraded;
@@ -14,13 +17,135 @@ public class BuildingManager : SingletonManager<BuildingManager>
     protected override void Awake()
     {
         base.Awake();
+        Initialize();
+    }
+
+    protected void Start()
+    {
+        if (Time.frameCount % 5 == 0)
+            RecordResourceSnapshot();
     }
     public void Initialize()
     {
         // TODO: 后续改为从存档中读取
-        _buildings = new HashSet<Building>();
+        _buildings = new List<Building>();
         _buildingDataDict = new Dictionary<BuildingSubType, BuildingData>();
         _buildingOccupies = new Dictionary<Vector2Int, Building>();
+    }
+    
+    
+    /// <summary>
+    /// 记录当前帧资源分布
+    /// </summary>
+    private void RecordResourceSnapshot()
+    {
+        var total = GetTotalResource();
+
+        foreach (var kvp in total)
+        {
+            if (!resourceHistory.ContainsKey(kvp.Key))
+                resourceHistory[kvp.Key] = new List<int>();
+
+            resourceHistory[kvp.Key].Add(kvp.Value);
+        }
+    }
+
+    /// <summary>
+    /// 汇总所有建筑的当前资源
+    /// </summary>
+    public Dictionary<(ResourceType, Enum), int> GetTotalResource()
+    {
+        Dictionary<(ResourceType, Enum), int> result = new();
+
+        foreach (var building in _buildings)
+        {
+            foreach (var res in building.currentSubResource)
+            {
+                // 通过 ResourceType 拿到对应的 Enum 类型
+                if (!SubResourceValue<int>.MappingMainSubType.TryGetValue(
+                    res.resourceType, out var enumType))
+                    continue;
+
+                // 将 int subType 转换为 Enum 实例
+                Enum subTypeEnum = (Enum)Enum.ToObject(enumType, res.subType);
+
+                var key = (res.resourceType, subTypeEnum);
+                if (!result.ContainsKey(key))
+                    result[key] = 0;
+
+                result[key] += res.resourceValue;
+            }
+        }
+
+
+        return result;
+    }
+
+    /// <summary>
+    /// 找出等待输入资源的建筑（AcceptResources中资源未达到最大值）
+    /// </summary>
+    public List<(Building, Enum)> GetBuildingsWaitingForResources()
+    {
+        List<(Building, Enum)> result = new();
+
+        foreach (var building in _buildings)
+        {
+            foreach (var res in building.AcceptResources)
+            {
+                var current = building.currentSubResource.FirstOrDefault(r => r.subType.Equals(res))?.resourceValue ?? 0;
+                var max = building.maximumSubResource.FirstOrDefault(r => r.subType.Equals(res))?.resourceValue ?? 0;
+
+                if (current < max)
+                    result.Add((building, res));
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 找出拥有富余资源的建筑（资源未被限制且有剩余）
+    /// </summary>
+    public List<(Building, SubResourceValue<int>)> GetBuildingsWithExcessResources()
+    {
+        List<(Building, SubResourceValue<int>)> result = new();
+
+        foreach (var building in _buildings)
+        {
+            foreach (var res in building.currentSubResource)
+            {
+                var max = building.maximumSubResource.FirstOrDefault(r =>
+                    r.resourceType == res.resourceType && r.subType.Equals(res.subType))?.resourceValue ?? 0;
+
+                // 富余条件：超过一定量 or 没有限制
+                if (max == 0 || res.resourceValue > 0.8f * max)
+                {
+                    result.Add((building, res));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 获取资源增长曲线（某个资源）
+    /// </summary>
+    public List<int> GetResourceHistory(ResourceType type, Enum subType)
+    {
+        var key = (type, subType);
+        return resourceHistory.TryGetValue(key, out var list) ? list : new List<int>();
+    }
+
+    /// <summary>
+    /// 获取指定资源的总量
+    /// </summary>
+    public int GetResourceAmount(ResourceType type, Enum subType)
+    {
+        return _buildings
+            .SelectMany(b => b.currentSubResource)
+            .Where(r => r.resourceType == type && r.subType.Equals(subType))
+            .Sum(r => r.resourceValue);
     }
     
     // 建筑管理

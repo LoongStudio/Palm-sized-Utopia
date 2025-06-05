@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 public class Farm : ProductionBuilding
@@ -22,6 +23,7 @@ public class Farm : ProductionBuilding
     
     public override void InitialSelfStorage()
     {
+        AcceptResources = new List<Enum>() { SeedSubType.Wheat, SeedSubType.Corn };
         currentSubResource = new List<SubResourceValue<int>>
         {
             new SubResourceValue<int>(SeedSubType.Wheat, 0),
