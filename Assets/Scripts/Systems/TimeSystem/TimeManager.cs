@@ -6,6 +6,8 @@ using System.Collections;
 /// </summary>
 public class TimeManager : SingletonManager<TimeManager>
 {
+    #region 字段和属性 (Fields & Properties)
+    
     [Header("时间设置")]
     [SerializeField] private TimeSettings settings;
     
@@ -28,6 +30,10 @@ public class TimeManager : SingletonManager<TimeManager>
     public float TimeScale => currentTimeScale;
     public TimeSettings Settings => settings;
     
+    #endregion
+    
+    #region Unity生命周期 (Unity Lifecycle)
+    
     protected override void Awake()
     {
         base.Awake();
@@ -38,6 +44,10 @@ public class TimeManager : SingletonManager<TimeManager>
     {
         StartTimeSystem();
     }
+    
+    #endregion
+    
+    #region 初始化 (Initialization)
     
     private void InitializeTime()
     {
@@ -65,6 +75,10 @@ public class TimeManager : SingletonManager<TimeManager>
         timeUpdateCoroutine = StartCoroutine(TimeUpdateLoop());
         Debug.Log("[TimeManager] 时间系统启动");
     }
+    
+    #endregion
+    
+    #region 时间更新核心逻辑 (Time Update Core Logic)
     
     private IEnumerator TimeUpdateLoop()
     {
@@ -110,6 +124,10 @@ public class TimeManager : SingletonManager<TimeManager>
         // 触发基础时间变化事件
         TimeEvents.TriggerTimeChanged(currentTime);
     }
+    
+    #endregion
+    
+    #region 事件处理 (Event Handling)
     
     private void CheckAndTriggerEvents()
     {
@@ -172,25 +190,10 @@ public class TimeManager : SingletonManager<TimeManager>
         }
     }
     
-    private bool IsNightTimePaused()
-    {
-        if (settings == null || !settings.PauseAtNight) return false;
-        
-        int nightStart = settings.NightStartHour;
-        int nightEnd = settings.NightEndHour;
-        
-        if (nightStart < nightEnd)
-        {
-            return false; // 夜间不跨天，不暂停
-        }
-        else
-        {
-            // 夜间跨天的情况
-            return currentTime.hour >= nightStart || currentTime.hour < nightEnd;
-        }
-    }
+    #endregion
     
-    // 公共方法
+    #region 公共接口 (Public Interface)
+    
     public void PauseTime()
     {
         isPaused = true;
@@ -218,6 +221,30 @@ public class TimeManager : SingletonManager<TimeManager>
         Debug.Log($"[TimeManager] 时间设置为: {currentTime.ToLongString()}");
     }
     
+    #endregion
+    
+    #region 辅助方法 (Helper Methods)
+    
+    // 根据是否夜晚，返回是否暂停
+    private bool IsNightTimePaused()
+    {
+        if (settings == null || !settings.PauseAtNight) return false;
+        
+        int nightStart = settings.NightStartHour;
+        int nightEnd = settings.NightEndHour;
+        
+        if (nightStart < nightEnd)
+        {
+            return false; // 夜间不跨天，不暂停
+        }
+        else
+        {
+            // 夜间跨天的情况
+            return currentTime.hour >= nightStart || currentTime.hour < nightEnd;
+        }
+    }
+
+    // 是否是工作时间
     public bool IsWorkingHours()
     {
         if (settings == null) return true;
@@ -235,6 +262,7 @@ public class TimeManager : SingletonManager<TimeManager>
         }
     }
     
+    // 是否是夜晚
     public bool IsNightTime()
     {
         if (settings == null) return false;
@@ -252,7 +280,10 @@ public class TimeManager : SingletonManager<TimeManager>
         }
     }
     
-    // 调试方法
+    #endregion
+    
+    #region 调试方法 (Debug Methods)
+    
     [ContextMenu("推进1小时")]
     private void DebugAdvanceHour() => AdvanceTime(1);
     
@@ -264,4 +295,6 @@ public class TimeManager : SingletonManager<TimeManager>
     
     [ContextMenu("打印当前时间")]
     private void DebugPrintTime() => Debug.Log($"当前时间: {currentTime.ToLongString()}");
+    
+    #endregion
 }
