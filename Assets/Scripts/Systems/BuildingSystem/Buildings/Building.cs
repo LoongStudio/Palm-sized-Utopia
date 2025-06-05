@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using NUnit.Framework;
 
 public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 {
@@ -9,10 +10,12 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
-    
+    public List<Enum> AcceptResources;
     [Header("槽位管理")]
     public List<NPC> assignedNPCs;
     public List<Equipment> installedEquipment;
+    public List<SubResourceValue<int>> currentSubResource;
+    public List<SubResourceValue<int>> maximumSubResource;
     
     /// <summary>
     /// Try Snap 会先给其赋值 positions, 然后调用它，
@@ -34,6 +37,12 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public abstract float GetCurrentEfficiency();
     
     // 通用方法
+    public virtual void InitialSelfStorage()
+    {
+        AcceptResources = new List<Enum>();
+        currentSubResource = new List<SubResourceValue<int>>();
+        maximumSubResource = new List<SubResourceValue<int>>();
+    }
     public virtual bool CanUpgrade() { return false; }
     public virtual bool Upgrade() { return false; }
     public virtual int GetUpgradePrice() { return 0; }
@@ -53,7 +62,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         {
             Debug.LogError($"[Building] 建筑 {this.ToString()} 放置失败, 游戏开始时所有建筑应正常被放置成功");    
         }
-        
+        InitialSelfStorage();
     }
 
     public override string ToString()
