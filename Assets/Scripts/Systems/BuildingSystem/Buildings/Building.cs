@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using NUnit.Framework;
 
 public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 {
@@ -13,7 +14,8 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     [Header("槽位管理")]
     public List<NPC> assignedNPCs;
     public List<Equipment> installedEquipment;
-    
+    public List<SubResourceValue<int>> currentSubResource;
+    public List<SubResourceValue<int>> maximumSubResource;
     /// <summary>
     /// Try Snap 会先给其赋值 positions, 然后调用它，
     /// 如果回传是 true 登记成功

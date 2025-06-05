@@ -30,31 +30,27 @@ public class Ranch : ProductionBuilding
         {
             new ConversionRule()
             {
-                inputs = new List<ConversionResource> 
+                inputs = new List<SubResourceValue<int>> 
                 { 
-                    new ConversionResource(ResourceType.Feed, FeedSubType.Feed, 2),
-                    new ConversionResource(
-                        ResourceType.BreedingStock, 
-                        BreedingStockSubType.Cattle, 1)
+                    new SubResourceValue<int>(FeedSubType.Feed, 2),
+                    new SubResourceValue<int>(BreedingStockSubType.Cattle, 1)
                 },
-                outputs = new List<ConversionResource> 
+                outputs = new List<SubResourceValue<int>> 
                 { 
-                    new ConversionResource(ResourceType.Livestock, LivestockSubType.Cattle, 1)
+                    new SubResourceValue<int>(LivestockSubType.Cattle, 1)
                 },
                 conversionTime = 20f
             },
             new ConversionRule()
             {
-                inputs = new List<ConversionResource> 
+                inputs = new List<SubResourceValue<int>> 
                 { 
-                    new ConversionResource(ResourceType.Feed, FeedSubType.Feed, 2),
-                    new ConversionResource(
-                        ResourceType.BreedingStock, 
-                        BreedingStockSubType.Sheep, 1)
+                    new SubResourceValue<int>(FeedSubType.Feed, 2),
+                    new SubResourceValue<int>(BreedingStockSubType.Sheep, 1)
                 },
-                outputs = new List<ConversionResource> 
+                outputs = new List<SubResourceValue<int>> 
                 { 
-                    new ConversionResource(ResourceType.Livestock, LivestockSubType.Sheep, 1)
+                    new SubResourceValue<int>(LivestockSubType.Sheep, 1)
                 },
                 conversionTime = 20f
             }
