@@ -128,7 +128,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         }
     }
     
-    public override float UpdateCurrentEfficiency()
+    public virtual float UpdateCurrentEfficiency()
     {
         // TODO: 需要修改efficiency的计算
         // 计算综合效率：基础效率 + 等级加成 + NPC加成 + 设备加成 + 加成建筑影响
