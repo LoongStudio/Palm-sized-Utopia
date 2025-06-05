@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Warehouse : Building
+public class Warehouse : FunctionalBuilding
 {
     [Header("仓库专属")]
     public int storageCapacity = 500;

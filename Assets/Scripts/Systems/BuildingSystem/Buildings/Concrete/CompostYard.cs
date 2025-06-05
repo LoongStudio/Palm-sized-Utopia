@@ -1,15 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CompostYard : ProductionBuilding
 {
-    public new void OnTryBuilt()
-    {
-        status = BuildingStatus.Active;
-        SetupProductionRule();
-        Debug.Log($"堆肥场建造完成，位置: {string.Join(" ", positions)}");
-    }
-    
     public override void OnUpgraded()
     {
         Debug.Log($"堆肥场升级到等级 {currentLevel}");
@@ -19,6 +13,23 @@ public class CompostYard : ProductionBuilding
     {
         StopProduction();
         Debug.Log($"堆肥场被摧毁，位置: {string.Join(" ", positions)}");
+    }
+    
+    public override void InitialSelfStorage()
+    {
+        AcceptResources = new List<Enum>() { CropSubType.Wheat, CropSubType.Corn };
+        currentSubResource = new List<SubResourceValue<int>>()
+        {
+            new SubResourceValue<int>(CropSubType.Wheat, 0),
+            new SubResourceValue<int>(CropSubType.Corn, 0),
+            new SubResourceValue<int>(FeedSubType.Feed, 0),
+        };
+        maximumSubResource = new List<SubResourceValue<int>>()
+        {
+            new SubResourceValue<int>(CropSubType.Wheat, 10),
+            new SubResourceValue<int>(CropSubType.Corn, 10),
+            new SubResourceValue<int>(FeedSubType.Feed, 25),
+        };
     }
     
     protected override void SetupProductionRule()

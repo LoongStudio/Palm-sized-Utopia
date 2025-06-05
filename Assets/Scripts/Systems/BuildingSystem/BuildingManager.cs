@@ -165,11 +165,11 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
     public void HandleBuffBuildingBuilt(BuffBuilding building)
     {
-        foreach (var targetBuildingSubType in building.targetBuildingSubTypes)
+        foreach (var targetBuildingSubType in building.affectedBuildingSubTypes)
         {
             if (!AppliedBuffs.ContainsKey(targetBuildingSubType)) 
                 AppliedBuffs.Add(targetBuildingSubType, new Dictionary<BuffEnums, int>());
-            foreach (var targetBuffType in building.targetBuffTypes)
+            foreach (var targetBuffType in building.affectedBuffTypes)
             {
                 if (!AppliedBuffs[targetBuildingSubType].ContainsKey(targetBuffType))
                     AppliedBuffs[targetBuildingSubType][targetBuffType] = 1;
@@ -182,12 +182,12 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
     public void HandleBuffBuildingDestroyed(BuffBuilding building)
     {
-        foreach (var targetBuildingSubType in building.targetBuildingSubTypes)
+        foreach (var targetBuildingSubType in building.affectedBuildingSubTypes)
         {
             if (!AppliedBuffs.ContainsKey(targetBuildingSubType)) 
                 Debug.LogError("Buff建筑移除错误，参数不匹配，不可能存在目标建筑参数不存在登记表的情况");
             
-            foreach (var targetBuffType in building.targetBuffTypes)
+            foreach (var targetBuffType in building.affectedBuffTypes)
             {
                 if (!AppliedBuffs[targetBuildingSubType].ContainsKey(targetBuffType))
                     Debug.LogError("Buff建筑移除错误，参数不匹配，不可能存在目标Buff参数不存在登记表的情况");
