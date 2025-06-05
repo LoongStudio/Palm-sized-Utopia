@@ -10,7 +10,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
-    
+    public List<Enum> AcceptResources;
     [Header("槽位管理")]
     public List<NPC> assignedNPCs;
     public List<Equipment> installedEquipment;
@@ -39,6 +39,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // 通用方法
     public virtual void InitialSelfStorage()
     {
+        AcceptResources = new List<Enum>();
         currentSubResource = new List<SubResourceValue<int>>();
         maximumSubResource = new List<SubResourceValue<int>>();
     }
