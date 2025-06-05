@@ -4,7 +4,8 @@ public enum BuildingType
     Production, // 生产类
     Buff,       // 加成类
     Decoration, // 装饰类
-    Housing     // 住房类
+    Housing,    // 住房类
+    Functional, // 功能类
 }
 
 // 建筑子类型
@@ -32,4 +33,4 @@ public enum BuildingStatus
     Active,    // 活跃
     Inactive,  // 非活跃
     Upgrading  // 升级中
-} 
+}
