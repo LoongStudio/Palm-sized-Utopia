@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TradeMarket : Building
+public class TradeMarket : FunctionalBuilding
 {
     [Header("贸易市场专属")]
     public float tradeEfficiencyMultiplier = 1.0f;
