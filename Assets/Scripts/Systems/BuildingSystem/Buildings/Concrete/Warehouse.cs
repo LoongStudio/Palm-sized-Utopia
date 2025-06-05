@@ -24,7 +24,7 @@ public class Warehouse : Building
         Debug.Log($"仓库被摧毁，位置: {string.Join(" ", positions)}");
     }
     
-    public override float GetCurrentEfficiency()
+    public override float UpdateCurrentEfficiency()
     {
         return storageCapacity;
     }

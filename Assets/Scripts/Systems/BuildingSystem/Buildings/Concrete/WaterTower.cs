@@ -22,7 +22,7 @@ public class WaterTower : BuffBuilding
         Debug.Log($"水塔被摧毁，位置: {string.Join(" ", positions)}");
     }
 
-    public override float GetCurrentEfficiency()
+    public override float UpdateCurrentEfficiency()
     {
         return buffValue;
     }

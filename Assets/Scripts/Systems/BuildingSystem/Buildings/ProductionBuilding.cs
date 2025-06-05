@@ -10,6 +10,8 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public List<float> productionTimers;
     public float productionCooldown = 5f;
     public float conversionTime = 5f;
+    public float efficiency = 1f;
+    private bool _canProduce = true; 
     private new void Start()
     {
         base.Start();
@@ -22,12 +24,22 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     protected virtual void SetupProductionRule() { }
     protected virtual void UpdateProduction()
     {
+        if (!_canProduce) return;
         // 初始化计时器
         if (productionTimers.Count != productionRules.Count)
         {
             productionTimers = new List<float>(new float[productionRules.Count]);
         }
 
+        ProduceResources();
+    }
+
+    public virtual void StartProduction() { _canProduce = true; }
+    public virtual void StopProduction() { _canProduce = false; }
+    public virtual bool CanProduce() { return _canProduce; }
+    public virtual void ProduceResources()
+    {
+        UpdateCurrentEfficiency();
         for (int i = 0; i < productionRules.Count; i++)
         {
             var rule = productionRules[i];
@@ -76,7 +88,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             {
                 productionTimers[i] += Time.deltaTime;
 
-                if (productionTimers[i] >= conversionTime)
+                if (productionTimers[i] >= conversionTime / efficiency)
                 {
                     // 消耗输入资源
                     foreach (var input in rule.inputs)
@@ -115,15 +127,12 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             }
         }
     }
-
-    public virtual void StartProduction() { }
-    public virtual void StopProduction() { }
-    public virtual bool CanProduce() { return false; }
-    public virtual void ProduceResources() { }
     
-    public override float GetCurrentEfficiency()
+    public override float UpdateCurrentEfficiency()
     {
+        // TODO: 需要修改efficiency的计算
         // 计算综合效率：基础效率 + 等级加成 + NPC加成 + 设备加成 + 加成建筑影响
-        return 0f;
+        // efficiency = efficiency / productionRules.Count;
+        return efficiency;
     }
 }
