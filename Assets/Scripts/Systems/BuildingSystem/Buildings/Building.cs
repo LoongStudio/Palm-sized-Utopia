@@ -34,8 +34,6 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // 抽象方法
     public abstract void OnUpgraded();
     public abstract void OnDestroyed();
-    public abstract float UpdateCurrentEfficiency();
-    
     // 通用方法
     public virtual void InitialSelfStorage()
     {

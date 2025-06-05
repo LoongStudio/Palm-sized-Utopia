@@ -1,28 +1,40 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
+
 
 public abstract class BuffBuilding : Building
 {
     [Header("加成属性")]
-    public float buffRadius;
-    public float buffValue;
-    public BuildingType targetBuildingType;
+    public List<BuildingSubType> targetBuildingSubTypes;
+    public List<BuffEnums> targetBuffTypes;
+    protected List<Building> AffectedBuildings;
     
-    protected List<Building> affectedBuildings;
-    
-    public new void OnTryBuilt()
+    public static event Action<BuffBuilding> OnBuffBuildingBuilt;
+    public static event Action<BuffBuilding> OnBuffBuildingDestroyed;
+    public override bool OnTryBuilt()
     {
-        FindAffectedBuildings();
-        ApplyBuffs();
+        if (base.OnTryBuilt())
+        {
+            InitBuildingAndBuffTypes();
+            return true;
+        }
+            
+        return false;
+    }
+    
+    protected abstract void InitBuildingAndBuffTypes();
+
+    public virtual void Start()
+    {
+        OnTryBuilt();
+        OnBuffBuildingBuilt?.Invoke(this);
     }
     
     public override void OnDestroyed()
     {
-        RemoveBuffs();
+        OnBuffBuildingDestroyed?.Invoke(this);
     }
     
-    protected virtual void FindAffectedBuildings() { }
-    protected virtual void ApplyBuffs() { }
-    protected virtual void RemoveBuffs() { }
-    public virtual float GetBuffValue() { return 0f; }
+    // protected virtual void FindAffectedBuildings() { } 现在直接全局搜索apply
 }
