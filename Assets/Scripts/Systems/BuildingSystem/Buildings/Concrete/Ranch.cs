@@ -24,22 +24,41 @@ public class Ranch : ProductionBuilding
         Debug.Log($"牧场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
-    private void SetupProductionRule()
+    protected override void SetupProductionRule()
     {
-        productionRule = new ConversionRule
+        productionRules = new List<ConversionRule>()
         {
-            inputs = new List<Resource> 
-            { 
-                new Resource(ResourceType.Feed, 0, 2),
-                new Resource(ResourceType.BreedingStock, (int)animalType, 1)
+            new ConversionRule()
+            {
+                inputs = new List<ConversionResource> 
+                { 
+                    new ConversionResource(ResourceType.Feed, FeedSubType.Feed, 2),
+                    new ConversionResource(
+                        ResourceType.BreedingStock, 
+                        BreedingStockSubType.Cattle, 1)
+                },
+                outputs = new List<ConversionResource> 
+                { 
+                    new ConversionResource(ResourceType.Livestock, LivestockSubType.Cattle, 1)
+                },
+                conversionTime = 20f
             },
-            outputs = new List<Resource> 
-            { 
-                new Resource(ResourceType.Livestock, (int)animalType, 1)
-            },
-            conversionTime = 20f
+            new ConversionRule()
+            {
+                inputs = new List<ConversionResource> 
+                { 
+                    new ConversionResource(ResourceType.Feed, FeedSubType.Feed, 2),
+                    new ConversionResource(
+                        ResourceType.BreedingStock, 
+                        BreedingStockSubType.Sheep, 1)
+                },
+                outputs = new List<ConversionResource> 
+                { 
+                    new ConversionResource(ResourceType.Livestock, LivestockSubType.Sheep, 1)
+                },
+                conversionTime = 20f
+            }
         };
-        productionCooldown = productionRule.conversionTime;
     }
     
     public void ChangeAnimalType(LivestockSubType newAnimalType)

@@ -21,20 +21,22 @@ public class CompostYard : ProductionBuilding
         Debug.Log($"堆肥场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
-    private void SetupProductionRule()
+    protected override void SetupProductionRule()
     {
-        productionRule = new ConversionRule
+        productionRules = new List<ConversionRule>()
         {
-            inputs = new List<Resource> 
-            { 
-                new Resource(ResourceType.Crop, 0, 2) // 使用作物制作堆肥
-            },
-            outputs = new List<Resource> 
-            { 
-                new Resource(ResourceType.Feed, 0, 3) // 产出高质量饲料
-            },
-            conversionTime = 12f
+            new ConversionRule
+            {
+                inputs = new List<ConversionResource>
+                {
+                    new ConversionResource(ResourceType.Crop, CropSubType.Wheat, 2) // 使用作物制作堆肥
+                },
+                outputs = new List<ConversionResource>
+                {
+                    new ConversionResource(ResourceType.Feed, FeedSubType.Feed, 3) // 产出高质量饲料
+                },
+                conversionTime = 12f
+            }
         };
-        productionCooldown = productionRule.conversionTime;
     }
 } 
