@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 [Serializable]
-public class ConversionResource
+public class SubResourceValue<T>
 {
 	// Seed,      // 种子
 	// Crop,      // 作物
@@ -35,19 +35,27 @@ public class ConversionResource
 		};
 	public ResourceType resourceType;
 	public int subType;
-	public int resourceAmount;
-	private ConversionResource(ResourceType resourceType, int subType, int resourceAmount)
+	public T resourceValue;
+	private SubResourceValue(ResourceType resourceType, int subType, T resourceValue)
 	{
 		this.resourceType = resourceType;
 		this.subType = subType;
-		this.resourceAmount = resourceAmount;
+		this.resourceValue = resourceValue;
 	}
 	
-	public ConversionResource(ResourceType resourceType, Enum subType, int resourceAmount)
+	public SubResourceValue(Enum subType, T resourceValue)
 	{
-		this.resourceType = resourceType;
-		this.subType = Convert.ToInt32(GetMainTypeFromSubType(subType));
-		this.resourceAmount = resourceAmount;
+		this.resourceType = GetMainTypeFromSubType(subType);
+		this.subType = Convert.ToInt32(subType);
+		this.resourceValue = resourceValue;
+	}
+	
+	public static Enum IntToEnum(ResourceType type, int subTypeInt)
+	{
+		if (!MappingMainSubType.TryGetValue(type, out var enumType))
+			throw new ArgumentException($"Unknown ResourceType: {type}");
+
+		return (Enum)Enum.ToObject(enumType, subTypeInt);
 	}
 	
 	/// <summary> 从子类型 Enum 获取 ResourceType </summary>

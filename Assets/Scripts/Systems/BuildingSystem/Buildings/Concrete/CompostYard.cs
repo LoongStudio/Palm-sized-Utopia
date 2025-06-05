@@ -27,13 +27,13 @@ public class CompostYard : ProductionBuilding
         {
             new ConversionRule
             {
-                inputs = new List<ConversionResource>
+                inputs = new List<SubResourceValue<int>>
                 {
-                    new ConversionResource(ResourceType.Crop, CropSubType.Wheat, 2) // 使用作物制作堆肥
+                    new SubResourceValue<int>(CropSubType.Wheat, 2) // 使用作物制作堆肥
                 },
-                outputs = new List<ConversionResource>
+                outputs = new List<SubResourceValue<int>>
                 {
-                    new ConversionResource(ResourceType.Feed, FeedSubType.Feed, 3) // 产出高质量饲料
+                    new SubResourceValue<int>(FeedSubType.Feed, 3) // 产出高质量饲料
                 },
                 conversionTime = 12f
             }
