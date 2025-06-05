@@ -26,6 +26,7 @@ public class Ranch : ProductionBuilding
     
     protected override void SetupProductionRule()
     {
+        base.SetupProductionRule();
         productionRules = new List<ConversionRule>()
         {
             new ConversionRule()
@@ -38,8 +39,7 @@ public class Ranch : ProductionBuilding
                 outputs = new List<SubResourceValue<int>> 
                 { 
                     new SubResourceValue<int>(LivestockSubType.Cattle, 1)
-                },
-                conversionTime = 20f
+                }
             },
             new ConversionRule()
             {
@@ -51,18 +51,16 @@ public class Ranch : ProductionBuilding
                 outputs = new List<SubResourceValue<int>> 
                 { 
                     new SubResourceValue<int>(LivestockSubType.Sheep, 1)
-                },
-                conversionTime = 20f
+                }
             }
         };
+    }
+    protected override void UpdateProduction()
+    {
+        base.UpdateProduction();
     }
     
     public void ChangeAnimalType(LivestockSubType newAnimalType)
     {
-        if (productionTimer <= 0)
-        {
-            animalType = newAnimalType;
-            SetupProductionRule();
-        }
     }
 } 

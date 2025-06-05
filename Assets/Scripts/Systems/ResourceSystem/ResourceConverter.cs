@@ -4,7 +4,7 @@ public class ConversionRule
 {
     public List<SubResourceValue<int>> inputs;
     public List<SubResourceValue<int>> outputs;
-    public float conversionTime;
+    // public float conversionTime; TODO: 现在 Conversion 时间都交给建筑单独控制
 }
 
 public class ResourceConverter

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [Serializable]
 public class SubResourceValue<T>
@@ -49,6 +50,28 @@ public class SubResourceValue<T>
 		this.subType = Convert.ToInt32(subType);
 		this.resourceValue = resourceValue;
 	}
+	
+	public static Enum GetEnumFromTypeAndIndex(ResourceType mainType, int index)
+	{
+		if (MappingMainSubType.TryGetValue(mainType, out var enumType))
+		{
+			if (Enum.IsDefined(enumType, index))
+			{
+				return (Enum)Enum.ToObject(enumType, index);
+			}
+			else
+			{
+				Debug.LogWarning($"Index {index} is not defined in enum {enumType}");
+			}
+		}
+		else
+		{
+			Debug.LogWarning($"ResourceType {mainType} not found in MappingMainSubType");
+		}
+
+		return null;
+	}
+
 	
 	public static Enum IntToEnum(ResourceType type, int subTypeInt)
 	{

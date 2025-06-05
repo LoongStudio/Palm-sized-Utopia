@@ -23,6 +23,7 @@ public class CompostYard : ProductionBuilding
     
     protected override void SetupProductionRule()
     {
+        base.SetupProductionRule();
         productionRules = new List<ConversionRule>()
         {
             new ConversionRule
@@ -34,8 +35,7 @@ public class CompostYard : ProductionBuilding
                 outputs = new List<SubResourceValue<int>>
                 {
                     new SubResourceValue<int>(FeedSubType.Feed, 3) // 产出高质量饲料
-                },
-                conversionTime = 12f
+                }
             }
         };
     }
