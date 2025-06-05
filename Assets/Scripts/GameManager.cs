@@ -1,0 +1,56 @@
+using UnityEngine;
+
+public class GameManager : SingletonManager<GameManager>
+{
+    [Header("系统管理器")]
+    public ResourceManager resourceManager;
+    public BuildingManager buildingManager;
+    public NPCManager npcManager;
+    public ReportManager reportManager;
+    public SaveManager saveManager;
+    
+    [Header("游戏状态")]
+    public bool isGamePaused;
+    public float gameSpeed = 1f;
+    public System.DateTime gameStartTime;
+    public System.DateTime currentGameTime;
+    
+    protected override void Awake()
+    {
+        base.Awake();
+        InitializeAllSystems();
+    }
+    
+    private void Start()
+    {
+        StartNewGame();
+    }
+    
+    private void Update()
+    {
+        if (!isGamePaused)
+        {
+            UpdateGameTime();
+            UpdateAllSystems();
+        }
+    }
+    
+    private void InitializeAllSystems()
+    {
+        resourceManager.Initialize();
+        buildingManager.Initialize();
+        npcManager.Initialize();
+        reportManager.Initialize();
+        saveManager.Initialize();
+    }
+    
+    private void UpdateAllSystems() { }
+    private void UpdateGameTime() { }
+    
+    public void StartNewGame() { }
+    public void LoadGame() { }
+    public void SaveGame() { }
+    public void PauseGame() { }
+    public void ResumeGame() { }
+    public void SetGameSpeed(float speed) { }
+}
