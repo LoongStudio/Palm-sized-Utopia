@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c831b41d2d714ab4d8e086db0cf7ba1b, type: 3}
+  m_Name: PlacementSettings
+  m_EditorClassIdentifier: 
+  gridSize: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  groundSnapHeight: 0.1
+  dragSmoothTime: 0.1
+  enableRotationSnap: 0
+  rotationSnapAngle: 90
+  validPreviewMaterial: {fileID: 2100000, guid: fe916f864f85295449cfbac5b03d84f4, type: 2}
+  invalidPreviewMaterial: {fileID: 2100000, guid: 54716072b565b2946abc7bb6e13375fb, type: 2}
+  showGridGizmos: 1
+  navMeshUpdateDelay: 0.2
+  maxBatchSize: 50
+  enableAsyncOperations: 1
+  editModeKey: 101
+  cancelKey: 27
+  dragMouseButton: 0
