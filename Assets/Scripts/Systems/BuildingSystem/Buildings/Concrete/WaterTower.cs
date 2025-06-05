@@ -5,11 +5,11 @@ public class WaterTower : BuffBuilding
 {
     protected override void InitBuildingAndBuffTypes()
     {
-        targetBuildingSubTypes = new List<BuildingSubType>()
+        affectedBuildingSubTypes = new List<BuildingSubType>()
         {
             BuildingSubType.Farm
         };
-        targetBuffTypes = new List<BuffEnums>()
+        affectedBuffTypes = new List<BuffEnums>()
         {
             BuffEnums.WellIrrigated
         };

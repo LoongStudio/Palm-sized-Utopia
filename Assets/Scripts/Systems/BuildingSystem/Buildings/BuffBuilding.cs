@@ -1,14 +1,14 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 
 public abstract class BuffBuilding : Building
 {
     [Header("加成属性")]
-    public List<BuildingSubType> targetBuildingSubTypes;
-    public List<BuffEnums> targetBuffTypes;
-    protected List<Building> AffectedBuildings;
+    public List<BuildingSubType> affectedBuildingSubTypes;
+    public List<BuffEnums> affectedBuffTypes;
     
     public static event Action<BuffBuilding> OnBuffBuildingBuilt;
     public static event Action<BuffBuilding> OnBuffBuildingDestroyed;
