@@ -537,6 +537,10 @@ PrefabInstance:
       propertyPath: resourcesData.Array.data[0].canBePurchased
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7978545962071571111, guid: 8c08ab979d700a141a389b975924faff, type: 3}
+      propertyPath: defaultNPCGenerationConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: e85be9aa8f582d84b9b46d55ad98f0d5, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
