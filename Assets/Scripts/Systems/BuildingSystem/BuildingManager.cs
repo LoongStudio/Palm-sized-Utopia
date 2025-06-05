@@ -14,6 +14,20 @@ public class BuildingManager : SingletonManager<BuildingManager>
     public static event System.Action<Building> OnBuildingBuilt;
     public static event System.Action<Building> OnBuildingUpgraded;
     public static event System.Action<Building> OnBuildingDestroyed;
+    // Buff 加成
+    public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
+    
+    private void OnEnable()
+    {
+        BuffBuilding.OnBuffBuildingBuilt += HandleBuffBuildingBuilt;
+        BuffBuilding.OnBuffBuildingDestroyed += HandleBuffBuildingDestroyed;
+    }
+
+    private void OnDisable()
+    {
+        BuffBuilding.OnBuffBuildingBuilt -= HandleBuffBuildingBuilt;
+        BuffBuilding.OnBuffBuildingDestroyed -= HandleBuffBuildingDestroyed;
+    }
     protected override void Awake()
     {
         base.Awake();
@@ -31,6 +45,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
         _buildings = new List<Building>();
         _buildingDataDict = new Dictionary<BuildingSubType, BuildingData>();
         _buildingOccupies = new Dictionary<Vector2Int, Building>();
+        AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
     }
     
     
@@ -146,6 +161,42 @@ public class BuildingManager : SingletonManager<BuildingManager>
             .SelectMany(b => b.currentSubResource)
             .Where(r => r.resourceType == type && r.subType.Equals(subType))
             .Sum(r => r.resourceValue);
+    }
+
+    public void HandleBuffBuildingBuilt(BuffBuilding building)
+    {
+        foreach (var targetBuildingSubType in building.targetBuildingSubTypes)
+        {
+            if (!AppliedBuffs.ContainsKey(targetBuildingSubType)) 
+                AppliedBuffs.Add(targetBuildingSubType, new Dictionary<BuffEnums, int>());
+            foreach (var targetBuffType in building.targetBuffTypes)
+            {
+                if (!AppliedBuffs[targetBuildingSubType].ContainsKey(targetBuffType))
+                    AppliedBuffs[targetBuildingSubType][targetBuffType] = 1;
+                else
+                    AppliedBuffs[targetBuildingSubType][targetBuffType] += 1;
+            }
+        }
+        
+    }
+
+    public void HandleBuffBuildingDestroyed(BuffBuilding building)
+    {
+        foreach (var targetBuildingSubType in building.targetBuildingSubTypes)
+        {
+            if (!AppliedBuffs.ContainsKey(targetBuildingSubType)) 
+                Debug.LogError("Buff建筑移除错误，参数不匹配，不可能存在目标建筑参数不存在登记表的情况");
+            
+            foreach (var targetBuffType in building.targetBuffTypes)
+            {
+                if (!AppliedBuffs[targetBuildingSubType].ContainsKey(targetBuffType))
+                    Debug.LogError("Buff建筑移除错误，参数不匹配，不可能存在目标Buff参数不存在登记表的情况");
+                else
+                    AppliedBuffs[targetBuildingSubType][targetBuffType] -= 1;
+                if (AppliedBuffs[targetBuildingSubType][targetBuffType] < 0)
+                    Debug.LogError("Buff建筑移除错误，参数不匹配，不可能存在目标Buff参数数量小于0的情况");
+            }
+        }
     }
     
     // 建筑管理
