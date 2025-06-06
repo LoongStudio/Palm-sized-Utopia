@@ -26,25 +26,28 @@ public static class GameEvents
     public static event System.Action<NPCEventArgs> OnNPCDestroyed;
     public static event System.Action<NPCEventArgs> OnNPCStateChanged;
     public static event System.Action<NPCEventArgs> OnNPCRelationshipChanged;
-    public static event System.Action<NPCEventArgs> OnNPCSocialInteraction;
+    public static event System.Action<NPCEventArgs> OnNPCSocialInteractionStarted;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteractionEnded;
     #endregion
     
     #region 时间相关事件
-    // 核心时间事件 (重新设计，避免功能重复)
-    public static event System.Action<GameTime> OnTimeChanged;           // 任何时间变化（细粒度）
-    public static event System.Action<int> OnHourChanged;                // 小时变化
-    public static event System.Action<int> OnDayChanged;                 // 天数变化（包含新一天开始的语义）
-    public static event System.Action<int> OnMonthChanged;               // 月份变化
-    public static event System.Action<int> OnYearChanged;                // 年份变化（包含新年的语义）
-    public static event System.Action<Season> OnSeasonChanged;           // 季节变化
-    public static event System.Action<int> OnWeekChanged;                // 周数变化（每7天）
+    // 核心时间事件 (使用TimeEventArgs统一参数)
+    public static event System.Action<TimeEventArgs> OnTimeChanged;           // 任何时间变化（细粒度）
+    public static event System.Action<TimeEventArgs> OnHourChanged;           // 小时变化
+    public static event System.Action<TimeEventArgs> OnDayChanged;            // 天数变化（包含新一天开始的语义）
+    public static event System.Action<TimeEventArgs> OnMonthChanged;          // 月份变化
+    public static event System.Action<TimeEventArgs> OnYearChanged;           // 年份变化（包含新年的语义）
+    public static event System.Action<TimeEventArgs> OnSeasonChanged;         // 季节变化
+    public static event System.Action<TimeEventArgs> OnWeekChanged;           // 周数变化（每7天）
     
     // 特殊时间节点事件
-    public static event System.Action OnNightStarted;                   // 夜晚开始
-    public static event System.Action OnWorkTimeStarted;                // 工作时间开始
-    public static event System.Action OnWorkTimeEnded;                  // 工作时间结束
-    public static event System.Action OnRestTimeStarted;                // 休息时间开始
+    public static event System.Action<TimeEventArgs> OnNightStarted;          // 夜晚开始
+    public static event System.Action<TimeEventArgs> OnWorkTimeStarted;       // 工作时间开始
+    public static event System.Action<TimeEventArgs> OnWorkTimeEnded;         // 工作时间结束
+    public static event System.Action<TimeEventArgs> OnRestTimeStarted;       // 休息时间开始
+    public static event System.Action<TimeEventArgs> OnTimeScaleChanged;      // 时间倍速变化
+    public static event System.Action<TimeEventArgs> OnTimePaused;            // 时间暂停
+    public static event System.Action<TimeEventArgs> OnTimeResumed;           // 时间恢复
     #endregion
     
     #region 游戏流程事件
@@ -93,9 +96,9 @@ public static class GameEvents
         OnNPCRelationshipChanged?.Invoke(args);
     }
     
-    public static void TriggerNPCSocialInteraction(NPCEventArgs args) 
+    public static void TriggerNPCSocialInteractionStarted(NPCEventArgs args) 
     {
-        OnNPCSocialInteraction?.Invoke(args);
+        OnNPCSocialInteractionStarted?.Invoke(args);
     }
     
     public static void TriggerNPCSocialInteractionEnded(NPCEventArgs args)
@@ -125,78 +128,208 @@ public static class GameEvents
     #endregion
     
     #region 时间事件触发方法
-    public static void TriggerTimeChanged(GameTime newTime) 
+    public static void TriggerTimeChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnTimeChanged?.Invoke(newTime);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.TimeChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnTimeChanged?.Invoke(args);
     }
     
-    public static void TriggerHourChanged(int hour) 
+    public static void TriggerHourChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnHourChanged?.Invoke(hour);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.HourChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnHourChanged?.Invoke(args);
     }
     
-    public static void TriggerDayChanged(int day) 
+    public static void TriggerDayChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnDayChanged?.Invoke(day);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.DayChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnDayChanged?.Invoke(args);
         // 向后兼容
         OnDayStarted?.Invoke();
         OnDayPassed?.Invoke();
     }
     
-    public static void TriggerMonthChanged(int month) 
+    public static void TriggerMonthChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnMonthChanged?.Invoke(month);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.MonthChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnMonthChanged?.Invoke(args);
     }
     
-    public static void TriggerYearChanged(int year) 
+    public static void TriggerYearChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnYearChanged?.Invoke(year);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.YearChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnYearChanged?.Invoke(args);
         // 向后兼容
         OnNewYear?.Invoke();
     }
     
-    public static void TriggerSeasonChanged(Season season) 
+    public static void TriggerSeasonChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnSeasonChanged?.Invoke(season);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.SeasonChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnSeasonChanged?.Invoke(args);
     }
     
-    public static void TriggerWeekChanged(int week) 
+    public static void TriggerWeekChanged(GameTime currentTime, GameTime previousTime, string changeReason = "自然推进") 
     {
-        OnWeekChanged?.Invoke(week);
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = previousTime,
+            eventType = TimeEventArgs.TimeEventType.WeekChanged,
+            changeReason = changeReason
+        }.AutoCalculate();
+        OnWeekChanged?.Invoke(args);
         // 向后兼容
         OnNewWeek?.Invoke();
     }
     
-    public static void TriggerNightStarted() 
+    public static void TriggerNightStarted(GameTime currentTime) 
     {
-        OnNightStarted?.Invoke();
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.NightStarted,
+            changeReason = "夜晚开始"
+        }.AutoCalculate();
+        OnNightStarted?.Invoke(args);
     }
     
-    public static void TriggerWorkTimeStarted() 
+    public static void TriggerWorkTimeStarted(GameTime currentTime) 
     {
-        OnWorkTimeStarted?.Invoke();
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.WorkTimeStarted,
+            changeReason = "工作时间开始"
+        }.AutoCalculate();
+        OnWorkTimeStarted?.Invoke(args);
     }
     
-    public static void TriggerWorkTimeEnded() 
+    public static void TriggerWorkTimeEnded(GameTime currentTime) 
     {
-        OnWorkTimeEnded?.Invoke();
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.WorkTimeEnded,
+            changeReason = "工作时间结束"
+        }.AutoCalculate();
+        OnWorkTimeEnded?.Invoke(args);
     }
     
-    public static void TriggerRestTimeStarted() 
+    public static void TriggerRestTimeStarted(GameTime currentTime) 
     {
-        OnRestTimeStarted?.Invoke();
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.RestTimeStarted,
+            changeReason = "休息时间开始"
+        }.AutoCalculate();
+        OnRestTimeStarted?.Invoke(args);
+    }
+    
+    public static void TriggerTimeScaleChanged(GameTime currentTime, float newTimeScale) 
+    {
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.TimeScaleChanged,
+            timeScale = newTimeScale,
+            changeReason = "时间倍速变化"
+        }.AutoCalculate();
+        OnTimeScaleChanged?.Invoke(args);
+    }
+    
+    public static void TriggerTimePaused(GameTime currentTime) 
+    {
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.TimePaused,
+            timeScale = 0f,
+            isPaused = true,
+            changeReason = "时间暂停"
+        }.AutoCalculate();
+        OnTimePaused?.Invoke(args);
+    }
+    
+    public static void TriggerTimeResumed(GameTime currentTime, float timeScale) 
+    {
+        var args = new TimeEventArgs
+        {
+            currentTime = currentTime,
+            previousTime = currentTime,
+            eventType = TimeEventArgs.TimeEventType.TimeResumed,
+            timeScale = timeScale,
+            isPaused = false,
+            changeReason = "时间恢复"
+        }.AutoCalculate();
+        OnTimeResumed?.Invoke(args);
     }
     #endregion
     
     #region 已废弃的触发方法 (向后兼容)
     [System.Obsolete("请使用TriggerDayChanged替代")]
-    public static void TriggerDayStarted() => TriggerDayChanged(TimeManager.Instance?.CurrentTime.day ?? 1);
+    public static void TriggerDayStarted() 
+    {
+        if (TimeManager.Instance?.CurrentTime != null)
+            TriggerDayChanged(TimeManager.Instance.CurrentTime, TimeManager.Instance.CurrentTime, "向后兼容调用");
+    }
     
     [System.Obsolete("请使用TriggerWeekChanged替代")]
-    public static void TriggerNewWeek() => TriggerWeekChanged(GetCurrentWeek());
+    public static void TriggerNewWeek() 
+    {
+        if (TimeManager.Instance?.CurrentTime != null)
+            TriggerWeekChanged(TimeManager.Instance.CurrentTime, TimeManager.Instance.CurrentTime, "向后兼容调用");
+    }
     
     [System.Obsolete("请使用TriggerYearChanged替代")]
-    public static void TriggerNewYear() => TriggerYearChanged(TimeManager.Instance?.CurrentTime.year ?? 1);
+    public static void TriggerNewYear() 
+    {
+        if (TimeManager.Instance?.CurrentTime != null)
+            TriggerYearChanged(TimeManager.Instance.CurrentTime, TimeManager.Instance.CurrentTime, "向后兼容调用");
+    }
     #endregion
     
     #endregion
@@ -208,8 +341,7 @@ public static class GameEvents
     {
         if (TimeManager.Instance?.CurrentTime != null)
         {
-            var time = TimeManager.Instance.CurrentTime;
-            return ((time.year - 1) * 12 * 30 + (time.month - 1) * 30 + time.day - 1) / 7 + 1;
+            return TimeCalculationUtils.CalculateWeekNumber(TimeManager.Instance.CurrentTime);
         }
         return 1;
     }
