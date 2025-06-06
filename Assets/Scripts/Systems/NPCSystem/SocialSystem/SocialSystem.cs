@@ -222,6 +222,7 @@ public class SocialSystem
             timestamp = System.DateTime.Now
         };
         GameEvents.TriggerNPCRelationshipChanged(eventArgs);
+        GameEvents.TriggerNPCSocialInteractionEnded(eventArgs);
     }
     #endregion
 
