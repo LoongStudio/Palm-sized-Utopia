@@ -1,13 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 public class NPCManager : SingletonManager<NPCManager>
 {
+    [Header("社交系统")]
+    [SerializeField] private bool enableSocialSystem = true;
+
     [SerializeField] private NPCGenerationConfig defaultNPCGenerationConfig;
     private List<NPC> allNPCs;
     private List<NPC> availableNPCs;
-    private SocialSystem socialSystem;
+    public SocialSystem socialSystem;
     
     // 事件
     public static event System.Action<NPC> OnNPCHired;
@@ -19,12 +23,38 @@ public class NPCManager : SingletonManager<NPCManager>
     }
     public void Initialize() 
     { 
-        if (socialSystem == null)
+        allNPCs = new List<NPC>();
+        availableNPCs = new List<NPC>();
+
+        if (enableSocialSystem && socialSystem == null)
         {
             socialSystem = new SocialSystem();
         }
-        socialSystem.Initialize(allNPCs);
+        // 等待一帧确保所有NPC都已初始化
+        StartCoroutine(DelayedSocialSystemInit());
+
+        // TODO: 订阅游戏事件
     }
+
+    private IEnumerator DelayedSocialSystemInit()
+    {
+        yield return new WaitForEndOfFrame();
+        
+        // 收集所有场景中的NPC
+        var sceneNPCs = FindObjectsByType<NPC>(FindObjectsSortMode.None).ToList();
+        allNPCs.AddRange(sceneNPCs);
+        availableNPCs.AddRange(sceneNPCs.Where(npc => npc.assignedBuilding == null));
+        
+                // 加载社交系统配置文件
+        var socialConfig = Resources.Load<SocialSystemConfig>("SocialSystemConfig");
+        if (socialSystem != null)
+        {
+            socialSystem.Initialize(allNPCs, socialConfig);
+        }
+        
+        Debug.Log($"[NPCManager] 初始化完成，管理 {allNPCs.Count} 个NPC");
+    }
+
     
     // NPC管理
     public bool HireNPC(NPCData npcData) { return false; }
