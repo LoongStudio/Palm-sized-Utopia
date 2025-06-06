@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1051432502121437840
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5619178990484036148}
+  - component: {fileID: 2054673297495181408}
+  m_Layer: 0
+  m_Name: NPC Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5619178990484036148
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051432502121437840}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.4086998, y: 0.8271377, z: -1.8811883}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8788789496108656492}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2054673297495181408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051432502121437840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b70d8f3716a7a45b301e7d863c07b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcPrefab: {fileID: 6149902239832814201, guid: 5e23c83f348f02e479eb0963c0bc35cd, type: 3}
+  spawnRadius: 10
+  spawnHeight: 10
+  maxSpawnAttempts: 30
+  spawnCenter: {fileID: 8788789496108656492}
+  defaultMoveSpeed: 3.5
+  defaultStoppingDistance: 0.5
+  defaultAcceleration: 8
+  enableRandomMovement: 1
+  randomMoveRadius: 8
+  randomWaitTimeRange: {x: 2, y: 5}
+  showDebugInfo: 1
+  drawGizmos: 1
+  spawnAreaColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  validSpawnPointColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!1 &5579513321719707758
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8788789496108656492}
+  - component: {fileID: 8044427872380400597}
+  m_Layer: 0
+  m_Name: Spawne Center
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8788789496108656492
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5579513321719707758}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5619178990484036148}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8044427872380400597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5579513321719707758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 912422412a3a7c74d8cf4d6347c546a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualizerType: 0
+  displayName: "NPC\u751F\u6210\u4E2D\u5FC3"
+  gizmoColor: {r: 0.95572364, g: 1, b: 0, a: 1}
+  gizmoSize: 1
+  iconType: 0
+  showLabel: 1
+  labelOffset: {x: 0, y: 1, z: 0}
+  shapeType: 0
+  wireframe: 1
+  alwaysOnTop: 1
+  enablePulse: 0
+  pulseSpeed: 2
+  pulseScale: 0.2
