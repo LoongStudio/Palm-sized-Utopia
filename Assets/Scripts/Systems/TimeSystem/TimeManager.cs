@@ -122,7 +122,7 @@ public class TimeManager : SingletonManager<TimeManager>
         CheckAndTriggerEvents();
         
         // 触发基础时间变化事件
-        GameEvents.TriggerTimeChanged(currentTime);
+        GameEvents.TriggerTimeChanged(currentTime, previousTime);
     }
     
     #endregion
@@ -134,40 +134,40 @@ public class TimeManager : SingletonManager<TimeManager>
         // 检查小时变化
         if (currentTime.hour != previousTime.hour)
         {
-            GameEvents.TriggerHourChanged(currentTime.hour);
+            GameEvents.TriggerHourChanged(currentTime, previousTime);
             CheckSpecialHourEvents();
         }
         
         // 检查天变化
         if (currentTime.day != previousTime.day)
         {
-            GameEvents.TriggerDayChanged(currentTime.day);
+            GameEvents.TriggerDayChanged(currentTime, previousTime);
             
             // 检查周变化（每7天）
-            int currentWeek = GetWeekNumber(currentTime);
-            int previousWeek = GetWeekNumber(previousTime);
+            int currentWeek = TimeCalculationUtils.CalculateWeekNumber(currentTime);
+            int previousWeek = TimeCalculationUtils.CalculateWeekNumber(previousTime);
             if (currentWeek != previousWeek)
             {
-                GameEvents.TriggerWeekChanged(currentWeek);
+                GameEvents.TriggerWeekChanged(currentTime, previousTime);
             }
         }
         
         // 检查月变化
         if (currentTime.month != previousTime.month)
         {
-            GameEvents.TriggerMonthChanged(currentTime.month);
+            GameEvents.TriggerMonthChanged(currentTime, previousTime);
             
             // 检查季节变化
             if (currentTime.Season != previousTime.Season)
             {
-                GameEvents.TriggerSeasonChanged(currentTime.Season);
+                GameEvents.TriggerSeasonChanged(currentTime, previousTime);
             }
         }
         
         // 检查年变化
         if (currentTime.year != previousTime.year)
         {
-            GameEvents.TriggerYearChanged(currentTime.year);
+            GameEvents.TriggerYearChanged(currentTime, previousTime);
         }
     }
     
@@ -178,25 +178,14 @@ public class TimeManager : SingletonManager<TimeManager>
         // 夜晚开始
         if (currentTime.hour == settings.NightStartHour)
         {
-            GameEvents.TriggerNightStarted();
-            GameEvents.TriggerWorkTimeEnded();
-            GameEvents.TriggerRestTimeStarted();
+            GameEvents.TriggerNightStarted(currentTime);
         }
         
-        // 白天开始
-        if (currentTime.hour == settings.NightEndHour)
-        {
-            GameEvents.TriggerWorkTimeStarted();
-        }
+        // 注意：工作时间相关的事件已移除，由其他系统负责判断和触发
+        // 如需要工作状态变化，请在相应的工作管理系统中监听时间变化事件并自行判断
     }
     
-    // 计算周数的辅助方法
-    private int GetWeekNumber(GameTime time)
-    {
-        // 从游戏开始计算总天数，然后除以7得到周数
-        int totalDays = (time.year - 1) * 12 * 30 + (time.month - 1) * 30 + (time.day - 1);
-        return totalDays / 7 + 1;
-    }
+    // 注意：GetWeekNumber方法已移至TimeCalculationUtils.CalculateWeekNumber
     
     #endregion
     
@@ -225,7 +214,7 @@ public class TimeManager : SingletonManager<TimeManager>
         previousTime = currentTime;
         currentTime = newTime;
         CheckAndTriggerEvents();
-        GameEvents.TriggerTimeChanged(currentTime);
+        GameEvents.TriggerTimeChanged(currentTime, previousTime, "手动设置");
         Debug.Log($"[TimeManager] 时间设置为: {currentTime.ToLongString()}");
     }
     
@@ -238,18 +227,7 @@ public class TimeManager : SingletonManager<TimeManager>
     {
         if (settings == null || !settings.PauseAtNight) return false;
         
-        int nightStart = settings.NightStartHour;
-        int nightEnd = settings.NightEndHour;
-        
-        if (nightStart < nightEnd)
-        {
-            return false; // 夜间不跨天，不暂停
-        }
-        else
-        {
-            // 夜间跨天的情况
-            return currentTime.hour >= nightStart || currentTime.hour < nightEnd;
-        }
+        return TimeCalculationUtils.IsNightTime(currentTime, settings.NightStartHour, settings.NightEndHour);
     }
 
     // 是否是工作时间
@@ -275,17 +253,7 @@ public class TimeManager : SingletonManager<TimeManager>
     {
         if (settings == null) return false;
         
-        int nightStart = settings.NightStartHour;
-        int nightEnd = settings.NightEndHour;
-        
-        if (nightStart < nightEnd)
-        {
-            return false; // 夜间不跨天
-        }
-        else
-        {
-            return currentTime.hour >= nightStart || currentTime.hour < nightEnd;
-        }
+        return TimeCalculationUtils.IsNightTime(currentTime, settings.NightStartHour, settings.NightEndHour);
     }
     
     #endregion
@@ -303,6 +271,22 @@ public class TimeManager : SingletonManager<TimeManager>
     
     [ContextMenu("打印当前时间")]
     private void DebugPrintTime() => Debug.Log($"当前时间: {currentTime.ToLongString()}");
+    
+    [ContextMenu("测试时间计算工具")]
+    private void DebugTestTimeCalculationUtils()
+    {
+        Debug.Log("[TimeManager] 测试TimeCalculationUtils功能:");
+        Debug.Log(TimeCalculationUtils.GetTimeCalculationDebugInfo(currentTime));
+        
+        bool isValid = TimeCalculationUtils.ValidateTimeCalculation(currentTime);
+        Debug.Log($"时间计算验证结果: {(isValid ? "通过" : "失败")}");
+        
+        if (settings != null)
+        {
+            bool isNight = TimeCalculationUtils.IsNightTime(currentTime, settings.NightStartHour, settings.NightEndHour);
+            Debug.Log($"当前是否为夜晚: {isNight}");
+        }
+    }
     
     #endregion
 }
