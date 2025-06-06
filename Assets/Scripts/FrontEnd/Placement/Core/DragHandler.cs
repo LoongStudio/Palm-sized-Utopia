@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 /// 拖拽处理器
-public class DragHandler : MonoBehaviour, IDragHandler_Utopia
+public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
 {
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private Camera playerCamera;
@@ -19,8 +19,9 @@ public class DragHandler : MonoBehaviour, IDragHandler_Utopia
     public bool IsDragging { get; private set; }
     public IPlaceable CurrentTarget => currentTarget;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         if (playerCamera == null)
             playerCamera = Camera.main;
             

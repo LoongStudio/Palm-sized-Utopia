@@ -5,7 +5,12 @@ public enum NPCState
     Resting,   // 休息
     Idle,      // 空闲
     Social,    // 社交
-    Transition // 状态转换中
+    Transition, // 状态转换中
+    MovingToSource,      // 前往采集点
+    Collecting,          // 采集中
+    MovingToDestination, // 前往目的地
+    Delivering,          // 卸货中
+    WaitingForTask       // 等待任务
 }
 
 // NPC性格
@@ -26,5 +31,8 @@ public enum NPCTraitType
     Bootlicker,      // 舔狗
     FarmExpert,      // 倪哥
     LivestockExpert, // 蒙古人
-    CheapLabor       // 工贼
+    CheapLabor,       // 工贼
+    NightOwl,        // 夜猫子
+    EarlyBird,       // 早起鸟
+
 } 

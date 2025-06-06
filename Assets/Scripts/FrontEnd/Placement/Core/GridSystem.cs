@@ -4,7 +4,7 @@ using System.Linq;
 
 
 /// 网格系统核心实现
-public class GridSystem : MonoBehaviour, IGridSystem
+public class GridSystem : SingletonManager<GridSystem>, IGridSystem
 {
     [SerializeField] private PlacementSettings settings;
     
@@ -16,8 +16,9 @@ public class GridSystem : MonoBehaviour, IGridSystem
     // 属性
     public float GridSize => settings.GridSize;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         if (settings == null)
         {
             Debug.LogError("[GridSystem] PlacementSettings not assigned!");

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 /// 放置系统主管理器
-public class PlacementManager : MonoBehaviour
+public class PlacementManager : SingletonManager<PlacementManager>
 {
     [Header("系统设置")]
     [SerializeField] private PlacementSettings settings;
@@ -23,8 +23,9 @@ public class PlacementManager : MonoBehaviour
     public bool IsEditMode { get; private set; }
     public bool IsInitialized { get; private set; }
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         // 验证配置
         if (settings == null)
         {

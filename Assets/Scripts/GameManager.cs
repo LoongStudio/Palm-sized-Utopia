@@ -8,6 +8,7 @@ public class GameManager : SingletonManager<GameManager>
     public NPCManager npcManager;
     public ReportManager reportManager;
     public SaveManager saveManager;
+    public TimeManager timeManager;
     
     [Header("游戏状态")]
     public bool isGamePaused;
@@ -42,9 +43,16 @@ public class GameManager : SingletonManager<GameManager>
         npcManager.Initialize();
         reportManager.Initialize();
         saveManager.Initialize();
+        timeManager.Initialize();
     }
     
-    private void UpdateAllSystems() { }
+    private void UpdateAllSystems() 
+    { 
+        if (npcManager?.socialSystem != null)
+        {
+            npcManager.socialSystem.UpdateSocialInteractions();
+        }
+    }
     private void UpdateGameTime() { }
     
     public void StartNewGame() { }

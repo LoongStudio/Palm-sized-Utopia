@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3902547822630809524}
   - component: {fileID: 4565002735319593347}
   - component: {fileID: 6207688259934763370}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TestBuilding_1x1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,5 +124,7 @@ MonoBehaviour:
   anchorPoints: []
   autoCalculateAnchors: 1
   customSize: {x: 1, y: 1, z: 1}
+  showAnchorGizmos: 1
+  anchorGizmoSize: 0.2
   previewPrefab: {fileID: 0}
   renderers: []
