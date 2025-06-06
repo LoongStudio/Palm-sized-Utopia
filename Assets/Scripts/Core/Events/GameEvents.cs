@@ -4,13 +4,16 @@ public static class GameEvents
 {
     // 资源相关事件
     public static event System.Action<ResourceEventArgs> OnResourceChanged;
-    public static event System.Action<ResourceEventArgs> OnResourceAdded;
-    public static event System.Action<ResourceEventArgs> OnResourceRemoved;
+    
+    // TODO: 处理这些事件的订阅和触发，用GameEvents代替
+    // public static event System.Action<ResourceEventArgs> OnResourceAdded;
+    // public static event System.Action<ResourceEventArgs> OnResourceRemoved;
     
     // 建筑相关事件
     public static event System.Action<BuildingEventArgs> OnBuildingBuilt;
-    public static event System.Action<BuildingEventArgs> OnBuildingUpgraded;
-    public static event System.Action<BuildingEventArgs> OnBuildingDestroyed;
+    // TODO: 处理这些事件的订阅和触发，用GameEvents代替
+    // public static event System.Action<BuildingEventArgs> OnBuildingUpgraded;
+    // public static event System.Action<BuildingEventArgs> OnBuildingDestroyed;
     
     // NPC相关事件
     public static event System.Action<NPCEventArgs> OnNPCHired;
@@ -37,8 +40,9 @@ public static class GameEvents
     public static event System.Action OnRestTimeStarted;                // 休息时间开始
     
     // 游戏流程事件
-    public static event System.Action OnGameStarted;
-    public static event System.Action OnGamePaused;
+    // TODO: 处理这些事件的订阅和触发，用GameEvents代替
+    // public static event System.Action OnGameStarted;
+    // public static event System.Action OnGamePaused;
     
     // 已废弃事件（向后兼容）
     [System.Obsolete("请使用OnDayChanged替代，OnDayChanged现在包含新一天开始的语义")]

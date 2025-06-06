@@ -21,8 +21,9 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     [SerializeField] private float defaultAcceleration = 8f;          // 默认加速度
     
     [Header("随机移动设置")]
-    [SerializeField] private bool enableRandomMovement = true;        // 启用随机移动
-    [SerializeField] private float randomMoveRadius = 8f;             // 随机移动半径
+    // TODO: 处理这些配置的使用
+    // [SerializeField] private bool enableRandomMovement = true;        // 启用随机移动
+    // [SerializeField] private float randomMoveRadius = 8f;             // 随机移动半径
     [SerializeField] private Vector2 randomWaitTimeRange = new Vector2(2f, 5f); // 等待时间范围
     
     [Header("调试设置")]

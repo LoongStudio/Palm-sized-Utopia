@@ -68,7 +68,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
     }
 
     // 内部使用的int版本API
-    [Obsolete("使用int为subType的AddResource 已过时，请使用泛型版本替代。")]
+    // TODO: 处理这个问题
+    // [Obsolete("使用int为subType的AddResource 已过时，请使用泛型版本替代。")]
     public bool AddResource(ResourceType type, int subType, int amount)
     {
         ValidateSubType(type, subType);
@@ -104,7 +105,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
         return true;
 
     }
-    [Obsolete("使用int为subType的RemoveResource 已过时，请使用泛型版本替代。")]
+    // TODO: 处理这个问题
+    // [Obsolete("使用int为subType的RemoveResource 已过时，请使用泛型版本替代。")]
     public bool RemoveResource(ResourceType type, int subType, int amount)
     {
         ValidateSubType(type, subType);
@@ -133,7 +135,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
 
     }
     
-    [Obsolete("使用int为subType的GetResourceAmount 已过时，请使用泛型版本替代。")]
+    // TODO: 处理这个问题
+    // [Obsolete("使用int为subType的GetResourceAmount 已过时，请使用泛型版本替代。")]
     public int GetResourceAmount(ResourceType type, int subType)
     {
         ValidateSubType(type, subType);
@@ -143,7 +146,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
 
         return resources[type][subType];
     }
-    [Obsolete("使用int为subType的HasEnoughResource 已过时，请使用泛型版本替代。")]
+    // TODO: 处理这个问题
+    // [Obsolete("使用int为subType的HasEnoughResource 已过时，请使用泛型版本替代。")]
     public bool HasEnoughResource(ResourceType type, int subType, int amount)
     {
         ValidateSubType(type, subType);
@@ -193,7 +197,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
     {
         return GetResourceAmount(type, subType) >= GetStorageLimit(type);
     }
-    [Obsolete("使用int为subType的IsStorageFull 已过时，请使用泛型版本替代。")]
+    // TODO: 处理这个问题
+    // [Obsolete("使用int为subType的IsStorageFull 已过时，请使用泛型版本替代。")]
     public bool IsStorageFull(ResourceType type, int subType)
     {
         return GetResourceAmount(type, subType) >= GetStorageLimit(type);

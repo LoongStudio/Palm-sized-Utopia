@@ -54,7 +54,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual void LoadFromData(SaveData data) { }
     
     // 游戏循环
-    public void Start() {
+    public virtual void Start() {
         // LoadFromData(); // TODO: 开始时 如果数据并没有正常加载，尝试重新从Data中读取
         if (!OnTryBuilt())
         {

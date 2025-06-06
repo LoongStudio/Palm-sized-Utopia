@@ -9,10 +9,11 @@ public class NPCInventory
     [SerializeField] private int currentWeight;
 
     // 事件
-    public event System.Action<ResourceType, int> OnItemAdded;
-    public event System.Action<ResourceType, int> OnItemRemoved;
-    public event System.Action OnInventoryFull;
-    public event System.Action OnInventoryEmpty;
+    // TODO: 处理这些事件的订阅和触发，用GameEvents代替
+    // public event System.Action<ResourceType, int> OnItemAdded;
+    // public event System.Action<ResourceType, int> OnItemRemoved;
+    // public event System.Action OnInventoryFull;
+    // public event System.Action OnInventoryEmpty;
     
     public bool CanAddItem(ResourceType type, int amount) { return false; }
     public bool AddItem(ResourceType type, int amount) { return false; }
