@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// 输入管理器
-public class InputManager : MonoBehaviour
+public class InputManager : SingletonManager<InputManager>
 {
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private Camera playerCamera;
@@ -13,8 +13,9 @@ public class InputManager : MonoBehaviour
     public static bool IsEditMode { get; private set; }
     public static bool IsDragging { get; private set; }
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         if (playerCamera == null)
             playerCamera = Camera.main;
             
@@ -98,7 +99,7 @@ public class InputManager : MonoBehaviour
         Debug.Log($"[InputManager] Edit Mode: {(isEditMode ? "ON" : "OFF")}");
         
         // 通知其他系统
-        var placementManager = FindObjectOfType<PlacementManager>();
+        var placementManager = FindAnyObjectByType<PlacementManager>();
         if (placementManager != null)
         {
             placementManager.SetEditMode(isEditMode);

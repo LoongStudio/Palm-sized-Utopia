@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -44,7 +45,7 @@ public class BuildingPlaceableAdapter : MonoBehaviour
         
         // 转换网格位置到建筑系统的位置格式
         var gridPositions = placeableObject.GetOccupiedPositions();
-        var buildingPositions = new System.Collections.Generic.List<Vector2Int>();
+        var buildingPositions = new List<Vector2Int>();
         
         foreach (var gridPos in gridPositions)
         {

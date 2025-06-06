@@ -10,7 +10,12 @@ public class NPC : MonoBehaviour, ISaveable
     public Building assignedBuilding;
     
     [Header("社交系统")]
-    public Dictionary<NPC, int> relationships; // 好感度系统
+    public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
+
+    [Header("社交配置")]
+    [SerializeField] private int maxRelationship = 100;
+    [SerializeField] private int minRelationship = 0;
+    [SerializeField] private int defaultRelationship = 50;
     
     [Header("状态管理")]
     private NPCState previousState;
@@ -22,11 +27,25 @@ public class NPC : MonoBehaviour, ISaveable
     public NavMeshAgent navAgent;           // 导航组件
     
     // 状态管理
-    public void ChangeState(NPCState newState) { 
-        if (currentState == newState) return;
-        previousState = currentState;
-        currentState = newState;
-        stateTimer = 0f;
+    public void ChangeState(NPCState newState) 
+    { 
+        if (currentState != newState)
+        {
+            previousState = currentState;
+            currentState = newState;
+            stateTimer = 0f;
+            
+            // 触发状态变化事件
+            var eventArgs = new NPCEventArgs
+            {
+                npc = this,
+                eventType = NPCEventArgs.NPCEventType.StateChanged,
+                oldState = previousState,
+                newState = currentState,
+                timestamp = System.DateTime.Now
+            };
+            GameEvents.TriggerNPCStateChanged(eventArgs);
+        }
     }
 
     #region 工作相关
@@ -89,13 +108,19 @@ public class NPC : MonoBehaviour, ISaveable
     #endregion
     
     // 社交相关
-    public void InteractWith(NPC other) { }
+    public void InteractWith(NPC other) 
+    { 
+
+    }
     public void IncreaseRelationship(NPC other, int amount) { }
     public void DecreaseRelationship(NPC other, int amount) { }
     public int GetRelationshipWith(NPC other) { return 0; }
     
     // 特殊能力
-    public bool HasTrait(NPCTraitType trait) { return false; }
+    public bool HasTrait(NPCTraitType trait)
+    {
+        return data.traits != null && data.traits.Contains(trait);
+    }
     public float GetTraitBonus(NPCTraitType trait) { return 0f; }
     
     private void Update()
@@ -104,8 +129,28 @@ public class NPC : MonoBehaviour, ISaveable
         UpdateMovement();
     }
     
-    private void UpdateState() { }
-    private void UpdateMovement() { }
+    private void UpdateState() 
+    { 
+        stateTimer += Time.deltaTime;
+
+        // TODO: 状态机
+        switch (currentState){
+            case NPCState.Working:
+                break;
+            case NPCState.Resting:
+                break;
+            case NPCState.Idle:
+                break;
+            case NPCState.Social:
+                break;
+            default:
+                break;
+        }
+    }
+    private void UpdateMovement() 
+    { 
+        // TODO: 移动逻辑
+    }
     
     // 接口实现
     public SaveData SaveToData() { return null; }

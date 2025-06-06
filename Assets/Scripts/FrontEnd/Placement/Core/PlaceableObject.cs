@@ -50,8 +50,8 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     private void Start()
     {
         // 获取系统引用
-        gridSystem = FindObjectOfType<GridSystem>();
-        settings = FindObjectOfType<PlacementManager>()?.Settings;
+        gridSystem = FindAnyObjectByType<GridSystem>();
+        settings = FindAnyObjectByType<PlacementManager>()?.Settings;
         
         if (gridSystem == null)
         {
@@ -366,7 +366,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     /// </summary>
     private float GetGridSize()
     {
-        var gridSystem = FindObjectOfType<GridSystem>();
+        var gridSystem = FindAnyObjectByType<GridSystem>();
         return gridSystem != null ? gridSystem.GridSize : 1.0f;
     }
     

@@ -15,6 +15,7 @@ public static class GameEvents
     public static event System.Action<NPCEventArgs> OnNPCFired;
     public static event System.Action<NPCEventArgs> OnNPCStateChanged;
     public static event System.Action<NPCEventArgs> OnNPCRelationshipChanged;
+    public static event System.Action<NPCEventArgs> OnNPCSocialInteraction;
     
     // 游戏流程事件
     public static event System.Action OnGameStarted;
@@ -30,6 +31,18 @@ public static class GameEvents
     public static void TriggerBuildingBuilt(BuildingEventArgs args) 
     {
         OnBuildingBuilt?.Invoke(args);
+    }
+    public static void TriggerNPCStateChanged(NPCEventArgs args)
+    {
+        OnNPCStateChanged?.Invoke(args);
+    }
+    public static void TriggerNPCRelationshipChanged(NPCEventArgs args)
+    {
+        OnNPCRelationshipChanged?.Invoke(args);
+    }
+    public static void TriggerNPCSocialInteraction(NPCEventArgs args) 
+    {
+        OnNPCSocialInteraction?.Invoke(args);
     }
     // ... 其他触发方法
 }

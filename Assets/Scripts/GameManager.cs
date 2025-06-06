@@ -46,7 +46,13 @@ public class GameManager : SingletonManager<GameManager>
         timeManager.Initialize();
     }
     
-    private void UpdateAllSystems() { }
+    private void UpdateAllSystems() 
+    { 
+        if (npcManager?.socialSystem != null)
+        {
+            npcManager.socialSystem.UpdateSocialInteractions();
+        }
+    }
     private void UpdateGameTime() { }
     
     public void StartNewGame() { }

@@ -14,7 +14,7 @@ public class PlacementSystemTester : MonoBehaviour
     
     private void Start()
     {
-        placementManager = FindObjectOfType<PlacementManager>();
+        placementManager = FindAnyObjectByType<PlacementManager>();
         
         if (placementManager == null)
         {
