@@ -3,7 +3,7 @@ using Unity.AI.Navigation;
 using System.Collections;
 
 /// NavMesh集成管理器
-public class NavMeshIntegration : MonoBehaviour
+public class NavMeshIntegration : SingletonManager<NavMeshIntegration>
 {
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private NavMeshSurface navMeshSurface;
@@ -11,12 +11,16 @@ public class NavMeshIntegration : MonoBehaviour
     private Coroutine updateCoroutine;
     private bool needsUpdate = false;
     
+    protected override void Awake()
+    {
+        base.Awake();
+    }
     private void Start()
     {
         // 自动找到NavMeshSurface
         if (navMeshSurface == null)
         {
-            navMeshSurface = FindObjectOfType<NavMeshSurface>();
+            navMeshSurface = FindAnyObjectByType<NavMeshSurface>();
         }
         
         if (navMeshSurface == null)

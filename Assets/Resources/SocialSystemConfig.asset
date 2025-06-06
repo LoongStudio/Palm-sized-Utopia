@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9ba7625220fa494d824be550a79e885, type: 3}
+  m_Name: SocialSystemConfig
+  m_EditorClassIdentifier: 
+  interactionCheckInterval: 2
+  interactionRadius: 3
+  interactionDuration: 3
+  maxDailyInteractions: 5
+  baseRelationshipChange: 5
+  fightRelationshipPenalty: -15
+  workTogetherBonus: 2
+  relationshipDecayDaily: -1
+  maxRelationship: 100
+  minRelationship: 0
+  defaultRelationship: 50
+  baseFightChance: 0.2
+  personalityConflictModifier: 0.3
+  socialMasterFightReduction: 0.15
+  bootlickerFightReduction: 0.1
+  bestFriendWorkBonus: 0.15
+  friendWorkBonus: 0.1
+  neutralWorkBonus: 0.05
+  enemyWorkPenalty: -0.1

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// 预览管理器
-public class PreviewManager : MonoBehaviour
+public class PreviewManager : SingletonManager<PreviewManager>
 {
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private Material validPreviewMaterial;
@@ -12,8 +12,9 @@ public class PreviewManager : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> previewObjects = new Dictionary<Vector3Int, GameObject>();
     private GameObject previewParent;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         // 创建预览对象父节点
         previewParent = new GameObject("Preview Objects");
         previewParent.transform.SetParent(transform);
@@ -21,7 +22,7 @@ public class PreviewManager : MonoBehaviour
     
     private void Start()
     {
-        gridSystem = FindObjectOfType<GridSystem>();
+        gridSystem = FindAnyObjectByType<GridSystem>();
         
         // 订阅事件
         PlacementEvents.OnPreviewUpdated += ShowPreview;

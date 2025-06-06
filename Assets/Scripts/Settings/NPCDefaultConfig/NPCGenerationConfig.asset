@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6254478f66944664ba69bc52378809b3, type: 3}
+  m_Name: NPCGenerationConfig
+  m_EditorClassIdentifier: 
+  salaryRange: {x: 1, y: 3}
+  baseWorkAbilityRange: {x: 40, y: 100}
+  farmingSkillRange: {x: 20, y: 100}
+  livestockSkillRange: {x: 20, y: 100}
+  managementSkillRange: {x: 20, y: 100}
+  restStartHourRange: {x: 21, y: 23}
+  restEndHourRange: {x: 6, y: 8}
+  workStartHourRange: {x: 9, y: 11}
+  workEndHourRange: {x: 17, y: 19}
+  personalityWeights:
+  - personality: 0
+    weight: 0.15
+  - personality: 1
+    weight: 0.15
+  - personality: 2
+    weight: 0.15
+  - personality: 3
+    weight: 0.15
+  - personality: 4
+    weight: 0.15
+  - personality: 5
+    weight: 0.15
+  traitWeights:
+  - trait: 2
+    weight: 0.1
+  - trait: 3
+    weight: 0.1
+  - trait: 4
+    weight: 0.1
+  - trait: 5
+    weight: 0.1
+  - trait: 6
+    weight: 0.1
+  - trait: 0
+    weight: 0.1
+  - trait: 1
+    weight: 0.1
+  traitCountRange: {x: 0, y: 3}
+  firstNames:
+  - "\u5609\u79BE"
+  - "\u745E\u4E30"
+  - "\u548C\u8C10"
+  - "\u5EB7\u5B81"
+  - "\u5409\u7965"
+  - "\u5B89\u5EB7"
+  - "\u798F\u7984"
+  - "\u8D35\u8363"
+  - "\u660C\u76DB"
+  - "\u5174\u65FA"
+  - "\u5BCC\u8D35"
+  - "\u5982\u610F"
+  - "\u5E73\u5B89"
+  - "\u987A\u5229"
+  - "\u7F8E\u597D"
+  - "\u4E30\u6536"
+  - "\u64AD\u79CD"
+  - "\u8015\u8018"
+  - "\u704C\u6E89"
+  - "\u65BD\u80A5"
+  - "\u80B2\u82D7"
+  - "\u57F9\u571F"
+  - "\u6536\u5272"
+  - "\u6652\u8C37"
+  - "\u50A8\u7CAE"
+  - "\u6625\u8015"
+  - "\u590F\u8018"
+  - "\u79CB\u6536"
+  - "\u51AC\u85CF"
+  - "\u4E94\u8C37"
+  - "\u52E4\u52B3"
+  - "\u6734\u5B9E"
+  - "\u8BDA\u4FE1"
+  - "\u5584\u826F"
+  - "\u5FE0\u539A"
+  - "\u8E0F\u5B9E"
+  - "\u52C7\u6562"
+  - "\u667A\u6167"
+  - "\u4EC1\u7231"
+  - "\u6B63\u76F4"
+  lastNames:
+  - "\u5F20"
+  - "\u738B"
+  - "\u674E"
+  - "\u8D75"
+  - "\u5218"
+  - "\u9648"
+  - "\u6768"
+  - "\u9EC4"
+  - "\u5468"
+  - "\u5434"
+  - "\u5F90"
+  - "\u5B59"
+  - "\u80E1"
+  - "\u6731"
+  - "\u9AD8"
+  - "\u6797"
+  - "\u4F55"
+  - "\u90ED"
+  - "\u9A6C"
+  - "\u7F57"
+  - "\u7530"
+  - "\u79E7"
+  - "\u79BE"
+  - "\u82D7"
+  - "\u7A3B"
+  - "\u7C9F"
+  - "\u8C37"
+  - "\u9EA6"
+  - "\u8C46"
+  - "\u83DC"
+  - "\u5C71"
+  - "\u6C34"
+  - "\u77F3"
+  - "\u6728"
+  - "\u82B1"
+  - "\u8349"
+  - "\u67F3"
+  - "\u677E"
+  - "\u7AF9"
+  - "\u6885"
