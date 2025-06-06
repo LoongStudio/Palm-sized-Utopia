@@ -25,9 +25,9 @@ public class ReportManager : SingletonManager<ReportManager>
     
     private void Start()
     {
-        // 订阅各种游戏事件
-        ResourceManager.OnResourceChanged += dataCollector.RecordResourceChange;
-        BuildingManager.OnBuildingBuilt += dataCollector.RecordBuildingEvent;
-        NPCManager.OnNPCHired += dataCollector.RecordNPCEvent;
+        // TODO: 订阅各种游戏事件
+        // ResourceManager.OnResourceChanged += dataCollector.RecordResourceChange;
+        // BuildingManager.OnBuildingBuilt += dataCollector.RecordBuildingEvent;
+        // NPCManager.OnNPCHired += dataCollector.RecordNPCEvent;
     }
 }

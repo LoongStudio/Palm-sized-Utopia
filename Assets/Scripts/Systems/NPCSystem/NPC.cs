@@ -6,7 +6,6 @@ public class NPC : MonoBehaviour, ISaveable
 {
     [Header("基本信息")]
     public NPCData data;
-    public NPCState currentState;
     public Building assignedBuilding;
     
     [Header("社交系统")]
@@ -18,7 +17,8 @@ public class NPC : MonoBehaviour, ISaveable
     [SerializeField] private int defaultRelationship = 50;
     
     [Header("状态管理")]
-    private NPCState previousState;
+    public NPCState currentState = NPCState.Idle;
+    public NPCState previousState;
     private float stateTimer;
 
     [Header("任务和背包")]
@@ -161,4 +161,51 @@ public class NPC : MonoBehaviour, ISaveable
     public void MoveToTarget(Transform target) {}
     public void CollectResource() {}
     public void DeliverResource() {}
+
+    /// <summary>
+    /// 重置NPC的动态数据, 可在生成一个全新的NPC时调用
+    /// </summary>
+    public void ResetDynamicData() {
+        // TODO: 从存档加载NPC数据
+        ChangeState(NPCState.Idle);
+        currentTarget = null; // 解除目标位置
+        assignedBuilding = null; // 解除建筑分配
+        // 清空背包
+        if(inventory != null){
+            inventory.Clear(); 
+        }
+        relationships.Clear(); // 清空社交关系
+
+        // 重置NavMeshAgent
+        if(navAgent != null){
+            navAgent.enabled = false;
+            navAgent.enabled = true;
+        }
+    }
+
+    /// <summary>
+    /// 从另一个NPC复制数据
+    /// </summary>
+    /// <param name="other"></param>
+    public void CopyFrom(NPC other){
+        data = other.data;
+        assignedBuilding = other.assignedBuilding;
+        relationships = other.relationships;
+        currentState = other.currentState;
+        previousState = other.previousState;
+        stateTimer = other.stateTimer;
+        inventory = other.inventory;
+        currentTarget = other.currentTarget;
+    }
+
+    /// <summary>
+    /// 设置NPC数据
+    /// </summary>
+    /// <param name="npcData"></param>
+    /// <returns></returns>
+    public NPC SetData(NPCData npcData){
+        this.data = npcData;
+        ResetDynamicData();
+        return this;
+    }
 }
