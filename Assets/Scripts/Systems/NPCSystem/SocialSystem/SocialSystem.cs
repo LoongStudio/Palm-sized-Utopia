@@ -48,7 +48,7 @@ public class SocialSystem
         InitializeUsingConfig();
 
         // 订阅游戏事件
-        GameEvents.OnDayPassed += OnDayPassed;
+        GameEvents.OnDayChanged += OnDayChanged;
         
         Debug.Log($"[SocialSystem] 初始化完成，管理 {npcs.Count} 个NPC的社交关系");
     }
@@ -183,7 +183,7 @@ public class SocialSystem
             otherNPC = npc2,
             timestamp = System.DateTime.Now
         };
-        GameEvents.TriggerNPCRelationshipChanged(eventArgs);
+        GameEvents.TriggerNPCSocialInteraction(eventArgs);
     }
 
     private void CompleteInteraction(NPC npc1, NPC npc2, SocialInteraction interaction)
@@ -366,7 +366,7 @@ public class SocialSystem
     #endregion
 
     #region 每日事件处理
-    private void OnDayPassed()
+    private void OnDayChanged(int day)
     {
         // 重置每日互动计数
         dailyInteractionCounts.Clear();
