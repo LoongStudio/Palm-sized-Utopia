@@ -12,8 +12,9 @@ public class BuildingManager : SingletonManager<BuildingManager>
     private Dictionary<(ResourceType, Enum), List<int>> resourceHistory = new();
     // 事件
     public static event System.Action<Building> OnBuildingBuilt;
-    public static event System.Action<Building> OnBuildingUpgraded;
-    public static event System.Action<Building> OnBuildingDestroyed;
+    // TODO: 处理这些事件的订阅和触发，用GameEvents代替
+    // public static event System.Action<Building> OnBuildingUpgraded;
+    // public static event System.Action<Building> OnBuildingDestroyed;
     // Buff 加成
     public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
     

@@ -12,9 +12,10 @@ public class NPC : MonoBehaviour, ISaveable
     public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
 
     [Header("社交配置")]
-    [SerializeField] private int maxRelationship = 100;
-    [SerializeField] private int minRelationship = 0;
-    [SerializeField] private int defaultRelationship = 50;
+    // TODO: 处理这些配置的使用，用SocialSystem代替
+    // [SerializeField] private int maxRelationship = 100;
+    // [SerializeField] private int minRelationship = 0;
+    // [SerializeField] private int defaultRelationship = 50;
     
     [Header("状态管理")]
     public NPCState currentState = NPCState.Idle;

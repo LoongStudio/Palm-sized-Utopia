@@ -20,7 +20,7 @@ public class EditorVisualizer : MonoBehaviour
     [Header("形状设置")]
     [SerializeField] private ShapeType shapeType = ShapeType.Cube;
     [SerializeField] private bool wireframe = true;
-    [SerializeField] private bool alwaysOnTop = true;
+    // [SerializeField] private bool alwaysOnTop = true;
     
     [Header("动画效果")]
     [SerializeField] private bool enablePulse = false;

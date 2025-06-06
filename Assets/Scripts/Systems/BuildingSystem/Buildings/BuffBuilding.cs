@@ -25,10 +25,16 @@ public abstract class BuffBuilding : Building
     
     protected abstract void InitBuildingAndBuffTypes();
 
-    public virtual void Start()
+    public override void Start()
     {
-        OnTryBuilt();
-        OnBuffBuildingBuilt?.Invoke(this);
+        // 调用基类的Start方法，确保正确的初始化流程
+        base.Start();
+        
+        // 只有在建筑状态为活跃时才触发加成建筑建造事件
+        if (status == BuildingStatus.Active)
+        {
+            OnBuffBuildingBuilt?.Invoke(this);
+        }
     }
     
     public override void OnDestroyed()
