@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public static class GameEvents 
 {
     // 资源相关事件
@@ -19,21 +21,48 @@ public static class GameEvents
     public static event System.Action<NPCEventArgs> OnNPCRelationshipChanged;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteraction;
     
+    // 时间相关事件 (重新设计，避免功能重复)
+    public static event System.Action<GameTime> OnTimeChanged;           // 任何时间变化（细粒度）
+    public static event System.Action<int> OnHourChanged;                // 小时变化
+    public static event System.Action<int> OnDayChanged;                 // 天数变化（包含新一天开始的语义）
+    public static event System.Action<int> OnMonthChanged;               // 月份变化
+    public static event System.Action<int> OnYearChanged;                // 年份变化（包含新年的语义）
+    public static event System.Action<Season> OnSeasonChanged;           // 季节变化
+    public static event System.Action<int> OnWeekChanged;                // 周数变化（每7天）
+    
+    // 特殊时间节点事件
+    public static event System.Action OnNightStarted;                   // 夜晚开始
+    public static event System.Action OnWorkTimeStarted;                // 工作时间开始
+    public static event System.Action OnWorkTimeEnded;                  // 工作时间结束
+    public static event System.Action OnRestTimeStarted;                // 休息时间开始
+    
     // 游戏流程事件
     public static event System.Action OnGameStarted;
     public static event System.Action OnGamePaused;
-    public static event System.Action OnDayPassed;
     
-    // 触发事件的方法
+    // 已废弃事件（向后兼容）
+    [System.Obsolete("请使用OnDayChanged替代，OnDayChanged现在包含新一天开始的语义")]
+    public static event System.Action OnDayStarted;
+    [System.Obsolete("请使用OnDayChanged替代")]
+    public static event System.Action OnDayPassed;
+    [System.Obsolete("请使用OnWeekChanged替代")]
+    public static event System.Action OnNewWeek;
+    [System.Obsolete("请使用OnYearChanged替代，OnYearChanged现在包含新年的语义")]
+    public static event System.Action OnNewYear;
+    
+    // 触发事件的方法 - 资源事件
     public static void TriggerResourceChanged(ResourceEventArgs args) 
     {
         OnResourceChanged?.Invoke(args);
     }
     
+    // 触发事件的方法 - 建筑事件
     public static void TriggerBuildingBuilt(BuildingEventArgs args) 
     {
         OnBuildingBuilt?.Invoke(args);
     }
+    
+    // 触发事件的方法 - NPC事件
     public static void TriggerNPCStateChanged(NPCEventArgs args)
     {
         OnNPCStateChanged?.Invoke(args);
@@ -46,7 +75,6 @@ public static class GameEvents
     {
         OnNPCSocialInteraction?.Invoke(args);
     }
-
     public static void TriggerNPCHired(NPCEventArgs args)
     {
         OnNPCHired?.Invoke(args);
@@ -63,6 +91,91 @@ public static class GameEvents
     {
         OnNPCDestroyed?.Invoke(args);
     }
+    
+    // 触发事件的方法 - 时间事件 (重新设计)
+    public static void TriggerTimeChanged(GameTime newTime) 
+    {
+        OnTimeChanged?.Invoke(newTime);
+    }
+    
+    public static void TriggerHourChanged(int hour) 
+    {
+        OnHourChanged?.Invoke(hour);
+    }
+    
+    public static void TriggerDayChanged(int day) 
+    {
+        OnDayChanged?.Invoke(day);
+        // 向后兼容
+        OnDayStarted?.Invoke();
+        OnDayPassed?.Invoke();
+    }
+    
+    public static void TriggerMonthChanged(int month) 
+    {
+        OnMonthChanged?.Invoke(month);
+    }
+    
+    public static void TriggerYearChanged(int year) 
+    {
+        OnYearChanged?.Invoke(year);
+        // 向后兼容
+        OnNewYear?.Invoke();
+    }
+    
+    public static void TriggerSeasonChanged(Season season) 
+    {
+        OnSeasonChanged?.Invoke(season);
+    }
+    
+    public static void TriggerWeekChanged(int week) 
+    {
+        OnWeekChanged?.Invoke(week);
+        // 向后兼容
+        OnNewWeek?.Invoke();
+    }
+    
+    public static void TriggerNightStarted() 
+    {
+        OnNightStarted?.Invoke();
+    }
+    
+    public static void TriggerWorkTimeStarted() 
+    {
+        OnWorkTimeStarted?.Invoke();
+    }
+    
+    public static void TriggerWorkTimeEnded() 
+    {
+        OnWorkTimeEnded?.Invoke();
+    }
+    
+    public static void TriggerRestTimeStarted() 
+    {
+        OnRestTimeStarted?.Invoke();
+    }
+    
+    // 已废弃的触发方法（向后兼容）
+    [System.Obsolete("请使用TriggerDayChanged替代")]
+    public static void TriggerDayStarted() => TriggerDayChanged(TimeManager.Instance?.CurrentTime.day ?? 1);
+    
+    [System.Obsolete("请使用TriggerWeekChanged替代")]
+    public static void TriggerNewWeek() => TriggerWeekChanged(GetCurrentWeek());
+    
+    [System.Obsolete("请使用TriggerYearChanged替代")]
+    public static void TriggerNewYear() => TriggerYearChanged(TimeManager.Instance?.CurrentTime.year ?? 1);
+    
+    // 辅助方法
+    private static int GetCurrentWeek()
+    {
+        if (TimeManager.Instance?.CurrentTime != null)
+        {
+            var time = TimeManager.Instance.CurrentTime;
+            return ((time.year - 1) * 12 * 30 + (time.month - 1) * 30 + time.day - 1) / 7 + 1;
+        }
+        return 1;
+    }
+    
     // ... 其他触发方法
 }
 
