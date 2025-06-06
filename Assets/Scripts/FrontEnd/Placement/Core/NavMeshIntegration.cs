@@ -33,6 +33,9 @@ public class NavMeshIntegration : SingletonManager<NavMeshIntegration>
         PlacementEvents.OnObjectPlaced += OnObjectPlaced;
         PlacementEvents.OnObjectRemoved += OnObjectRemoved;
         PlacementEvents.OnObjectMoved += OnObjectMoved;
+
+        // 初始化NavMesh
+        RequestNavMeshUpdate();
     }
     
     private void OnDestroy()

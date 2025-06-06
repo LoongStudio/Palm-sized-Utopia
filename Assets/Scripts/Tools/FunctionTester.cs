@@ -14,6 +14,8 @@ public class FunctionTester : MonoBehaviour
         {
             TestResourceAddRemove();
         }
+
+        
     }
     public void TestResourceInitialization()
     {
@@ -31,8 +33,9 @@ public class FunctionTester : MonoBehaviour
         ResourceManager.Instance.RemoveResource(ResourceType.Seed, SeedSubType.Wheat, 9999); // 移除超过资源数量的资源
     }
 
-    public void Test4() { }
-    public void Test5() { }
-    public void Test6() { }
-    public void Test7() { }
+    [ContextMenu("Test Hire NPC")]
+    public void TestHireNPC(){
+        // TODO: 测试雇佣NPC
+        NPCManager.Instance.HireNPC();
+    }
 }

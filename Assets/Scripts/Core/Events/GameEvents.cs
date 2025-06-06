@@ -12,7 +12,9 @@ public static class GameEvents
     
     // NPC相关事件
     public static event System.Action<NPCEventArgs> OnNPCHired;
+    public static event System.Action<NPCEventArgs> OnNPCInstantiated;
     public static event System.Action<NPCEventArgs> OnNPCFired;
+    public static event System.Action<NPCEventArgs> OnNPCDestroyed;
     public static event System.Action<NPCEventArgs> OnNPCStateChanged;
     public static event System.Action<NPCEventArgs> OnNPCRelationshipChanged;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteraction;
@@ -43,6 +45,23 @@ public static class GameEvents
     public static void TriggerNPCSocialInteraction(NPCEventArgs args) 
     {
         OnNPCSocialInteraction?.Invoke(args);
+    }
+
+    public static void TriggerNPCHired(NPCEventArgs args)
+    {
+        OnNPCHired?.Invoke(args);
+    }
+    public static void TriggerNPCFired(NPCEventArgs args)
+    {
+        OnNPCFired?.Invoke(args);
+    }
+    public static void TriggerNPCInstantiated(NPCEventArgs args)
+    {
+        OnNPCInstantiated?.Invoke(args);
+    }
+    public static void TriggerNPCDestroyed(NPCEventArgs args)
+    {
+        OnNPCDestroyed?.Invoke(args);
     }
     // ... 其他触发方法
 }

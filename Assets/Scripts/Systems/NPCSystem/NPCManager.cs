@@ -13,14 +13,16 @@ public class NPCManager : SingletonManager<NPCManager>
     private List<NPC> availableNPCs;
     public SocialSystem socialSystem;
     
-    // 事件
-    public static event System.Action<NPC> OnNPCHired;
-    public static event System.Action<NPC> OnNPCFired;
-    public static event System.Action<NPC, NPCState> OnNPCStateChanged;
     protected override void Awake()
     {
         base.Awake();
     }
+
+    private void Start(){
+        // 订阅事件
+        GameEvents.OnNPCInstantiated += OnNPCInstantiate;
+    }
+    #region 初始化
     public void Initialize() 
     { 
         allNPCs = new List<NPC>();
@@ -31,35 +33,175 @@ public class NPCManager : SingletonManager<NPCManager>
             socialSystem = new SocialSystem();
         }
         // 等待一帧确保所有NPC都已初始化
-        StartCoroutine(DelayedSocialSystemInit());
+        StartCoroutine(DelayedInit());
 
         // TODO: 订阅游戏事件
     }
 
-    private IEnumerator DelayedSocialSystemInit()
+    private IEnumerator DelayedInit()
     {
         yield return new WaitForEndOfFrame();
-        
-        // 收集所有场景中的NPC
+
+        // 1. 收集场景中已存在的NPC
+        CollectExistingNPCs();
+
+        // 2. 从存档加载NPC（如果有的话）
+        // TODO: 从存档加载NPC
+
+        // 3. 初始化社交系统
+        InitializeSocialSystem();
+
+        Debug.Log($"[NPCManager] 初始化完成，管理 {allNPCs.Count} 个NPC");
+    }
+
+    /// <summary>
+    /// 收集场景中已存在的NPC
+    /// </summary>
+    private void CollectExistingNPCs()
+    {
         var sceneNPCs = FindObjectsByType<NPC>(FindObjectsSortMode.None).ToList();
-        allNPCs.AddRange(sceneNPCs);
-        availableNPCs.AddRange(sceneNPCs.Where(npc => npc.assignedBuilding == null));
         
-                // 加载社交系统配置文件
+        foreach (var npc in sceneNPCs)
+        {
+            RegisterNPC(npc);
+        }
+        
+        Debug.Log($"[NPCManager] 从场景中收集到 {sceneNPCs.Count} 个NPC");
+    }
+
+    /// <summary>
+    /// 从存档加载NPC数据
+    /// </summary>
+    private void LoadNPCsFromSave()
+    {
+        // TODO: 实现从存档加载NPC的逻辑
+        // 这里可能需要从SaveManager获取数据并实例化NPC
+        
+        /*
+        var saveData = SaveManager.Instance.GetNPCData();
+        if (saveData != null)
+        {
+            foreach (var npcData in saveData.npcs)
+            {
+                var npc = CreateNPCFromData(npcData);
+                RegisterNPC(npc);
+            }
+        }
+        */
+    }
+    /// <summary>
+    /// 初始化社交系统
+    /// </summary>
+    private void InitializeSocialSystem()
+    {
+        // 加载社交系统配置文件
         var socialConfig = Resources.Load<SocialSystemConfig>("SocialSystemConfig");
         if (socialSystem != null)
         {
             socialSystem.Initialize(allNPCs, socialConfig);
         }
-        
-        Debug.Log($"[NPCManager] 初始化完成，管理 {allNPCs.Count} 个NPC");
     }
-
     
-    // NPC管理
-    public bool HireNPC(NPCData npcData) { return false; }
+    #endregion
+
+    #region NPC注册和可用判断
+    
+    /// <summary>
+    /// 注册NPC到管理系统
+    /// </summary>
+    /// <param name="npc">要注册的NPC</param>
+    public void RegisterNPC(NPC npc)
+    {
+        if (npc == null)
+        {
+            Debug.LogError("[NPCManager] 尝试注册空的NPC");
+            return;
+        }
+        
+        // 避免重复注册
+        if (allNPCs.Contains(npc))
+        {
+            Debug.LogWarning($"[NPCManager] NPC {npc.data?.npcName} 已经被注册");
+            return;
+        }
+        
+        // 添加到总列表
+        allNPCs.Add(npc);
+        
+        // 检查是否应该添加到可用列表
+        if (IsNPCAvailable(npc))
+        {
+            availableNPCs.Add(npc);
+        }
+        
+        Debug.Log($"[NPCManager] 注册NPC: {npc.data?.npcName}，当前总数: {allNPCs.Count}");
+    }
+    
+    /// <summary>
+    /// 从管理系统中移除NPC
+    /// </summary>
+    /// <param name="npc">要移除的NPC</param>
+    public void UnregisterNPC(NPC npc)
+    {
+        if (npc == null) return;
+        
+        allNPCs.Remove(npc);
+        availableNPCs.Remove(npc);
+        
+        Debug.Log($"[NPCManager] 移除NPC: {npc.data?.npcName}，剩余总数: {allNPCs.Count}");
+    }
+    
+    /// <summary>
+    /// 判断NPC是否可用（可以被分配工作）
+    /// </summary>
+    private bool IsNPCAvailable(NPC npc)
+    {
+        // TODO: 判断NPC是否可用
+        return true;
+    }
+    
+    #endregion
+
+    #region NPC雇佣和解雇
+    public bool HireNPC(NPCData npcData = null) {
+        // 如果没有传入NPCData，则生成一个随机NPC
+        if (npcData == null){
+            npcData = GenerateRandomNPCData();
+        }
+
+        Debug.Log($"[NPCManager] 尝试雇佣NPC: {npcData.npcName}");
+
+        // 雇佣NPC事件
+        var eventArgs = new NPCEventArgs(){
+            npcData = npcData,
+            eventType = NPCEventArgs.NPCEventType.Hired,
+            timestamp = System.DateTime.Now
+        };
+        GameEvents.TriggerNPCHired(eventArgs);
+
+        // 返回雇佣结果
+        return true;
+    }
+    
+    private void OnNPCInstantiate(NPCEventArgs args){
+        // 注册NPC
+        if(args.npc != null){
+            RegisterNPC(args.npc);
+            Debug.Log($"[NPCManager] 雇佣NPC成功: {args.npc.data.npcName}");
+        } else{
+            Debug.LogError("[NPCManager] 雇佣NPC失败，原因：NPC实例化失败");
+        }
+    }
+    public bool FireNPC(NPC npc) { return false; }
+
+    #endregion
 
     #region 私有NPCData生成方法
+    /// <summary>
+    /// 核心方法：生成随机NPCData
+    /// </summary>
+    /// <param name="config">NPC生成配置，如果为空则使用默认配置</param>
+    /// <returns>生成的NPCData</returns>
     private NPCData GenerateRandomNPCData(NPCGenerationConfig config = null) 
     {
         var activeConfig = config ?? defaultNPCGenerationConfig;
@@ -227,7 +369,6 @@ public class NPCManager : SingletonManager<NPCManager>
     }
     #endregion
 
-    public bool FireNPC(NPC npc) { return false; }
     public bool AssignNPCToBuilding(NPC npc, Building building) { return false; }
     public void RemoveNPCFromBuilding(NPC npc) { }
     
@@ -254,10 +395,21 @@ public class NPCManager : SingletonManager<NPCManager>
     
     private void UpdateNPCStates() { }
 
-    [ContextMenu("Test Generate NPC")]
+    [ContextMenu("Test Generate NPC Data")]
     public void TestGenerateNPC()
     {
         var npcData = GenerateRandomNPCData();
-        Debug.Log($"[NPCManager] 生成了新NPC: {npcData.ToString()}");
+        Debug.Log($"[NPCManager] 生成了新NPC: {npcData}");
     }
+
+    [ContextMenu("Test Hire NPC")]
+    public void TestHireNPC()
+    {
+        if(Application.isPlaying    ){
+            HireNPC();
+        } else{
+            Debug.LogError("[NPCManager] 请在运行时调用TestHireNPC");
+        }
+    }
+    
 }
