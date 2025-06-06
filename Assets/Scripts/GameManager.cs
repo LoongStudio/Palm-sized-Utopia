@@ -48,10 +48,8 @@ public class GameManager : SingletonManager<GameManager>
     
     private void UpdateAllSystems() 
     { 
-        if (npcManager?.socialSystem != null)
-        {
-            npcManager.socialSystem.UpdateSocialInteractions();
-        }
+        // 社交系统由NPCManager自身负责更新，避免重复调用
+        // TODO: 在这里添加其他需要集中更新的系统
     }
     private void UpdateGameTime() { }
     
