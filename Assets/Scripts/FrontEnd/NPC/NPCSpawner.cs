@@ -14,6 +14,8 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     [SerializeField] private float spawnHeight = 10f;                 // 生成高度（屏幕外）
     [SerializeField] private int maxSpawnAttempts = 30;               // 最大生成尝试次数
     [SerializeField] private Transform spawnCenter;                  // 生成中心点
+    [SerializeField] private Transform spawnPoint;                   // 生成点
+    [SerializeField] private bool spawnAtSpawnPoint = false;         // 是否在生成点生成
     
     [Header("移动设置")]
     [SerializeField] private float defaultMoveSpeed = 3.5f;           // 默认移动速度
@@ -110,9 +112,16 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     /// </summary>
     private IEnumerator SpawnNPCCoroutine(NPCData npcData)
     {
-        // 寻找有效的生成位置
-        Vector3 spawnPosition = FindValidSpawnPosition();
-        
+        Vector3 spawnPosition;
+        if (spawnAtSpawnPoint)
+        {
+            spawnPosition = spawnPoint.position + Vector3.up * spawnHeight;
+        }
+        else
+        {
+            spawnPosition = FindValidSpawnPosition();
+        }
+
         if (spawnPosition == Vector3.zero)
         {
             Debug.LogError("[NPCSpawner] 无法找到有效的生成位置！");

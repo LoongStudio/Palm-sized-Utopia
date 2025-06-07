@@ -19,6 +19,7 @@ public class NPCMovement : MonoBehaviour
     [SerializeField] private bool showDebugInfo = true;           // 显示调试信息
     [SerializeField] private bool drawGizmos = true;              // 绘制调试线条
     [SerializeField] private Color pathColor = Color.green;       // 路径颜色
+    [SerializeField] private bool isRandomMovementEnabled = true; // 是否开启随机移动
     
     // 组件引用
     private NavMeshAgent navAgent;
@@ -117,7 +118,7 @@ public class NPCMovement : MonoBehaviour
             StopCoroutine(movementCoroutine);
         }
         
-        movementCoroutine = StartCoroutine(RandomMovementLoop());
+        // movementCoroutine = StartCoroutine(RandomMovementLoop());
         Debug.Log($"[NPCMovement] {name} 开始随机移动");
     }
     
@@ -144,6 +145,14 @@ public class NPCMovement : MonoBehaviour
     {
         while (true)
         {
+            // 检查是否开启随机移动
+            if (!isRandomMovementEnabled)
+            {
+                navAgent.SetDestination(transform.position);
+                yield return new WaitForSeconds(0.1f);
+                continue;
+            }
+
             // 生成随机目标点
             Vector3 randomTarget = GenerateRandomTarget();
             
