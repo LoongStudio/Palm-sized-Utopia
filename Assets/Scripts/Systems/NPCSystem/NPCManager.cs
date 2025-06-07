@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using UnityEngine.AI;
 
 public class NPCManager : SingletonManager<NPCManager>
 {
@@ -12,7 +13,7 @@ public class NPCManager : SingletonManager<NPCManager>
     private List<NPC> allNPCs;
     private List<NPC> availableNPCs;
     public SocialSystem socialSystem;
-    
+    #region 生命周期
     protected override void Awake()
     {
         base.Awake();
@@ -20,8 +21,14 @@ public class NPCManager : SingletonManager<NPCManager>
 
     private void Start(){
         // 订阅事件
-        GameEvents.OnNPCInstantiated += OnNPCInstantiate;
+        SubscribeToEvents();
     }
+    private void OnDestroy()
+    {
+        UnsubscribeFromEvents();
+    }
+    #endregion
+
     #region 初始化
     public void Initialize() 
     { 
@@ -101,7 +108,76 @@ public class NPCManager : SingletonManager<NPCManager>
             socialSystem.Initialize(allNPCs, socialConfig);
         }
     }
-    
+    #endregion
+
+    #region 事件订阅和取消订阅
+    private void SubscribeToEvents()
+    {
+        GameEvents.OnNPCInstantiated += OnNPCInstantiate;
+        GameEvents.OnNPCSocialInteractionStarted += HandleSocialInteractionStart;
+        GameEvents.OnNPCSocialInteractionEnded += HandleSocialInteractionEnded;
+    }
+    private void UnsubscribeFromEvents()
+    {
+        GameEvents.OnNPCInstantiated -= OnNPCInstantiate;
+        GameEvents.OnNPCSocialInteractionStarted -= HandleSocialInteractionStart;
+        GameEvents.OnNPCSocialInteractionEnded -= HandleSocialInteractionEnded;
+    }
+    #endregion
+
+    #region 事件处理
+    private void HandleSocialInteractionStart(NPCEventArgs args)
+    {
+        if (args.npc == null || args.otherNPC == null)
+        {
+            Debug.LogWarning("[NPCManager] 社交事件中的NPC为空");
+            return;
+        }
+
+        Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 开始社交互动");
+        NPC npc1 = args.npc;
+        NPC npc2 = args.otherNPC;
+
+        // 验证两个NPC是否在管理列表中
+        if (!allNPCs.Contains(npc1) || !allNPCs.Contains(npc2))
+        {
+            Debug.LogError($"[NPCManager] NPC {npc1.data.npcName} 或 NPC {npc2.data.npcName} 不在管理列表中，无法处理社交互动");
+            return;
+        }
+
+        StartCoroutine(ExecuteSocialInteraction(npc1, npc2));
+    }
+
+    private IEnumerator ExecuteSocialInteraction(NPC npc1, NPC npc2)
+    {
+        // 阶段1: 计算社交位置
+        var socialPositions = CalculateSocialPositions(npc1, npc2);
+        Debug.Log($"[NPCManager] 计算社交位置为: {socialPositions.npc1Position} 和 {socialPositions.npc2Position}");
+
+        // 阶段2: 让两个NPC移动到社交位置
+        yield return StartCoroutine(MoveNPCsToSocialPositions(npc1, npc2, socialPositions));
+
+    }
+
+    private void HandleSocialInteractionEnded(NPCEventArgs args){
+
+        if (args.npc == null || args.otherNPC == null)
+        {
+            Debug.LogWarning("[NPCManager] 社交事件中的NPC为空");
+            return;
+        }
+        Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 结束社交互动");
+        NPC npc1 = args.npc;
+        NPC npc2 = args.otherNPC;
+
+        // 验证两个NPC是否在管理列表中
+        if(!allNPCs.Contains(npc1) || !allNPCs.Contains(npc2)){
+            Debug.LogError($"[NPCManager] NPC {npc1.data.npcName} 或 NPC {npc2.data.npcName} 不在管理列表中，无法处理社交互动");
+            return;
+        }
+
+        // TODO：NPC的社交互动结束后的逻辑
+    }
     #endregion
 
     #region NPC注册和可用判断
@@ -411,5 +487,156 @@ public class NPCManager : SingletonManager<NPCManager>
             Debug.LogError("[NPCManager] 请在运行时调用TestHireNPC");
         }
     }
+    [ContextMenu("Print All NPCs")]
+    public void PrintAllNPCs()
+    {
+        Debug.Log($"[NPCManager] ========================== 输出所有NPC ==========================");
+        foreach (var npc in allNPCs)
+        {
+            Debug.Log($"[NPCManager] NPC: {npc.data.npcName}");
+        }
+        Debug.Log($"[NPCManager] ========================== 输出所有NPC ==========================");
+    }
+
+    [ContextMenu("Print Active Interactions")]
+    public void PrintActiveInteractions()
+    {
+        Debug.Log($"[NPCManager] ========================== 输出所有活跃互动 ==========================");
+        foreach (var interaction in socialSystem.activeInteractions)
+        {
+            Debug.Log($"[NPCManager] NPC: {interaction.Key.Item1.data.npcName} 和 NPC: {interaction.Key.Item2.data.npcName} 正在互动，该互动应当持续时间: {interaction.Value.duration}秒，已进行时间: {interaction.Value.elapsed}秒，剩余时间: {interaction.Value.duration - interaction.Value.elapsed}秒");    
+        }
+        Debug.Log($"[NPCManager] ========================== 输出所有活跃互动 ==========================");
+    }
+
+    [ContextMenu("Print Interaction Cooldowns")]
+    public void PrintInteractionCooldowns()
+    {
+        Debug.Log($"[NPCManager] ========================== 输出所有互动冷却时间 ==========================");
+        foreach (var cooldown in socialSystem.interactionCooldowns)
+        {
+            Debug.Log($"[NPCManager] NPC: {cooldown.Key.Item1.data.npcName} 和 NPC: {cooldown.Key.Item2.data.npcName} 的互动冷却时间: {cooldown.Value}");
+        }
+        Debug.Log($"[NPCManager] ========================== 输出所有互动冷却时间 ==========================");
+    }
+
+    [ContextMenu("Print Daily Interaction Counts")]
+    public void PrintDailyInteractionCounts()
+    {
+        Debug.Log($"[NPCManager] ========================== 输出所有每日互动计数 ==========================");
+        foreach (var count in socialSystem.dailyInteractionCounts)
+        {
+            Debug.Log($"[NPCManager] NPC: {count.Key.data.npcName} 的每日互动计数: {count.Value}");
+        }
+        Debug.Log($"[NPCManager] ========================== 输出所有每日互动计数 ==========================");
+    }
     
+
+    /// <summary>
+    /// 计算两个NPC的社交位置
+    /// </summary>
+    private SocialPositions CalculateSocialPositions(NPC npc1, NPC npc2)
+    {
+        Vector3 npc1Pos = npc1.transform.position;
+        Vector3 npc2Pos = npc2.transform.position;
+        
+        // 计算中点作为社交中心
+        Vector3 socialCenter = (npc1Pos + npc2Pos) * 0.5f;
+        
+        // 计算两个NPC之间的方向
+        Vector3 direction = (npc2Pos - npc1Pos).normalized;
+        
+        // 确保社交位置在NavMesh上
+        socialCenter = FindNearestNavMeshPoint(socialCenter);
+        
+        // 计算两个NPC的最终位置（面对面，保持socialInteractionDistance的距离）
+        float halfDistance = socialSystem.socialInteractionDistance * 0.5f;
+        Vector3 npc1TargetPos = socialCenter - direction * halfDistance;
+        Vector3 npc2TargetPos = socialCenter + direction * halfDistance;
+        
+        // 确保目标位置在NavMesh上
+        npc1TargetPos = FindNearestNavMeshPoint(npc1TargetPos);
+        npc2TargetPos = FindNearestNavMeshPoint(npc2TargetPos);
+        
+        return new SocialPositions
+        {
+            npc1Position = npc1TargetPos,
+            npc2Position = npc2TargetPos,
+            socialCenter = socialCenter,
+            facingDirection = direction
+        };
+    }
+
+    /// <summary>
+    /// 找到最近的NavMesh点
+    /// </summary>
+    private Vector3 FindNearestNavMeshPoint(Vector3 position)
+    {
+        if (UnityEngine.AI.NavMesh.SamplePosition(position, out UnityEngine.AI.NavMeshHit hit, 5f, UnityEngine.AI.NavMesh.AllAreas))
+        {
+            return hit.position;
+        }
+        return position; // 如果找不到，返回原位置
+    }
+
+        /// <summary>
+    /// 让两个NPC移动到社交位置
+    /// </summary>
+    private IEnumerator MoveNPCsToSocialPositions(NPC npc1, NPC npc2, SocialPositions positions)
+    {
+        Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
+        // 启动两个NPC的社交移动
+        var moveCoroutine1 = StartCoroutine(npc1.MoveToSocialPosition(positions.npc1Position, socialSystem.socialMoveSpeed));
+        var moveCoroutine2 = StartCoroutine(npc2.MoveToSocialPosition(positions.npc2Position, socialSystem.socialMoveSpeed));
+        
+        // 等待两个移动完成，或者超时
+        float startTime = Time.time;
+        bool npc1Arrived = false;
+        bool npc2Arrived = false;
+        
+        while ((!npc1Arrived || !npc2Arrived) && (Time.time - startTime) < socialSystem.socialTimeout)
+        {
+            // 检查NPC1是否到达
+            if (!npc1Arrived)
+            {
+                
+                npc1Arrived = npc1.navAgent.remainingDistance <= 0.5f;
+            }
+            
+            // 检查NPC2是否到达
+            if (!npc2Arrived)
+            {
+                npc2Arrived = npc2.navAgent.remainingDistance <= 0.5f;
+            }
+            
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // 确保两个NPC都面向对方
+        Vector3 direction1to2 = (positions.npc2Position - positions.npc1Position).normalized;
+        Vector3 direction2to1 = -direction1to2;
+        
+        npc1.transform.rotation = Quaternion.LookRotation(direction1to2);
+        npc2.transform.rotation = Quaternion.LookRotation(direction2to1);
+        
+        if (npc1Arrived && npc2Arrived)
+        {
+            Debug.Log($"[NPCManager] 两个NPC已到达社交位置");
+        }
+        else
+        {
+            Debug.LogWarning($"[NPCManager] 社交移动超时或失败");
+        }
+    }
+}
+
+/// <summary>
+/// 社交位置数据
+/// </summary>
+public struct SocialPositions
+{
+    public Vector3 npc1Position;
+    public Vector3 npc2Position;
+    public Vector3 socialCenter;
+    public Vector3 facingDirection;
 }

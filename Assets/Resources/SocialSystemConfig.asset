@@ -16,6 +16,9 @@ MonoBehaviour:
   interactionRadius: 3
   interactionDuration: 3
   maxDailyInteractions: 5
+  socialInteractionDistance: 0.3
+  socialMoveSpeed: 0.1
+  socialTimeout: 10
   baseRelationshipChange: 5
   fightRelationshipPenalty: -15
   workTogetherBonus: 2

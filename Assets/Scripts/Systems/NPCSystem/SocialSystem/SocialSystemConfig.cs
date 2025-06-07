@@ -8,6 +8,9 @@ public class SocialSystemConfig : ScriptableObject
     public float interactionRadius = 3f;
     public float interactionDuration = 3f;
     public int maxDailyInteractions = 5;
+    public float socialInteractionDistance = 2f;
+    public float socialMoveSpeed = 0.5f;
+    public float socialTimeout = 10f;
     
     [Header("好感度设置")]
     public int baseRelationshipChange = 5;

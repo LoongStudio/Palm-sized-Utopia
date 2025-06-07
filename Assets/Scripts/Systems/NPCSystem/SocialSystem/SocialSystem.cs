@@ -10,9 +10,12 @@ public class SocialSystem
 
     [Header("社交系统配置")]
     [SerializeField] private float interactionCheckInterval;  // 社交检查间隔
-    [SerializeField] private float interactionRadius;         // 社交互动半径
+    [SerializeField] private float interactionRadius;         // 社交互动检测半径
     [SerializeField] private float interactionDuration;       // 社交互动持续时间
     [SerializeField] private int maxDailyInteractions;         // 每日最大互动次数
+    [SerializeField] public float socialInteractionDistance{get; private set;} = 2f;     // 社交距离
+    [SerializeField] public float socialMoveSpeed{get; private set;} = 0.5f;               // 社交移动速度
+    [SerializeField] public float socialTimeout{get; private set;} = 10f;                // 社交移动超时时间
     
     [Header("好感度配置")]
     [SerializeField] private int baseRelationshipChange;       // 基础好感度变化
@@ -24,9 +27,9 @@ public class SocialSystem
     #region 私有字段
     private List<NPC> npcs;
     private float lastCheckTime;
-    private Dictionary<(NPC, NPC), float> interactionCooldowns;     // 互动冷却时间
-    private Dictionary<NPC, int> dailyInteractionCounts;            // 每日互动计数
-    private Dictionary<(NPC, NPC), SocialInteraction> activeInteractions; // 当前进行中的互动
+    public Dictionary<(NPC, NPC), float> interactionCooldowns{get; private set;}     // 互动冷却时间
+    public Dictionary<NPC, int> dailyInteractionCounts{get; private set;}            // 每日互动计数
+    public Dictionary<(NPC, NPC), SocialInteraction> activeInteractions{get; private set;} // 当前进行中的互动
     #endregion
     
     #region 初始化
@@ -63,24 +66,31 @@ public class SocialSystem
         fightRelationshipPenalty = config.fightRelationshipPenalty;
         workTogetherBonus = config.workTogetherBonus;
         relationshipDecayDaily = config.relationshipDecayDaily;
+        socialInteractionDistance = config.socialInteractionDistance;
+        socialMoveSpeed = config.socialMoveSpeed;
+        socialTimeout = config.socialTimeout;
     }
     #endregion
     
     #region 主循环更新
     public void UpdateSocialInteractions()
     {
-        if (Time.time - lastCheckTime < interactionCheckInterval) return;
-        
-        // 更新现有互动
+        // 更新现有互动 - 每帧都要更新，不受时间间隔限制
         UpdateActiveInteractions();
-        
-        // 检查新的潜在互动
-        CheckForPotentialInteractions();
-        
+                    
         // 更新冷却时间
         UpdateInteractionCooldowns();
         
-        lastCheckTime = Time.time;
+        // 检查新的潜在互动和其他操作 - 受时间间隔限制
+        if (Time.time - lastCheckTime >= interactionCheckInterval)
+        {
+            Debug.Log($"[SocialSystem] 社交系统定期更新");
+            
+            // 检查新的潜在互动
+            CheckForPotentialInteractions();
+
+            lastCheckTime = Time.time;
+        }
     }
     
     private void UpdateActiveInteractions()
@@ -174,6 +184,7 @@ public class SocialSystem
         IncrementDailyInteractionCount(npc2);
         
         Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 开始社交互动");
+        DebugDrawSocialInteraction(npc1, npc2);
         
         // 触发事件
         var eventArgs = new NPCEventArgs
@@ -188,6 +199,7 @@ public class SocialSystem
 
     private void CompleteInteraction(NPC npc1, NPC npc2, SocialInteraction interaction)
     {
+        Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 社交互动结束");
         // 计算互动结果
         bool isFight = WillNPCsFight(npc1, npc2);
         int relationshipChange;
@@ -195,12 +207,12 @@ public class SocialSystem
         if (isFight)
         {
             relationshipChange = ProcessFight(npc1, npc2);
-            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 发生了争吵！");
+            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 发生了争吵！互相之间好感度下降了 {relationshipChange}");
         }
         else
         {
             relationshipChange = ProcessFriendlyChat(npc1, npc2);
-            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 愉快地聊天了");
+            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 愉快地聊天了！互相之间好感度上升了 {relationshipChange}");
         }
         
         // 设置冷却时间
@@ -473,6 +485,12 @@ public class SocialSystem
         
         return relationshipCount > 0 ? totalRelationship / relationshipCount : 50f;
     }
+
+    public void DebugDrawSocialInteraction(NPC npc1, NPC npc2)
+    {
+        Debug.DrawLine(npc1.transform.position, npc2.transform.position, Color.red, 10f);
+    }
+
     #endregion
 }
 
