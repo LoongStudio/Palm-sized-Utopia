@@ -52,6 +52,7 @@ public class SocialSystem
 
         // 订阅游戏事件
         GameEvents.OnDayChanged += OnDayChanged;
+        GameEvents.OnNPCReadyForSocialInteraction += StartInteraction;
         
         Debug.Log($"[SocialSystem] 初始化完成，管理 {npcs.Count} 个NPC的社交关系");
     }
@@ -134,15 +135,17 @@ public class SocialSystem
                 
                 if (CanInteract(npc1, npc2))
                 {
-                    StartInteraction(npc1, npc2);
+                    PrepareForSocialInteraction(npc1, npc2);
                 }
             }
         }
     }
 
+
+
     private bool CanInteract(NPC npc1, NPC npc2)
     {
-        // 检查基本条件
+        // 检查基本条件，仅有Idle状态的NPC才能进行社交互动
         if (npc1 == npc2 || npc1.currentState != NPCState.Idle || npc2.currentState != NPCState.Idle)
             return false;
         
@@ -167,9 +170,27 @@ public class SocialSystem
         
         return true;
     }
-
-    private void StartInteraction(NPC npc1, NPC npc2)
+    private static void PrepareForSocialInteraction(NPC npc1, NPC npc2)
     {
+        // 触发事件让NPC开始向对方移动
+        var eventArgs = new NPCEventArgs
+        {
+            npc = npc1,
+            otherNPC = npc2,
+            timestamp = System.DateTime.Now
+        };
+        GameEvents.TriggerNPCShouldStartSocialInteraction(eventArgs);
+    }
+
+    private void StartInteraction(NPCEventArgs args)
+    {
+        var npc1 = args.npc;
+        var npc2 = args.otherNPC;
+        if (npc1 == null || npc2 == null) {
+            Debug.LogError("[SocialSystem] NPC为空，无法开始社交互动");
+            return;
+        }
+        
         var interaction = new SocialInteraction(npc1, npc2, interactionDuration);
         var key = GetInteractionKey(npc1, npc2);
         
