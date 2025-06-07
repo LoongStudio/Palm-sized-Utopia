@@ -5,6 +5,7 @@ public enum NPCState
     Resting,   // 休息
     Idle,      // 空闲
     Social,    // 社交
+    MovingToSocial, // 前往社交位置
     Transition, // 状态转换中
     MovingToSource,      // 前往采集点
     Collecting,          // 采集中
