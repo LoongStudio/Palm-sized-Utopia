@@ -28,6 +28,14 @@ public class NPC : MonoBehaviour, ISaveable
     public NPCInventory inventory;           // 背包
     public Transform currentTarget;          // 当前目标位置
     public NavMeshAgent navAgent;           // 导航组件
+
+    [Header("移动配置")]
+    [SerializeField] private float turnSpeed = 5f;              // 转向速度
+    [SerializeField] private float turnThreshold = 10f;         // 转向阈值角度
+    [SerializeField] private bool enableTurnBeforeMove = true;  // 是否在移动前转向
+    
+    private bool isTurning = false;                             // 是否正在转向
+    private Vector3 targetDirection;                            // 目标方向
     #endregion
     
     #region Unity生命周期
@@ -270,13 +278,162 @@ public class NPC : MonoBehaviour, ISaveable
     #region 移动和任务
     private void UpdateMovement() 
     { 
-        // TODO: 移动逻辑
+        // 处理转向逻辑
+        if (isTurning)
+        {
+            UpdateTurning();
+        }
+    }
+    
+    /// <summary>
+    /// 更新转向逻辑
+    /// </summary>
+    private void UpdateTurning()
+    {
+        if (targetDirection == Vector3.zero) return;
+        
+        // 计算当前方向和目标方向的角度差
+        float angle = Vector3.Angle(transform.forward, targetDirection);
+        
+        // 如果角度差小于阈值，停止转向
+        if (angle < turnThreshold)
+        {
+            isTurning = false;
+            OnTurnCompleted();
+            return;
+        }
+        
+        // 平滑转向目标方向
+        Vector3 newDirection = Vector3.Slerp(transform.forward, targetDirection, turnSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+    
+    /// <summary>
+    /// 转向完成回调
+    /// </summary>
+    private void OnTurnCompleted()
+    {
+        Debug.Log($"[NPC] {data.npcName} 转向完成，开始移动");
+        targetDirection = Vector3.zero;
+        
+        // 转向完成后，开始移动
+        if (currentTarget != null && navAgent != null)
+        {
+            navAgent.SetDestination(currentTarget.position);
+        }
+    }
+    
+    /// <summary>
+    /// 转向指定方向
+    /// </summary>
+    /// <param name="direction">目标方向</param>
+    public void TurnToDirection(Vector3 direction)
+    {
+        if (direction == Vector3.zero) return;
+        
+        targetDirection = direction.normalized;
+        isTurning = true;
+        
+        Debug.Log($"[NPC] {data.npcName} 开始转向目标方向");
+    }
+    
+    /// <summary>
+    /// 转向指定位置
+    /// </summary>
+    /// <param name="targetPosition">目标位置</param>
+    public void TurnToPosition(Vector3 targetPosition)
+    {
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // 忽略Y轴，只在水平面转向
+        TurnToDirection(direction);
+    }
+    
+    /// <summary>
+    /// 立即转向目标位置（不使用平滑转向）
+    /// </summary>
+    /// <param name="targetPosition">目标位置</param>
+    public void TurnToPositionImmediate(Vector3 targetPosition)
+    {
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // 忽略Y轴，只在水平面转向
+        
+        if (direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
+            Debug.Log($"[NPC] {data.npcName} 立即转向目标位置");
+        }
     }
     
     public void MoveToTarget(Transform target) {
-        if(navAgent == null) return;
-        navAgent.SetDestination(target.position);
+        if(navAgent == null || target == null) return;
+        
+        currentTarget = target;
+        
+        if (enableTurnBeforeMove)
+        {
+            // 先转向目标，转向完成后再开始移动
+            Vector3 direction = (target.position - transform.position).normalized;
+            direction.y = 0; // 忽略Y轴，只在水平面转向
+            
+            // 检查是否需要转向
+            float angle = Vector3.Angle(transform.forward, direction);
+            if (angle > turnThreshold)
+            {
+                Debug.Log($"[NPC] {data.npcName} 需要转向 {angle:F1}度，开始转向");
+                TurnToDirection(direction);
+            }
+            else
+            {
+                // 角度差很小，直接移动
+                Debug.Log($"[NPC] {data.npcName} 角度差较小({angle:F1}度)，直接移动");
+                navAgent.SetDestination(target.position);
+            }
+        }
+        else
+        {
+            // 直接移动，不转向
+            navAgent.SetDestination(target.position);
+        }
     }
+    
+    /// <summary>
+    /// 移动到指定位置（重载方法）
+    /// </summary>
+    /// <param name="targetPosition">目标位置</param>
+    public void MoveToPosition(Vector3 targetPosition)
+    {
+        if(navAgent == null) return;
+        
+        if (enableTurnBeforeMove)
+        {
+            // 先转向目标，转向完成后再开始移动
+            Vector3 direction = (targetPosition - transform.position).normalized;
+            direction.y = 0; // 忽略Y轴，只在水平面转向
+            
+            // 检查是否需要转向
+            float angle = Vector3.Angle(transform.forward, direction);
+            if (angle > turnThreshold)
+            {
+                Debug.Log($"[NPC] {data.npcName} 需要转向 {angle:F1}度，开始转向到位置 {targetPosition}");
+                // 临时存储目标位置
+                currentTarget = new GameObject("TempTarget").transform;
+                currentTarget.position = targetPosition;
+                TurnToDirection(direction);
+            }
+            else
+            {
+                // 角度差很小，直接移动
+                Debug.Log($"[NPC] {data.npcName} 角度差较小({angle:F1}度)，直接移动到位置 {targetPosition}");
+                navAgent.SetDestination(targetPosition);
+            }
+        }
+        else
+        {
+            // 直接移动，不转向
+            navAgent.SetDestination(targetPosition);
+        }
+    }
+    
     public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
         
         // 使用NavMeshAgent移动
@@ -288,6 +445,14 @@ public class NPC : MonoBehaviour, ISaveable
             float previousSpeed = navAgent.speed;
             // 设置移动速度
             navAgent.speed = socialMoveSpeed;
+            
+            // 如果启用转向，先转向目标
+            if (enableTurnBeforeMove)
+            {
+                // TODO: 这里需要优化，因为这里会立即转向，不合理
+                TurnToPositionImmediate(position); // 社交移动使用立即转向，避免复杂的异步逻辑
+            }
+            
             // 设置目标位置
             navAgent.SetDestination(position);
             

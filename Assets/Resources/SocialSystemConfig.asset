@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SocialSystemConfig
   m_EditorClassIdentifier: 
   interactionCheckInterval: 2
-  interactionRadius: 3
-  interactionDuration: 3
+  interactionRadius: 5
+  interactionDuration: 5
   maxDailyInteractions: 5
   socialInteractionDistance: 0.3
   socialMoveSpeed: 0.1
