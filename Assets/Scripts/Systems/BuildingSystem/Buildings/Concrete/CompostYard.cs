@@ -17,7 +17,11 @@ public class CompostYard : ProductionBuilding
     
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<Enum>() { CropSubType.Wheat, CropSubType.Corn };
+        AcceptResources = new List<SubResource>()
+        {
+            SubResource.CreateFromEnum(CropSubType.Wheat),
+            SubResource.CreateFromEnum(CropSubType.Corn)
+        };
         inventory = new Inventory(
             new List<SubResourceValue<int>>()
             {

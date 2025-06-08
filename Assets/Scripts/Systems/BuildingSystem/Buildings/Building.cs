@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using NUnit.Framework;
 
+[RequireComponent(typeof(Collider))]
 public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 {
     [Header("基本属性")]
@@ -10,7 +11,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
-    public List<Enum> AcceptResources;
+    public List<SubResource> AcceptResources;
     [Header("槽位管理")] 
     public int maxSlotAmount;
     public List<NPC> assignedNPCs;
@@ -37,7 +38,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // 通用方法
     public virtual void InitialSelfStorage()
     {
-        AcceptResources = new List<Enum>();
+        AcceptResources = new List<SubResource>();
         inventory = new Inventory();
     }
     public virtual bool CanUpgrade() { return false; }

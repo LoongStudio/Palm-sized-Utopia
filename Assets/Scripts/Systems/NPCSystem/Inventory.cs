@@ -8,21 +8,73 @@ public class Inventory
 {
     public List<SubResourceValue<int>> currentSubResource;
     public List<SubResourceValue<int>> maximumSubResource;
-
+    public List<SubResource> whiteList;
+    public List<SubResource> blackList;
     // 事件
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public event System.Action<ResourceType, int> OnItemAdded;
     // public event System.Action<ResourceType, int> OnItemRemoved;
     // public event System.Action OnInventoryFull;
     // public event System.Action OnInventoryEmpty;
+    public Inventory(
+        List<SubResourceValue<int>> currentSubResource,
+        List<SubResourceValue<int>> maximumSubResource,
+        List<SubResource> whiteList,
+        List<SubResource> blackList)
+    {
+        // 初始化输入
+        this.currentSubResource = currentSubResource ?? new List<SubResourceValue<int>>();
+        this.maximumSubResource = maximumSubResource ?? new List<SubResourceValue<int>>();
+
+        // 构建所有出现过的资源类型
+        var allTypes = new HashSet<SubResource>();
+        foreach (var c in this.currentSubResource)
+            allTypes.Add(c.subResource);
+        foreach (var m in this.maximumSubResource)
+            allTypes.Add(m.subResource);
+
+        // --- 应用白名单优先规则 ---
+        if (whiteList != null && whiteList.Count > 0)
+        {
+            allTypes.IntersectWith(whiteList);
+
+            // 清除 current 和 max 中不在白名单中的资源
+            this.currentSubResource = this.currentSubResource
+                .Where(r => whiteList.Contains(r.subResource)).ToList();
+            this.maximumSubResource = this.maximumSubResource
+                .Where(r => whiteList.Contains(r.subResource)).ToList();
+        }
+        else if (blackList != null && blackList.Count > 0)
+        {
+            allTypes.ExceptWith(blackList);
+
+            // 清除 current 和 max 中出现在黑名单中的资源
+            this.currentSubResource = this.currentSubResource
+                .Where(r => !blackList.Contains(r.subResource)).ToList();
+            this.maximumSubResource = this.maximumSubResource
+                .Where(r => !blackList.Contains(r.subResource)).ToList();
+        }
+
+        // --- 补齐 current / maximum 中缺失的资源项 ---
+        foreach (var type in allTypes)
+        {
+            if (!this.currentSubResource.Exists(r => r.subResource.Equals(type)))
+                this.currentSubResource.Add(new SubResourceValue<int>(type, 0));
+
+            if (!this.maximumSubResource.Exists(r => r.subResource.Equals(type)))
+                this.maximumSubResource.Add(new SubResourceValue<int>(type, 0));
+        }
+    }
+
     public Inventory()
     {
         currentSubResource = new List<SubResourceValue<int>>();
         maximumSubResource = new List<SubResourceValue<int>>();
     }
+
     public Inventory(
-        List<SubResourceValue<int>> currentSubResource
-        , List<SubResourceValue<int>> maximumSubResource)
+        List<SubResourceValue<int>> currentSubResource,
+        List<SubResourceValue<int>> maximumSubResource)
     {
         this.currentSubResource = currentSubResource;
         this.maximumSubResource = maximumSubResource;
@@ -36,10 +88,10 @@ public class Inventory
         // 补 current 中缺失的
         foreach (var type in allTypes)
         {
-            if (!this.currentSubResource.Exists(r => r.subResource == type))
+            if (!this.currentSubResource.Exists(r => r.subResource.Equals(type)))
                 this.currentSubResource.Add(new SubResourceValue<int>(type, 0));
 
-            if (!this.maximumSubResource.Exists(r => r.subResource == type))
+            if (!this.maximumSubResource.Exists(r => r.subResource.Equals(type)))
                 this.maximumSubResource.Add(new SubResourceValue<int>(type, 0));
         }
     }

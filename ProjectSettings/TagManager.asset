@@ -8,6 +8,7 @@ TagManager:
   - UI_CLOSE
   - UI_TITLEBAR
   - UI_STACK_TO
+  - NPC
   layers:
   - Default
   - TransparentFX
