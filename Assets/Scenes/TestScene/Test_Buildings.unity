@@ -237,11 +237,15 @@ MonoBehaviour:
   status: 0
   currentLevel: 0
   positions: []
-  maxSlotAmount: 0
+  AcceptResources: []
+  maxSlotAmount: 3
   assignedNPCs: []
+  tempAssignedNPCs: []
   inventory:
     currentSubResource: []
     maximumSubResource: []
+    whiteList: []
+    blackList: []
   productionRules: []
   productionTimers: []
   productionCooldown: 5
@@ -736,21 +740,24 @@ MonoBehaviour:
     personality: 0
     traits: 
   assignedBuilding: {fileID: 2105880218}
-  currentState: 2
+  currentState: 9
   previousState: 0
   inventory:
     currentSubResource:
     - subResource:
         resourceType: 0
         subType: 0
-      resourceValue: 0
+      resourceValue: 200
     - subResource:
-        resourceType: 0
+        resourceType: 1
         subType: 0
-      resourceValue: 0
+      resourceValue: 200
     maximumSubResource: []
+    whiteList: []
+    blackList: []
   currentTarget: {fileID: 0}
   navAgent: {fileID: 0}
+  transferSpeed: 10
   turnSpeed: 5
   turnThreshold: 10
   enableTurnBeforeMove: 1
@@ -763,7 +770,7 @@ Transform:
   m_GameObject: {fileID: 1984877253}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.22, y: 0.92, z: 0}
+  m_LocalPosition: {x: -2.22, y: 1.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1027,6 +1034,10 @@ PrefabInstance:
     - target: {fileID: 1095440152922726859, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626765990882757140, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
+      propertyPath: maxSlotAmount
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3491214700092412604, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
       propertyPath: m_Name
