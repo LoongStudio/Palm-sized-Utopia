@@ -28,7 +28,7 @@ public class NPC : MonoBehaviour, ISaveable
     public Inventory inventory;           // 背包
     public Transform currentTarget;          // 当前目标位置
     public NavMeshAgent navAgent;           // 导航组件
-
+    public int transferSpeed = 10;          // 转移物体的数量
     [Header("移动配置")]
     public float stoppingDistance = 0.05f;              // 向目标移动时可接受的距离阈值
     [SerializeField] private float turnSpeed = 5f;              // 转向速度
@@ -239,6 +239,34 @@ public class NPC : MonoBehaviour, ISaveable
         
         return multiplier;
     }
+
+    private Coroutine _deliveryRoutine;
+    public void StartDelivering(Building building)
+    {
+        if (_deliveryRoutine != null)
+            StopCoroutine(_deliveryRoutine);
+        _deliveryRoutine = StartCoroutine(StartDeliveringCoroutine(building));
+    }
+
+    public void StopDelivering()
+    {
+        StopCoroutine(_deliveryRoutine);
+        ChangeState(NPCState.Idle);
+        assignedBuilding = null;
+    }
+    private IEnumerator StartDeliveringCoroutine(Building building)
+    {
+        Debug.Log($"NPC {gameObject.name} 开始投送物资到 {building.name}");
+        while (inventory.TransferTo(building.inventory, transferSpeed))
+        {
+            yield return new WaitForSeconds(1f);
+        }
+        currentState = NPCState.Idle;
+        ChangeState(NPCState.Idle);
+        assignedBuilding = null;
+    }
+    
+    
     #endregion
     
     #region 社交相关
@@ -506,4 +534,4 @@ public class NPC : MonoBehaviour, ISaveable
         Debug.Log($"[NPC] {data.npcName} ====================================================");
     }
     #endregion
-}
+} 
