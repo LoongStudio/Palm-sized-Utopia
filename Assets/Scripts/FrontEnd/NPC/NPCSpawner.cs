@@ -137,8 +137,8 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             // 等待一帧确保所有组件都已初始化
             yield return new WaitForEndOfFrame();
             
-            // 让NPC降落到地面
-            yield return StartCoroutine(DropNPCToGround(npcObject));
+            // TODO:这段无效，让NPC降落到地面
+            // yield return StartCoroutine(DropNPCToGround(npcObject));
             
             totalSpawned++;
             
