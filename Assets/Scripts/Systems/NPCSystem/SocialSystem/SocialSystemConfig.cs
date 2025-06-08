@@ -7,6 +7,7 @@ public class SocialSystemConfig : ScriptableObject
     public float interactionCheckInterval = 2f;
     public float interactionRadius = 3f;
     public float interactionDuration = 3f;
+    public float interactionCooldown = 10f;
     public int maxDailyInteractions = 5;
     public float socialInteractionDistance = 2f;
     public float socialMoveSpeed = 0.5f;

@@ -12,6 +12,7 @@ public class SocialSystem
     [SerializeField] private float interactionCheckInterval;  // 社交检查间隔
     [SerializeField] private float interactionRadius;         // 社交互动检测半径
     [SerializeField] private float interactionDuration;       // 社交互动持续时间
+    [SerializeField] public float interactionCooldown{get; private set;}       // 社交互动冷却时间
     [SerializeField] private int maxDailyInteractions;         // 每日最大互动次数
     [SerializeField] public float socialInteractionDistance{get; private set;} = 2f;     // 社交距离
     [SerializeField] public float socialMoveSpeed{get; private set;} = 0.5f;               // 社交移动速度
@@ -62,6 +63,7 @@ public class SocialSystem
         interactionCheckInterval = config.interactionCheckInterval;
         interactionRadius = config.interactionRadius;
         interactionDuration = config.interactionDuration;
+        interactionCooldown = config.interactionCooldown;
         maxDailyInteractions = config.maxDailyInteractions;
         baseRelationshipChange = config.baseRelationshipChange;
         fightRelationshipPenalty = config.fightRelationshipPenalty;
@@ -238,8 +240,7 @@ public class SocialSystem
         
         // 设置冷却时间
         var key = GetInteractionKey(npc1, npc2);
-        float cooldownTime = isFight ? interactionCheckInterval * 3 : interactionCheckInterval;
-        interactionCooldowns[key] = cooldownTime;
+        interactionCooldowns[key] = interactionCooldown;
         
         // 恢复NPC状态
         npc1.ChangeState(NPCState.Idle);
