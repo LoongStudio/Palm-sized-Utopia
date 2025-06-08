@@ -1,7 +1,25 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Warehouse : FunctionalBuilding
 {
+
+    public override void InitialSelfStorage()
+    {
+        AcceptResources = new List<SubResource>() { };
+        inventory = new Inventory(
+            new List<SubResourceValue<int>> { },
+            new List<SubResourceValue<int>>()
+            {
+                new SubResourceValue<int>(SeedSubType.Wheat, 30),
+                new SubResourceValue<int>(SeedSubType.Corn, 30),
+                new SubResourceValue<int>(CropSubType.Wheat, 30),
+                new SubResourceValue<int>(CropSubType.Corn, 30),
+                new SubResourceValue<int>(FeedSubType.Feed, 30),
+                new SubResourceValue<int>(CoinSubType.Gold, 30),
+                new SubResourceValue<int>(TicketSubType.Ticket, 30),
+            });
+    }
     [Header("仓库专属")]
     public int storageCapacity = 500;
     

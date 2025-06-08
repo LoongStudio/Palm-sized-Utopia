@@ -37,11 +37,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public abstract void OnUpgraded();
     public abstract void OnDestroyed();
     // 通用方法
-    public virtual void InitialSelfStorage()
-    {
-        AcceptResources = new List<SubResource>();
-        inventory = new Inventory();
-    }
+    public abstract void InitialSelfStorage();
     public virtual bool CanUpgrade() { return false; }
     public virtual bool Upgrade() { return false; }
     public virtual int GetUpgradePrice() { return 0; }
