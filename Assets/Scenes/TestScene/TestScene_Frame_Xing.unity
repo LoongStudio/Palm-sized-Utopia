@@ -950,7 +950,7 @@ MonoBehaviour:
   labelOffset: {x: 0, y: 0.5, z: 0}
   shapeType: 0
   wireframe: 1
-  enablePulse: 1
+  enablePulse: 0
   pulseSpeed: 2
   pulseScale: 0.2
 --- !u!1001 &1717137673
