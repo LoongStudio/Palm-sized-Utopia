@@ -151,9 +151,9 @@ public class SocialSystem
         if (npc1 == npc2 || npc1.currentState != NPCState.Idle || npc2.currentState != NPCState.Idle)
             return false;
         
-        // 检查距离
-        float distance = Vector3.Distance(npc1.transform.position, npc2.transform.position);
-        if (distance > interactionRadius)
+        // 检查NavMesh中的实际距离
+        float navMeshDistance = CalculateNavMeshDistance(npc1.transform.position, npc2.transform.position);
+        if (navMeshDistance > interactionRadius || navMeshDistance < 0) // navMeshDistance < 0 表示无法到达
             return false;
         
         // 检查冷却时间
@@ -436,6 +436,34 @@ public class SocialSystem
     #endregion
 
     #region 辅助方法
+    // 计算NavMesh中的实际距离
+    private float CalculateNavMeshDistance(Vector3 startPos, Vector3 endPos)
+    {
+        UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
+        
+        // 尝试计算路径
+        if (UnityEngine.AI.NavMesh.CalculatePath(startPos, endPos, UnityEngine.AI.NavMesh.AllAreas, path))
+        {
+            // 如果路径状态不完整，返回-1表示无法到达
+            if (path.status != UnityEngine.AI.NavMeshPathStatus.PathComplete)
+            {
+                return -1f;
+            }
+            
+            // 计算路径总长度
+            float distance = 0f;
+            for (int i = 1; i < path.corners.Length; i++)
+            {
+                distance += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+            }
+            
+            return distance;
+        }
+        
+        // 如果无法计算路径，返回-1
+        return -1f;
+    }
+    
     // 辅助方法
     private (NPC, NPC) GetInteractionKey(NPC npc1, NPC npc2)
     {
