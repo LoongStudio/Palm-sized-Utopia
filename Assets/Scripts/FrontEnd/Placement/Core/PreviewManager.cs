@@ -80,7 +80,7 @@ public class PreviewManager : SingletonManager<PreviewManager>
     {
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.SetParent(previewParent.transform);
-        cube.transform.position = position;
+        cube.transform.position = position + Vector3.up * gridSystem.GridSize * 0.5f;
         cube.transform.localScale = Vector3.one * gridSystem.GridSize * 0.9f;
         
         // 移除碰撞器
