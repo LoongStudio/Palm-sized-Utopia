@@ -10,6 +10,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public List<float> productionTimers;
     public float productionCooldown = 5f;
     public float conversionTime = 5f;
+    public float baseEfficiency = 50f;
     public float efficiency = 1f;
     private bool _canProduce = true; 
     private new void Start()
@@ -101,9 +102,16 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     
     public virtual float UpdateCurrentEfficiency()
     {
-        // TODO: 需要修改efficiency的计算
-        // 计算综合效率：基础效率 + 等级加成 + NPC加成 + 设备加成 + 加成建筑影响
-        // efficiency = efficiency / productionRules.Count;
+        // float levelBonus = 0.1f * level;
+        // float npcBonus = assignedNPCs != null ? assignedNPCs.Count * npcEfficiencyPerNPC : 0f;
+
+        // float totalEfficiency = baseEfficiency + levelBonus + npcBonus + deviceBonus + buildingBonus;
+        float totalEfficiency = baseEfficiency;
+        // 按产出规则数量分摊效率（防止多个规则时过快）
+        if (productionRules != null && productionRules.Count > 0)
+            totalEfficiency /= productionRules.Count;
+
+        efficiency = totalEfficiency;
         return efficiency;
     }
 }
