@@ -25,7 +25,7 @@ public class NPC : MonoBehaviour, ISaveable
     private float stateTimer;
 
     [Header("任务和背包")]
-    public NPCInventory inventory;           // 背包
+    public Inventory inventory;           // 背包
     public Transform currentTarget;          // 当前目标位置
     public NavMeshAgent navAgent;           // 导航组件
 

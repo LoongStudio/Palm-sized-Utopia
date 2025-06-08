@@ -40,6 +40,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public virtual void ProduceResources()
     {
         UpdateCurrentEfficiency();
+
         for (int i = 0; i < productionRules.Count; i++)
         {
             var rule = productionRules[i];
@@ -48,34 +49,19 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             // 检查输入资源是否足够
             foreach (var input in rule.inputs)
             {
-                var current = currentSubResource.FirstOrDefault(r =>
-                    r.resourceType == input.resourceType &&
-                    r.subType == input.subType);
-
-                if (current == null || current.resourceValue < input.resourceValue)
+                if (!inventory.HasEnough(input))
                 {
                     canProduce = false;
                     break;
                 }
             }
 
-            // 检查输出资源是否会超出上限
+            // 检查输出资源是否有足够空间
             if (canProduce)
             {
                 foreach (var output in rule.outputs)
                 {
-                    var current = currentSubResource.FirstOrDefault(r =>
-                        r.resourceType == output.resourceType &&
-                        r.subType == output.subType);
-
-                    var max = maximumSubResource.FirstOrDefault(r =>
-                        r.resourceType == output.resourceType &&
-                        r.subType == output.subType);
-
-                    int currentValue = current?.resourceValue ?? 0;
-                    int maxValue = max?.resourceValue ?? 0;
-
-                    if (currentValue + output.resourceValue > maxValue)
+                    if (!inventory.CanReceive(output))
                     {
                         canProduce = false;
                         break;
@@ -83,7 +69,6 @@ public abstract class ProductionBuilding : Building, IResourceProducer
                 }
             }
 
-            // 开始生产逻辑
             if (canProduce)
             {
                 productionTimers[i] += Time.deltaTime;
@@ -93,40 +78,26 @@ public abstract class ProductionBuilding : Building, IResourceProducer
                     // 消耗输入资源
                     foreach (var input in rule.inputs)
                     {
-                        var item = currentSubResource.FirstOrDefault(r =>
-                            r.resourceType == input.resourceType &&
-                            r.subType == input.subType);
-
-                        if (item != null)
-                            item.resourceValue -= input.resourceValue;
+                        inventory.RemoveItem(input.subResource.resourceType, input.resourceValue);
                     }
 
                     // 增加输出资源
                     foreach (var output in rule.outputs)
                     {
-                        var item = currentSubResource.FirstOrDefault(r =>
-                            r.resourceType == output.resourceType &&
-                            r.subType == output.subType);
-
-                        if (item != null)
-                            item.resourceValue += output.resourceValue;
-                        else
-                            currentSubResource.Add(new SubResourceValue<int>(
-                                SubResourceValue<int>.GetEnumFromTypeAndIndex(output.resourceType, output.subType), 
-                                output.resourceValue));
+                        inventory.AddItem(output.subResource.resourceType, output.resourceValue);
                     }
 
                     productionTimers[i] = 0f;
-                    break; // TODO: 每一次生产周期只会进行一次转化
+                    break; // 每周期最多执行一个
                 }
             }
             else
             {
-                // 不满足生产条件则暂停计时
                 productionTimers[i] = 0f;
             }
         }
     }
+
     
     public virtual float UpdateCurrentEfficiency()
     {
