@@ -319,18 +319,18 @@ public class NPCMovement : MonoBehaviour
     
     private void Update()
     {
-        // 监控NavMeshAgent状态
-        if (navAgent != null && !navAgent.isOnNavMesh)
-        {
-            Debug.LogWarning($"[NPCMovement] {name} 离开了NavMesh！");
+        // // 监控NavMeshAgent状态
+        // if (navAgent != null && !navAgent.isOnNavMesh)
+        // {
+        //     Debug.LogWarning($"[NPCMovement] {name} 离开了NavMesh！");
             
-            // 尝试恢复到NavMesh上
-            Vector3 validPosition;
-            if (FindNearestNavMeshPosition(transform.position, out validPosition))
-            {
-                transform.position = validPosition;
-            }
-        }
+        //     // 尝试恢复到NavMesh上
+        //     Vector3 validPosition;
+        //     if (FindNearestNavMeshPosition(transform.position, out validPosition))
+        //     {
+        //         transform.position = validPosition;
+        //     }
+        // }
     }
     
     private void OnDrawGizmos()
