@@ -132,6 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableSocialSystem: 1
+  defaultSocialSystemConfig: {fileID: 11400000, guid: 214f546d0bcabdf4a9f5d7ebc39ca02f, type: 2}
   defaultNPCGenerationConfig: {fileID: 11400000, guid: e85be9aa8f582d84b9b46d55ad98f0d5, type: 2}
 --- !u!114 &4934184660110837233
 MonoBehaviour:
