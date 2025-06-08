@@ -604,13 +604,13 @@ public class NPCManager : SingletonManager<NPCManager>
             if (!npc1Arrived)
             {
                 
-                npc1Arrived = npc1.navAgent.remainingDistance <= 0.5f;
+                npc1Arrived = npc1.navAgent.remainingDistance <= npc1.navAgent.stoppingDistance;
             }
             
             // 检查NPC2是否到达
             if (!npc2Arrived)
             {
-                npc2Arrived = npc2.navAgent.remainingDistance <= 0.5f;
+                npc2Arrived = npc2.navAgent.remainingDistance <= npc2.navAgent.stoppingDistance;
             }
             
             yield return new WaitForSeconds(0.1f);

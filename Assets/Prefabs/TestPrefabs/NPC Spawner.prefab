@@ -47,12 +47,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcPrefab: {fileID: 6149902239832814201, guid: 5e23c83f348f02e479eb0963c0bc35cd, type: 3}
-  spawnRadius: 2
+  npcMovementConfig: {fileID: 11400000, guid: f149d6c08bc9fa44f8ad5470f95bea6f, type: 2}
+  spawnRadius: 5
   spawnHeight: 10
   maxSpawnAttempts: 30
   spawnCenter: {fileID: 8788789496108656492}
   spawnPoint: {fileID: 2962842150976510397}
-  spawnAtSpawnPoint: 0
+  spawnAtSpawnPoint: 1
   defaultMoveSpeed: 3.5
   defaultStoppingDistance: 0.5
   defaultAcceleration: 8
@@ -87,7 +88,7 @@ Transform:
   m_GameObject: {fileID: 3696075724421323862}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -2.05, y: 0, z: -2.32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

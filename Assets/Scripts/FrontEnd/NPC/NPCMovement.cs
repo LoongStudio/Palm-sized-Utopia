@@ -8,6 +8,9 @@ using System.Collections;
 /// </summary>
 public class NPCMovement : MonoBehaviour
 {
+    [Header("NPC移动配置")]
+    public NPCMovementConfig npcMovementConfig;    // NPC移动配置
+
     [Header("移动设置")]
     [SerializeField] private float moveRadius = 3f;              // 移动半径
     [SerializeField] private float minWaitTime = 1f;              // 最短等待时间
@@ -36,6 +39,15 @@ public class NPCMovement : MonoBehaviour
     private float totalMoveTime = 0f;
     private Vector3 startPosition;
     
+
+    // 属性获取
+    public float StoppingDistance => stoppingDistance;
+    public float MoveRadius => moveRadius;
+    public float MinWaitTime => minWaitTime;
+    public float MaxWaitTime => maxWaitTime;
+    public float MovementSpeed => movementSpeed;
+
+
     private void Awake()
     {
         // 获取NavMeshAgent组件
@@ -95,11 +107,18 @@ public class NPCMovement : MonoBehaviour
     private void InitializeNavAgent()
     {
         // 配置NavMeshAgent
-        navAgent.speed = movementSpeed;
-        navAgent.stoppingDistance = stoppingDistance;
-        navAgent.angularSpeed = 120f;
-        navAgent.acceleration = 8f;
+        navAgent.speed = npcMovementConfig.moveSpeed;
+        navAgent.stoppingDistance = npcMovementConfig.stoppingDistance;
+        navAgent.angularSpeed = npcMovementConfig.turnSpeed;
+        navAgent.acceleration = npcMovementConfig.acceleration;
         navAgent.obstacleAvoidanceType = ObstacleAvoidanceType.MedQualityObstacleAvoidance;
+
+        // 顺便设置移动属性
+        stoppingDistance = npcMovementConfig.stoppingDistance;
+        moveRadius = npcMovementConfig.moveRadius;
+        minWaitTime = npcMovementConfig.minWaitTime;
+        maxWaitTime = npcMovementConfig.maxWaitTime;
+        movementSpeed = npcMovementConfig.moveSpeed;
         
         Debug.Log($"[NPCMovement] {name} NavMeshAgent配置完成");
     }
