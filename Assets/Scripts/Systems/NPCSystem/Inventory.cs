@@ -96,7 +96,59 @@ public class Inventory
         }
     }
     // 获取匹配资源项（默认忽略 subType）
-    
+    public bool TransferTo(Inventory target, int maxTransferAmount)
+    {
+        int transferredTotal = 0;
+
+        foreach (var item in currentSubResource)
+        {
+            var type = item.subResource;
+
+            // 白名单优先
+            if (target.whiteList != null && target.whiteList.Count > 0 && !target.whiteList.Contains(type))
+                continue;
+
+            // 黑名单排除
+            if (target.blackList != null && target.blackList.Contains(type))
+                continue;
+
+            if (item.resourceValue <= 0)
+                continue;
+
+            // 获取目标当前值
+            var targetCurrent = target.currentSubResource.FirstOrDefault(r => r.subResource.Equals(type));
+            if (targetCurrent == null)
+            {
+                targetCurrent = new SubResourceValue<int>(type, 0);
+                target.currentSubResource.Add(targetCurrent);
+            }
+
+            // 获取目标最大值
+            var targetMax = target.maximumSubResource.FirstOrDefault(r => r.subResource.Equals(type));
+            int maxValue = targetMax?.resourceValue ?? int.MaxValue;
+
+            int spaceLeft = Math.Max(0, maxValue - targetCurrent.resourceValue);
+            if (spaceLeft <= 0)
+                continue;
+
+            // 可转移量 = 当前持有量 ∩ 空间 ∩ 剩余传输配额
+            int transferable = Math.Min(item.resourceValue, Math.Min(spaceLeft, maxTransferAmount - transferredTotal));
+            if (transferable <= 0)
+                break;
+
+            // 执行转移
+            item.resourceValue -= transferable;
+            targetCurrent.resourceValue += transferable;
+            transferredTotal += transferable;
+
+            if (transferredTotal >= maxTransferAmount)
+                break;
+        }
+
+        return transferredTotal > 0;
+    }
+
+
     public bool HasEnough(SubResourceValue<int> required)
     {
         var current = currentSubResource.FirstOrDefault(r =>
@@ -107,6 +159,8 @@ public class Inventory
 
     public bool CanReceive(SubResourceValue<int> output)
     {
+        if (whiteList != null && !whiteList.Contains(output.subResource)) return false;
+        if (blackList != null && blackList.Contains(output.subResource)) return false;
         var current = currentSubResource.FirstOrDefault(r =>
             r.subResource.resourceType == output.subResource.resourceType &&
             r.subResource.subType == output.subResource.subType);
@@ -130,9 +184,11 @@ public class Inventory
     {
         return maximumSubResource.Find(r => r.subResource.resourceType == type);
     }
-
+    
     public bool CanAddItem(ResourceType type, int amount)
     {
+        if (whiteList != null && !whiteList.Contains(new SubResource(type, amount))) return false;
+        if (blackList != null && blackList.Contains(new SubResource(type, amount))) return false;
         var cur = GetCurrent(type);
         var max = GetMaximum(type);
         return cur != null && max != null && (cur.resourceValue + amount <= max.resourceValue);
@@ -148,6 +204,8 @@ public class Inventory
 
     public bool RemoveItem(ResourceType type, int amount)
     {
+        if (whiteList != null && !whiteList.Contains(new SubResource(type, amount))) return false;
+        if (blackList != null && blackList.Contains(new SubResource(type, amount))) return false;
         var cur = GetCurrent(type);
         if (cur == null || cur.resourceValue < amount) return false;
         cur.resourceValue -= amount;
