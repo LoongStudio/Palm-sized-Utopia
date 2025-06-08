@@ -3,6 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
+public class SubResource
+{
+	public ResourceType resourceType;
+	public int subType;
+	public SubResource(ResourceType resourceType, int subType)
+	{
+		this.resourceType = resourceType;
+		this.subType = subType;
+	}
+	
+	public override bool Equals(object obj)
+	{
+		return obj is SubResource other &&
+		       resourceType == other.resourceType &&
+		       subType == other.subType;
+	}
+	public override int GetHashCode()
+	{
+		return (int)resourceType * 397 ^ subType;
+	}
+}
+
+[Serializable]
 public class SubResourceValue<T>
 {
 	// Seed,      // 种子
@@ -34,20 +57,22 @@ public class SubResourceValue<T>
 			{ typeof(CoinSubType), ResourceType.Coin },
 			{ typeof(TicketSubType), ResourceType.Ticket },
 		};
-	public ResourceType resourceType;
-	public int subType;
+	public SubResource subResource;
 	public T resourceValue;
+	public SubResourceValue(SubResource subResource, T resourceValue)
+	{
+		this.subResource = subResource;
+		this.resourceValue = resourceValue;
+	}
 	private SubResourceValue(ResourceType resourceType, int subType, T resourceValue)
 	{
-		this.resourceType = resourceType;
-		this.subType = subType;
+		this.subResource = new SubResource(resourceType, subType);
 		this.resourceValue = resourceValue;
 	}
 	
 	public SubResourceValue(Enum subType, T resourceValue)
 	{
-		this.resourceType = GetMainTypeFromSubType(subType);
-		this.subType = Convert.ToInt32(subType);
+		subResource = new SubResource(GetMainTypeFromSubType(subType), Convert.ToInt32(subType));
 		this.resourceValue = resourceValue;
 	}
 	

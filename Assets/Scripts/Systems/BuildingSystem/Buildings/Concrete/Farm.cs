@@ -9,20 +9,21 @@ public class Farm : ProductionBuilding
     public override void InitialSelfStorage()
     {
         AcceptResources = new List<Enum>() { SeedSubType.Wheat, SeedSubType.Corn };
-        currentSubResource = new List<SubResourceValue<int>>
-        {
-            new SubResourceValue<int>(SeedSubType.Wheat, 0),
-            new SubResourceValue<int>(SeedSubType.Corn, 0),
-            new SubResourceValue<int>(CropSubType.Wheat, 0),
-            new SubResourceValue<int>(CropSubType.Corn, 0),
-        };
-        maximumSubResource = new List<SubResourceValue<int>>()
-        {
-            new SubResourceValue<int>(SeedSubType.Wheat, 30),
-            new SubResourceValue<int>(SeedSubType.Corn, 30),
-            new SubResourceValue<int>(CropSubType.Wheat, 30),
-            new SubResourceValue<int>(CropSubType.Corn, 30),
-        };
+        inventory = new Inventory(
+            new List<SubResourceValue<int>>
+            {
+                new SubResourceValue<int>(SeedSubType.Wheat, 0),
+                new SubResourceValue<int>(SeedSubType.Corn, 0),
+                new SubResourceValue<int>(CropSubType.Wheat, 0),
+                new SubResourceValue<int>(CropSubType.Corn, 0),
+            },
+            new List<SubResourceValue<int>>()
+            {
+                new SubResourceValue<int>(SeedSubType.Wheat, 30),
+                new SubResourceValue<int>(SeedSubType.Corn, 30),
+                new SubResourceValue<int>(CropSubType.Wheat, 30),
+                new SubResourceValue<int>(CropSubType.Corn, 30),
+            });
     }
     protected override void SetupProductionRule()
     {
