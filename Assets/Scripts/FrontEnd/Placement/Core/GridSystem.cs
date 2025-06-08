@@ -147,7 +147,7 @@ public class GridSystem : SingletonManager<GridSystem>, IGridSystem
         foreach (var pos in occupiedCells)
         {
             var worldPos = GridToWorld(pos);
-            Gizmos.DrawWireCube(worldPos, Vector3.one * GridSize);
+            Gizmos.DrawWireCube(worldPos + Vector3.up * GridSize * 0.5f, Vector3.one * GridSize);
         }
     }
 
