@@ -16,7 +16,7 @@ public class Farm : ProductionBuilding
         inventory = new Inventory(
             new List<SubResourceValue<int>>
             {
-                new SubResourceValue<int>(SeedSubType.Wheat, 0),
+                new SubResourceValue<int>(SeedSubType.Wheat, 10),
                 new SubResourceValue<int>(SeedSubType.Corn, 0),
                 new SubResourceValue<int>(CropSubType.Wheat, 0),
                 new SubResourceValue<int>(CropSubType.Corn, 0),
