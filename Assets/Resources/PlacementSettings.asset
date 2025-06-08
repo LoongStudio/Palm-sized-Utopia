@@ -17,6 +17,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   groundSnapHeight: 0.1
+  dragLayer:
+    serializedVersion: 2
+    m_Bits: 64
   dragSmoothTime: 0.1
   enableRotationSnap: 0
   rotationSnapAngle: 90
