@@ -1,7 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class TradeMarket : FunctionalBuilding
+public class TradeMarket : ProductionBuilding
 {
+    public override void InitialSelfStorage()
+    {
+        inventory = new Inventory(
+            new List<SubResourceValue<int>>(),
+            new List<SubResourceValue<int>>()
+            {
+                
+            });
+    }
+
     [Header("贸易市场专属")]
     public float tradeEfficiencyMultiplier = 1.0f;
     

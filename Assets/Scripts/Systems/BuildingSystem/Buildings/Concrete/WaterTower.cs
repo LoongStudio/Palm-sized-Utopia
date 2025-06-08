@@ -3,6 +3,14 @@ using UnityEngine;
 
 public class WaterTower : BuffBuilding
 {
+    public override void InitialSelfStorage()
+    {
+        AcceptResources = new List<SubResource>() { };
+        inventory = new Inventory(
+            new List<SubResourceValue<int>> { },
+            new List<SubResourceValue<int>>() { }
+            );
+    }
     protected override void InitBuildingAndBuffTypes()
     {
         affectedBuildingSubTypes = new List<BuildingSubType>()
