@@ -10,6 +10,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
 {
     [Header("生成设置")]
     [SerializeField] private GameObject npcPrefab;                    // NPC预制体
+    [SerializeField] private NPCMovementConfig npcMovementConfig;    // NPC移动配置
     [SerializeField] private float spawnRadius = 20f;                 // 生成搜索半径
     [SerializeField] private float spawnHeight = 10f;                 // 生成高度（屏幕外）
     [SerializeField] private int maxSpawnAttempts = 30;               // 最大生成尝试次数
@@ -336,6 +337,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         
         // 复制原始NPC的数据
         npcComponent.SetData(npcData);
+
         
         // 2. 设置NavMeshAgent
         NavMeshAgent navAgent = npcObject.GetComponent<NavMeshAgent>();
@@ -345,8 +347,6 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             Debug.Log($"[NPCSpawner] 添加NavMeshAgent组件: {npcObject.name}");
         }
         
-        // TODO: 根据NPC移动配置设置NavMeshAgent
-        //ConfigureNavMeshAgent(navAgent);
 
         // 3. 设置NPCMovement
         NPCMovement movement = npcObject.GetComponent<NPCMovement>();
@@ -356,6 +356,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             Debug.Log($"[NPCSpawner] 添加NPCMovement组件: {npcObject.name}");
         }
         // TODO: 设置NPCMovement
+        movement.npcMovementConfig = npcMovementConfig;
 
         // 4. 添加可选组件
         SetupOptionalComponents(npcObject);

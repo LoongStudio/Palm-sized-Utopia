@@ -1380,22 +1380,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: NPC Spawner
       objectReference: {fileID: 0}
-    - target: {fileID: 2054673297495181408, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
-      propertyPath: spawnRadius
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2054673297495181408, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
-      propertyPath: spawnAtSpawnPoint
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2962842150976510397, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 2962842150976510397, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -2.32
-      objectReference: {fileID: 0}
     - target: {fileID: 5619178990484036148, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7
