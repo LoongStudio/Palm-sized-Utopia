@@ -17,23 +17,29 @@ public class Ranch : ProductionBuilding
 
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<Enum>() { FeedSubType.Feed, BreedingStockSubType.Cattle, BreedingStockSubType.Sheep };
-        currentSubResource = new List<SubResourceValue<int>>()
+        AcceptResources = new List<SubResource>()
         {
-            new SubResourceValue<int>(FeedSubType.Feed, 0),
-            new SubResourceValue<int>(BreedingStockSubType.Cattle, 0),
-            new SubResourceValue<int>(BreedingStockSubType.Sheep, 0),
-            new SubResourceValue<int>(LivestockSubType.Cattle, 0),
-            new SubResourceValue<int>(LivestockSubType.Sheep, 0),
+            SubResource.CreateFromEnum(FeedSubType.Feed), 
+            SubResource.CreateFromEnum(BreedingStockSubType.Cattle), 
+            SubResource.CreateFromEnum(BreedingStockSubType.Sheep),
         };
-        maximumSubResource = new List<SubResourceValue<int>>()
-        {
-            new SubResourceValue<int>(FeedSubType.Feed, 50),
-            new SubResourceValue<int>(BreedingStockSubType.Cattle, 10),
-            new SubResourceValue<int>(BreedingStockSubType.Sheep, 10),
-            new SubResourceValue<int>(LivestockSubType.Cattle, 10),
-            new SubResourceValue<int>(LivestockSubType.Sheep, 10),
-        };
+        inventory = new Inventory(
+            new List<SubResourceValue<int>>()
+            {
+                new SubResourceValue<int>(FeedSubType.Feed, 0),
+                new SubResourceValue<int>(BreedingStockSubType.Cattle, 0),
+                new SubResourceValue<int>(BreedingStockSubType.Sheep, 0),
+                new SubResourceValue<int>(LivestockSubType.Cattle, 0),
+                new SubResourceValue<int>(LivestockSubType.Sheep, 0),
+            },
+            new List<SubResourceValue<int>>()
+            {
+                new SubResourceValue<int>(FeedSubType.Feed, 50),
+                new SubResourceValue<int>(BreedingStockSubType.Cattle, 10),
+                new SubResourceValue<int>(BreedingStockSubType.Sheep, 10),
+                new SubResourceValue<int>(LivestockSubType.Cattle, 10),
+                new SubResourceValue<int>(LivestockSubType.Sheep, 10),
+            }, AcceptResources, null);
     }
     protected override void SetupProductionRule()
     {

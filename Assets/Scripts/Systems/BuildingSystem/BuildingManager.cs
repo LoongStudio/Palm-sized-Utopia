@@ -75,17 +75,17 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
         foreach (var building in _buildings)
         {
-            foreach (var res in building.currentSubResource)
+            foreach (var res in building.inventory.currentSubResource)
             {
                 // 通过 ResourceType 拿到对应的 Enum 类型
-                if (!SubResourceValue<int>.MappingMainSubType.TryGetValue(
-                    res.resourceType, out var enumType))
+                if (!SubResource.MappingMainSubType.TryGetValue(
+                    res.subResource.resourceType, out var enumType))
                     continue;
 
                 // 将 int subType 转换为 Enum 实例
-                Enum subTypeEnum = (Enum)Enum.ToObject(enumType, res.subType);
+                Enum subTypeEnum = (Enum)Enum.ToObject(enumType, res.subResource.subType);
 
-                var key = (res.resourceType, subTypeEnum);
+                var key = (res.subResource.resourceType, subTypeEnum);
                 if (!result.ContainsKey(key))
                     result[key] = 0;
 
@@ -100,16 +100,21 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <summary>
     /// 找出等待输入资源的建筑（AcceptResources中资源未达到最大值）
     /// </summary>
-    public List<(Building, Enum)> GetBuildingsWaitingForResources()
+    public List<(Building, SubResource)> GetBuildingsWaitingForResources()
     {
-        List<(Building, Enum)> result = new();
+        List<(Building, SubResource)> result = new();
 
         foreach (var building in _buildings)
         {
             foreach (var res in building.AcceptResources)
             {
-                var current = building.currentSubResource.FirstOrDefault(r => r.subType.Equals(res))?.resourceValue ?? 0;
-                var max = building.maximumSubResource.FirstOrDefault(r => r.subType.Equals(res))?.resourceValue ?? 0;
+                int targetSubType = Convert.ToInt32(res);
+
+                var current = building.inventory.currentSubResource
+                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
+
+                var max = building.inventory.maximumSubResource
+                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
 
                 if (current < max)
                     result.Add((building, res));
@@ -118,6 +123,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
         return result;
     }
+
 
     /// <summary>
     /// 找出拥有富余资源的建筑（资源未被限制且有剩余）
@@ -128,12 +134,15 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
         foreach (var building in _buildings)
         {
-            foreach (var res in building.currentSubResource)
+            foreach (var res in building.inventory.currentSubResource)
             {
-                var max = building.maximumSubResource.FirstOrDefault(r =>
-                    r.resourceType == res.resourceType && r.subType.Equals(res.subType))?.resourceValue ?? 0;
+                var maxEntry = building.inventory.maximumSubResource.FirstOrDefault(r =>
+                    r.subResource.resourceType == res.subResource.resourceType &&
+                    r.subResource.subType == res.subResource.subType);
 
-                // 富余条件：超过一定量 or 没有限制
+                int max = maxEntry?.resourceValue ?? 0;
+
+                // 富余条件：超过最大值的80%，或者最大值为0视为无上限
                 if (max == 0 || res.resourceValue > 0.8f * max)
                 {
                     result.Add((building, res));
@@ -143,6 +152,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
         return result;
     }
+
 
     /// <summary>
     /// 获取资源增长曲线（某个资源）
@@ -158,11 +168,16 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// </summary>
     public int GetResourceAmount(ResourceType type, Enum subType)
     {
+        int targetSubType = Convert.ToInt32(subType);
+
         return _buildings
-            .SelectMany(b => b.currentSubResource)
-            .Where(r => r.resourceType == type && r.subType.Equals(subType))
+            .SelectMany(b => b.inventory.currentSubResource)
+            .Where(r =>
+                r.subResource.resourceType == type &&
+                r.subResource.subType == targetSubType)
             .Sum(r => r.resourceValue);
     }
+
 
     public void HandleBuffBuildingBuilt(BuffBuilding building)
     {

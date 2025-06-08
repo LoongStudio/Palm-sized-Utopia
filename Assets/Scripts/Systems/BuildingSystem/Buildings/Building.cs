@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using NUnit.Framework;
 
+[RequireComponent(typeof(Collider))]
 public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 {
     [Header("基本属性")]
@@ -10,12 +11,12 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
-    public List<Enum> AcceptResources;
-    [Header("槽位管理")]
+    public List<SubResource> AcceptResources;
+    [Header("槽位管理")] 
+    public int maxSlotAmount;
     public List<NPC> assignedNPCs;
     public List<Equipment> installedEquipment;
-    public List<SubResourceValue<int>> currentSubResource;
-    public List<SubResourceValue<int>> maximumSubResource;
+    public Inventory inventory;           // 背包
     
     /// <summary>
     /// Try Snap 会先给其赋值 positions, 然后调用它，
@@ -37,15 +38,28 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // 通用方法
     public virtual void InitialSelfStorage()
     {
-        AcceptResources = new List<Enum>();
-        currentSubResource = new List<SubResourceValue<int>>();
-        maximumSubResource = new List<SubResourceValue<int>>();
+        AcceptResources = new List<SubResource>();
+        inventory = new Inventory();
     }
     public virtual bool CanUpgrade() { return false; }
     public virtual bool Upgrade() { return false; }
     public virtual int GetUpgradePrice() { return 0; }
-    public virtual void AssignNPC(NPC npc) { }
-    public virtual void RemoveNPC(NPC npc) { }
+    public virtual void AssignNPC(NPC npc)
+    {
+        // 如果NPC不在已有槽位中且目标就是这个建筑
+        if (!assignedNPCs.Contains(npc) 
+            && npc.assignedBuilding == this
+            && (npc.currentState == NPCState.Working 
+                || npc.currentState == NPCState.MovingToDestination))
+        {
+            assignedNPCs.Add(npc);
+        }
+    }
+    public virtual void RemoveNPC(NPC npc)
+    {
+        assignedNPCs.Remove(npc);
+        npc.assignedBuilding = null;
+    }
     public virtual void InstallEquipment(Equipment equipment) { }
     public virtual void RemoveEquipment(Equipment equipment) { }
     
@@ -66,5 +80,30 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public override string ToString()
     {
         return $"[{data.buildingName} - {data.buildingType}/{data.subType}] Pos: {string.Join(" ", positions)}";
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        assignedNPCs ??= new List<NPC>();
+        // 如果遇到的是NPC且槽位有空余
+        if (other.CompareTag("NPC") && assignedNPCs.Count < maxSlotAmount)
+        {
+            // 一般来说必定存在
+            if (other.transform.TryGetComponent<NPC>(out NPC npc))
+            {
+                AssignNPC(npc);
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("NPC"))
+        {
+            if (other.transform.TryGetComponent<NPC>(out NPC npc))
+            {
+                RemoveNPC(npc);
+            }
+        }
     }
 }
