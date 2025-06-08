@@ -1278,6 +1278,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   belongTo: {fileID: 0}
+  shoppingBlockPrefab: {fileID: 0}
+  buildingList: []
   stackToBelong: 1
 --- !u!223 &-584668431230053001
 Canvas:
