@@ -17,7 +17,12 @@ public class Ranch : ProductionBuilding
 
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<Enum>() { FeedSubType.Feed, BreedingStockSubType.Cattle, BreedingStockSubType.Sheep };
+        AcceptResources = new List<SubResource>()
+        {
+            SubResource.CreateFromEnum(FeedSubType.Feed), 
+            SubResource.CreateFromEnum(BreedingStockSubType.Cattle), 
+            SubResource.CreateFromEnum(BreedingStockSubType.Sheep),
+        };
         inventory = new Inventory(
             new List<SubResourceValue<int>>()
             {
@@ -34,7 +39,7 @@ public class Ranch : ProductionBuilding
                 new SubResourceValue<int>(BreedingStockSubType.Sheep, 10),
                 new SubResourceValue<int>(LivestockSubType.Cattle, 10),
                 new SubResourceValue<int>(LivestockSubType.Sheep, 10),
-            });
+            }, AcceptResources, null);
     }
     protected override void SetupProductionRule()
     {

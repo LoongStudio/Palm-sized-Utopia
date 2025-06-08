@@ -78,7 +78,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
             foreach (var res in building.inventory.currentSubResource)
             {
                 // 通过 ResourceType 拿到对应的 Enum 类型
-                if (!SubResourceValue<int>.MappingMainSubType.TryGetValue(
+                if (!SubResource.MappingMainSubType.TryGetValue(
                     res.subResource.resourceType, out var enumType))
                     continue;
 
@@ -100,9 +100,9 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <summary>
     /// 找出等待输入资源的建筑（AcceptResources中资源未达到最大值）
     /// </summary>
-    public List<(Building, Enum)> GetBuildingsWaitingForResources()
+    public List<(Building, SubResource)> GetBuildingsWaitingForResources()
     {
-        List<(Building, Enum)> result = new();
+        List<(Building, SubResource)> result = new();
 
         foreach (var building in _buildings)
         {
