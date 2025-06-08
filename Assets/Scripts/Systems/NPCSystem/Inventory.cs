@@ -204,8 +204,6 @@ public class Inventory
 
     public bool RemoveItem(ResourceType type, int amount)
     {
-        if (whiteList != null && !whiteList.Contains(new SubResource(type, amount))) return false;
-        if (blackList != null && blackList.Contains(new SubResource(type, amount))) return false;
         var cur = GetCurrent(type);
         if (cur == null || cur.resourceValue < amount) return false;
         cur.resourceValue -= amount;
