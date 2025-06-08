@@ -30,6 +30,7 @@ public class NPC : MonoBehaviour, ISaveable
     public NavMeshAgent navAgent;           // 导航组件
 
     [Header("移动配置")]
+    public float stoppingDistance = 0.05f;              // 向目标移动时可接受的距离阈值
     [SerializeField] private float turnSpeed = 5f;              // 转向速度
     [SerializeField] private float turnThreshold = 10f;         // 转向阈值角度
     [SerializeField] private bool enableTurnBeforeMove = true;  // 是否在移动前转向
@@ -457,10 +458,10 @@ public class NPC : MonoBehaviour, ISaveable
             navAgent.SetDestination(position);
             
             // 等待到达目标位置
-            while (navAgent.pathPending || navAgent.remainingDistance > 0.5f)
+            while (navAgent.pathPending || navAgent.remainingDistance > navAgent.stoppingDistance)
             {
                 // 检查是否卡住
-                if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > 0.5f)
+                if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > navAgent.stoppingDistance)
                 {
                     // 可能卡住了，等待一小段时间
                     yield return new WaitForSeconds(0.5f);
