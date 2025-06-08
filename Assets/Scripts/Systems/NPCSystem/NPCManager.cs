@@ -8,6 +8,7 @@ public class NPCManager : SingletonManager<NPCManager>
 {
     [Header("社交系统")]
     [SerializeField] private bool enableSocialSystem = true;
+    [SerializeField] private SocialSystemConfig defaultSocialSystemConfig;
 
     [SerializeField] private NPCGenerationConfig defaultNPCGenerationConfig;
     private List<NPC> allNPCs;
@@ -101,11 +102,10 @@ public class NPCManager : SingletonManager<NPCManager>
     /// </summary>
     private void InitializeSocialSystem()
     {
-        // 加载社交系统配置文件
-        var socialConfig = Resources.Load<SocialSystemConfig>("SocialSystemConfig");
+
         if (socialSystem != null)
         {
-            socialSystem.Initialize(allNPCs, socialConfig);
+            socialSystem.Initialize(allNPCs, defaultSocialSystemConfig);
         }
     }
     #endregion
