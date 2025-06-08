@@ -772,7 +772,7 @@ Transform:
   m_GameObject: {fileID: 1984877253}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.22, y: 1.45, z: 0}
+  m_LocalPosition: {x: -0.9, y: 1.45, z: -2.39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -888,7 +888,7 @@ Camera:
   m_GameObject: {fileID: 2042854153}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0.10871796, g: 0.1226931, b: 0.14465404, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -1120,7 +1120,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1005659916723981678, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
       propertyPath: m_Materials.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1005659916723981678, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
@@ -1476,7 +1476,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8895521610171162660, guid: d53860c636426b048a9dad326fddaa94, type: 3}
       propertyPath: m_Materials.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8895521610171162660, guid: d53860c636426b048a9dad326fddaa94, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
