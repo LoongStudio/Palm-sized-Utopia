@@ -10,6 +10,7 @@ public class PlacementSettings : ScriptableObject
     [SerializeField] private float groundSnapHeight = 0.1f;
     
     [Header("拖拽设置")]
+    [SerializeField] private LayerMask dragLayer = 1;
     [SerializeField] private float dragSmoothTime = 0.1f;
     [SerializeField] private bool enableRotationSnap = false;
     [SerializeField] private float rotationSnapAngle = 90f;
@@ -33,6 +34,7 @@ public class PlacementSettings : ScriptableObject
     public float GridSize => gridSize;
     public LayerMask GroundLayer => groundLayer;
     public float GroundSnapHeight => groundSnapHeight;
+    public LayerMask DragLayer => dragLayer;
     public float DragSmoothTime => dragSmoothTime;
     public bool EnableRotationSnap => enableRotationSnap;
     public float RotationSnapAngle => rotationSnapAngle;

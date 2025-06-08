@@ -5,6 +5,7 @@ public class InputManager : SingletonManager<InputManager>
 {
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private Camera playerCamera;
+    [SerializeField] private float maxDragRaycastDistance  = 100f;
     
     private IDragHandler_Utopia dragHandler;
     private bool isEditMode = false;
@@ -75,7 +76,7 @@ public class InputManager : SingletonManager<InputManager>
         if (dragHandler.IsDragging) return;
         
         var ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (Physics.Raycast(ray, out RaycastHit hit, maxDragRaycastDistance, settings.DragLayer))
         {
             var placeable = hit.collider.GetComponent<IPlaceable>();
             if (placeable != null)
