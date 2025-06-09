@@ -1,11 +1,10 @@
 using UnityEngine;
 
-public class NPCIdleState : NPCStateBase
+public class NPCGeneratedState : NPCStateBase
 {
-    public NPCIdleState(NPCStateMachine stateMachine, NPC npc) : base(stateMachine, npc)
+    public NPCGeneratedState(NPCStateMachine stateMachine, NPC npc) : base(stateMachine, npc)
     {
     }
-
     protected override void OnEnterState(){
         base.OnEnterState();
     }
@@ -14,8 +13,5 @@ public class NPCIdleState : NPCStateBase
     }
     protected override void OnUpdateState(){
         base.OnUpdateState();
-    }
-    protected override void OnFixedUpdateState(){
-        base.OnFixedUpdateState();
     }
 }
