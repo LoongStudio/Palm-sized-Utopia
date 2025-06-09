@@ -9,6 +9,7 @@ public class NPCStateMachine : MonoBehaviour
     private Dictionary<NPCState, NPCStateBase> states = new Dictionary<NPCState, NPCStateBase>();
     // 组件引用
     private NPC npc;
+    public Animator animator;
 
     [Header("状态机调试")]
     [SerializeField] protected bool showDebugLogs = true;
@@ -56,7 +57,7 @@ public class NPCStateMachine : MonoBehaviour
         {
             stateTimer += Time.deltaTime;
             if(currentState.exitStateWhenTimeOut && stateTimer >= currentState.stateExitTime){
-                currentState.ExitState();
+                ChangeState(currentState.nextState);
             }
             currentState.UpdateState();
         }
@@ -74,8 +75,8 @@ public class NPCStateMachine : MonoBehaviour
     private void InitializeStates()
     {
         // TODO: 获取或创建各种状态
-        states[NPCState.Idle] = new NPCIdleState(npc);
-
+        states[NPCState.Idle] = new NPCIdleState(this, npc);
+        states[NPCState.Generated] = new NPCGeneratedState(this, npc);
         
         if (showDebugLogs)
         {
