@@ -125,7 +125,6 @@ public class NPCStateMachine : MonoBehaviour
         // 进入新状态
         currentState.EnterState();
 
-
         if(showDebugLogs){
             Debug.Log($"[NPCStateMachine] {name} 状态从 {previousState} 变为 {currentState}");
         }
@@ -158,12 +157,11 @@ public class NPCStateMachine : MonoBehaviour
     /// </summary>
     protected virtual void TriggerStateChangeEvent()
     {
-        var npcComponent = GetComponent<NPC>();
-        if (npcComponent != null)
+        if (npc != null)
         {
             var eventArgs = new NPCEventArgs
             {
-                npc = npcComponent,
+                npc = npc,
                 eventType = NPCEventArgs.NPCEventType.StateChanged,
                 oldState = GetStateType(previousState),
                 newState = GetStateType(currentState),
