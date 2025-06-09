@@ -16,7 +16,7 @@ public class TimeManager : SingletonManager<TimeManager>
     
     [Header("时间控制")]
     [SerializeField] private bool isPaused = false;
-    [SerializeField] private float currentTimeScale = 1f;
+    [SerializeField] public float currentTimeScale = 1f;
     
     // 私有字段
     private float timeAccumulator = 0f;
