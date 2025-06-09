@@ -9,6 +9,7 @@ public class NPCStateMachine : MonoBehaviour
     private Dictionary<NPCState, NPCStateBase> states = new Dictionary<NPCState, NPCStateBase>();
     // 组件引用
     private NPC npc;
+    public Animator animator;
 
     [Header("状态机调试")]
     [SerializeField] protected bool showDebugLogs = true;
