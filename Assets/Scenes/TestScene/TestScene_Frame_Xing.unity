@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 218098087}
   - component: {fileID: 218098086}
   - component: {fileID: 218098089}
+  - component: {fileID: 218098090}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -212,7 +213,7 @@ Camera:
   m_GameObject: {fileID: 218098085}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19307224, g: 0.78113204, b: 0.7103152, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -313,6 +314,15 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!45 &218098090
+Skybox:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218098085}
+  m_Enabled: 1
+  m_CustomSkybox: {fileID: 2100000, guid: e1b106e26a38bd04da192bc6c8da5fa7, type: 2}
 --- !u!1001 &382988300
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -462,7 +472,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -867,6 +877,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NPC Spawner
       objectReference: {fileID: 0}
+    - target: {fileID: 2054673297495181408, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
+      propertyPath: npcPrefab
+      value: 
+      objectReference: {fileID: 4704072471082765480, guid: b4a2a18de903a57429843280c168519c, type: 3}
     - target: {fileID: 5619178990484036148, guid: 9f54f0ca2e00a234db68ce2ac5a8d86d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.51
