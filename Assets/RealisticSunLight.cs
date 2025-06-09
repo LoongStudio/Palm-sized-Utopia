@@ -31,20 +31,35 @@ public class RealisticSunLight : MonoBehaviour
             default: return 1f;
         }
     }
-    void Update()
+    
+    private float hourLerpT = 0f;      // 当前小时内的插值进度 (0 ~ 1)
+    private int lastHour = -1;
+    private float elev1, azi1, elev2, azi2;
+    void FixedUpdate()
     {
         if (sunLight == null) return;
 
-        GameTime gameTime = TimeManager.Instance.CurrentTime; 
-        float elevation, azimuth;
-        CalculateSolarPosition(
-            2025 + gameTime.year, 
-            gameTime.month, 
-            gameTime.day, 
-            gameTime.hour, 
-            latitude, 
-            out elevation, out azimuth);
+        GameTime gameTime = TimeManager.Instance.CurrentTime;
+        int currentHour = gameTime.hour;
 
+        // 初始化或进入新的一小时
+        if (lastHour != currentHour)
+        {
+            lastHour = currentHour;
+            hourLerpT = 0f;
+            // 计算插值太阳角度
+            CalculateSolarPosition(gameTime.year + 2025, gameTime.month, gameTime.day, currentHour, latitude, out elev1, out azi1);
+            CalculateSolarPosition(gameTime.year + 2025, gameTime.month, gameTime.day, currentHour + 1, latitude, out elev2, out azi2);
+
+        }
+        // 累加小时内进度
+        float simulatedSecondsThisFrame = Time.fixedDeltaTime * TimeManager.Instance.currentTimeScale;
+        hourLerpT += simulatedSecondsThisFrame / 60;
+        hourLerpT = Mathf.Clamp01(hourLerpT); // 防止溢出
+        
+        float elevation = Mathf.Lerp(elev1, elev2, hourLerpT);
+        float azimuth = Mathf.LerpAngle(azi1, azi2, hourLerpT);
+        // Debug.Log(hourLerpT + " " + elev1 + " " + azi1 + " " + elev2 + " " + azi2);
         float weatherFactor = GetWeatherFactor();
 
         // 计算光强
