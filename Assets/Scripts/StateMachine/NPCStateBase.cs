@@ -12,6 +12,7 @@ public abstract class NPCStateBase
 
     protected NPCStateMachine stateMachine;
     protected NPC npc;
+    private Animator animator;
     
     public virtual float stateExitTime{get;protected set;} = 0f;
     public virtual bool exitStateWhenTimeOut{get;protected set;} = false;
@@ -21,6 +22,7 @@ public abstract class NPCStateBase
     public NPCStateBase(NPCStateMachine stateMachine, NPC npc){
         this.stateMachine = stateMachine;
         this.npc = npc;
+        this.animator = stateMachine.animator;
     }
     
     
