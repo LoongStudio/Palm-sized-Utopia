@@ -78,7 +78,7 @@ public class InputManager : SingletonManager<InputManager>
         var ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, maxDragRaycastDistance, settings.DragLayer))
         {
-            var placeable = hit.collider.GetComponent<IPlaceable>();
+            var placeable = hit.collider.GetComponentInParent<IPlaceable>();
             if (placeable != null)
             {
                 dragHandler.StartDrag(placeable);
