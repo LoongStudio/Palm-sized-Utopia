@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: NPCMovementConfig
   m_EditorClassIdentifier: 
   stoppingDistance: 0.05
-  turnSpeed: 5
+  moveSpeed: 1
+  acceleration: 1
+  turnSpeed: 180
   turnThreshold: 10
+  moveRadius: 10
+  minWaitTime: 1
+  maxWaitTime: 2
   enableTurnBeforeMove: 1

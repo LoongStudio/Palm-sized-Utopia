@@ -11,6 +11,7 @@ public class NPCMovement : MonoBehaviour
     [Header("NPC移动配置")]
     public NPCMovementConfig npcMovementConfig;    // NPC移动配置
 
+
     [Header("移动设置")]
     [SerializeField] private float moveRadius = 3f;              // 移动半径
     [SerializeField] private float minWaitTime = 1f;              // 最短等待时间
@@ -24,7 +25,8 @@ public class NPCMovement : MonoBehaviour
     [SerializeField] private Color pathColor = Color.green;       // 路径颜色
     [SerializeField] private bool isRandomMovementEnabled = true; // 是否开启随机移动
     
-    // 组件引用
+    [Header("组件引用")]
+    private Animator animator;
     private NavMeshAgent navAgent;
     private NPC npcComponent;
     
@@ -59,6 +61,13 @@ public class NPCMovement : MonoBehaviour
         
         // 获取NPC组件（如果存在）
         npcComponent = GetComponent<NPC>();
+        
+        // 获取Animator组件
+        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogWarning($"[NPCMovement] {name} 没有Animator组件");
+        }
         
         // 记录起始位置
         startPosition = transform.position;
@@ -136,7 +145,7 @@ public class NPCMovement : MonoBehaviour
         {
             StopCoroutine(movementCoroutine);
         }
-        
+        // TODO: 这里需要根据NPC的配置来决定是否开启随机移动
         // movementCoroutine = StartCoroutine(RandomMovementLoop());
         Debug.Log($"[NPCMovement] {name} 开始随机移动");
     }
@@ -319,6 +328,12 @@ public class NPCMovement : MonoBehaviour
     
     private void Update()
     {
+        // 如果NavMeshAgent在NavMesh上，则设置动画速度
+        if(navAgent.isOnNavMesh){
+            animator.SetFloat("Speed",navAgent.velocity.magnitude);
+        }else{
+            animator.SetFloat("Speed",0);
+        }
         // // 监控NavMeshAgent状态
         // if (navAgent != null && !navAgent.isOnNavMesh)
         // {
@@ -331,6 +346,8 @@ public class NPCMovement : MonoBehaviour
         //         transform.position = validPosition;
         //     }
         // }
+
+
     }
     
     private void OnDrawGizmos()

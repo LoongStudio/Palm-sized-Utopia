@@ -46,6 +46,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BumpMap1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,6 +59,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap1:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -74,11 +82,27 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _OutlineZOffsetMaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TextureSample0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -96,40 +120,105 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AddPrecomputedVelocity: 0
+    - _AdditionalLightIgnoreCelShade: 0.9
     - _AlphaClip: 0
+    - _AlphaCutoff: 0.5
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
+    - _BlendOp: 0
     - _BumpScale: 1
+    - _CelShadeMidPoint: -0.5
+    - _CelShadeSoftness: 0.05
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DirectLightMultiplier: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EmissionMulByBaseColor: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Glow_Size: 0.1
+    - _HeightGradient: 0.3
+    - _HeightStartGradient: 0
+    - _Highlight_Intensity: 1
+    - _Highlight_Size: 0.45
+    - _IndirectLightMultiplier: 1
+    - _IsFace: 0
+    - _LayerContrast: 0
+    - _LayerPosition: 0
+    - _LayerPower: 0.5
+    - _LayerThreshold: 50
+    - _LightPower: 2
+    - _MainLightIgnoreCelShade: 0
     - _Metallic: 0
+    - _MetallicPower: 0
+    - _NormalPower: 1
+    - _OcclusionRemapEnd: 1
+    - _OcclusionRemapStart: 0
     - _OcclusionStrength: 1
+    - _OutlineWidth: 1
+    - _OutlineZOffset: 0.0001
+    - _OutlineZOffsetMaskRemapEnd: 1
+    - _OutlineZOffsetMaskRemapStart: 0
+    - _Outline_Size: 0.3
     - _Parallax: 0.005
+    - _QueueControl: 0
     - _QueueOffset: 0
+    - _ReceiveShadowMappingAmount: 0.65
+    - _ReceiveShadowMappingPosOffset: 0
     - _ReceiveShadows: 1
+    - _RimStep: 0.65
+    - _RimStepSmooth: 0.4
+    - _SampleGI: 0
+    - _SecondNormalPower: 1
+    - _SeeVertexColors: 0
+    - _ShadowStep: 0.5
+    - _ShadowStepSmooth: 0.04
+    - _Shadows_Contrast: 1
+    - _Shadows_Size: 1
     - _Smoothness: 0.5
+    - _SmoothnessPower: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _SpecularStep: 0.6
+    - _SpecularStepSmooth: 0.05
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _Tiling1: 1
+    - _UseAlphaClipping: 0
+    - _UseEmission: 0
+    - _UseOcclusion: 0
+    - _UseVertexColor: 0
+    - _VertexColorChannel: 2
     - _WorkflowMode: 1
+    - _WorldPositionOffset: 0
     - _ZWrite: 1
     m_Colors:
+    - _2ndColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Base_Color: {r: 1, g: 0.7028302, b: 0.7028302, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionMapChannelMask: {r: 1, g: 1, b: 1, a: 0}
+    - _Highlight_Color: {r: 1, g: 0.6156863, b: 0, a: 0}
+    - _IndirectLightMinColor: {r: 0.09999997, g: 0.09999997, b: 0.09999997, a: 1}
+    - _OcclusionMapChannelMask: {r: 1, g: 0, b: 0, a: 0}
+    - _OutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _Outline_Color: {r: 0.11764706, g: 0, b: 0.49019605, a: 1}
+    - _RimColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShadowMapColor: {r: 1, g: 0.825, b: 0.78, a: 1}
+    - _Shadows_Color: {r: 0.116559066, g: 0, b: 0.49056596, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Tint: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
