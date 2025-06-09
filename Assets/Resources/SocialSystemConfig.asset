@@ -15,8 +15,9 @@ MonoBehaviour:
   interactionCheckInterval: 2
   interactionRadius: 5
   interactionDuration: 5
+  interactionCooldown: 10
   maxDailyInteractions: 5
-  socialInteractionDistance: 0.3
+  socialInteractionDistance: 1
   socialMoveSpeed: 1
   socialTimeout: 10
   baseRelationshipChange: 5

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8132d39e4a15de43b1d1dfdcda60847, type: 3}
   m_Name: NPCMovementConfig
   m_EditorClassIdentifier: 
-  stoppingDistance: 0.05
+  stoppingDistance: 0.1
   moveSpeed: 1
   acceleration: 1
   turnSpeed: 180

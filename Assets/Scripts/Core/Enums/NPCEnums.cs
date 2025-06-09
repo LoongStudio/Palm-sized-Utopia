@@ -1,6 +1,7 @@
 // NPC状态
 public enum NPCState
 {
+    Generated, // 生成
     Working,   // 工作
     Resting,   // 休息
     Idle,      // 空闲
