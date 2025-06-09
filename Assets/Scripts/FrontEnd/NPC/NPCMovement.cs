@@ -34,6 +34,7 @@ public class NPCMovement : MonoBehaviour
     private Vector3 currentTarget;
     private bool isMoving = false;
     private bool isWaiting = false;
+    public bool isLanded = false;
     private Coroutine movementCoroutine;
     
     // 统计信息
@@ -48,6 +49,7 @@ public class NPCMovement : MonoBehaviour
     public float MinWaitTime => minWaitTime;
     public float MaxWaitTime => maxWaitTime;
     public float MovementSpeed => movementSpeed;
+
 
 
     private void Awake()
