@@ -4,6 +4,7 @@ public abstract class Equipment
     public string equipmentName;
     public int purchasePrice;
     public float maintenanceCost;
+    public float deviceBonus;
     public Building installedBuilding;
     
     public abstract void ApplyEffect(Building building);

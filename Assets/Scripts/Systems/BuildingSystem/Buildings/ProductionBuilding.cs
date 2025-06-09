@@ -102,11 +102,15 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     
     public virtual float UpdateCurrentEfficiency()
     {
-        // float levelBonus = 0.1f * level;
-        // float npcBonus = assignedNPCs != null ? assignedNPCs.Count * npcEfficiencyPerNPC : 0f;
-
-        // float totalEfficiency = baseEfficiency + levelBonus + npcBonus + deviceBonus + buildingBonus;
-        float totalEfficiency = baseEfficiency;
+        float levelBonus = 0.1f * currentLevel;
+        float npcEfficiencyPerNPC = 1f / maxSlotAmount; 
+        float npcBonus = assignedNPCs != null ? assignedNPCs.Count * npcEfficiencyPerNPC : 0f;
+        float deviceBonus = 0;
+        if (installedEquipment != null)
+            foreach (var equipment in installedEquipment)
+                deviceBonus += equipment.deviceBonus;
+        float totalEfficiency = baseEfficiency + levelBonus + npcBonus + deviceBonus;
+        // float totalEfficiency = baseEfficiency;
         // 按产出规则数量分摊效率（防止多个规则时过快）
         if (productionRules != null && productionRules.Count > 0)
             totalEfficiency /= productionRules.Count;
