@@ -360,17 +360,6 @@ MonoBehaviour:
   latitude: 45
   moonMaxIntensity: 0.3
   sunTwilightIntensity: 0.1
---- !u!114 &120132165 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6802671182719644152, guid: b4a2a18de903a57429843280c168519c, type: 3}
-  m_PrefabInstance: {fileID: 1937368158}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d448547f0452c142ad5114ab8864959, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &302657416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -906,10 +895,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -3640491458511613307, guid: b4a2a18de903a57429843280c168519c, type: 3}
-      propertyPath: stateMachine
-      value: 
-      objectReference: {fileID: 120132165}
     - target: {fileID: 1370650100185386935, guid: b4a2a18de903a57429843280c168519c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.4730927
@@ -1218,6 +1203,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2785173545176079049, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
+      propertyPath: data.subType
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2785173545176079049, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
+      propertyPath: data.buildingType
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5590697140018055236, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
       propertyPath: m_Name
       value: TestApartment

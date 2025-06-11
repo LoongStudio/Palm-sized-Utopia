@@ -111,8 +111,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data:
-    buildingType: 0
-    subType: 0
+    buildingType: 3
+    subType: 7
     buildingName: 
     purchasePrice: 0
     upgradePrices: 
@@ -145,7 +145,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 367023012606073636, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
       propertyPath: m_Name
-      value: TestApartment Variant
+      value: TestApartment
       objectReference: {fileID: 0}
     - target: {fileID: 4007826676365775353, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
       propertyPath: m_LocalPosition.x
