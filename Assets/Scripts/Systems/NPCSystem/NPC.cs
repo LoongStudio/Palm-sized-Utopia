@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
 using UnityEditor;
+using System;
 
 public class NPC : MonoBehaviour, ISaveable
 {
     #region 字段声明
     [Header("基本信息")]
     public NPCData data;
-    public Building assignedBuilding;
     public HousingBuilding housing; // 添加住房属性
     
     [Header("社交系统")]
@@ -40,6 +40,18 @@ public class NPC : MonoBehaviour, ISaveable
     
     private bool isTurning = false;                             // 是否正在转向
     private Vector3 targetDirection;                            // 目标方向
+
+    [Header("工作系统")]
+    [SerializeField] private Vector3? pendingWorkTarget;         // 待处理的工作目标位置
+    [SerializeField] private Building assignedBuilding;          // 分配的建筑
+    [SerializeField] private int restStartHour = 22;             // 晚上10点
+    [SerializeField] private int restEndHour = 6;                // 早上6点
+    [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
+    [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
+
+    public Vector3? PendingWorkTarget => pendingWorkTarget;
+    public Building AssignedBuilding => assignedBuilding;
+    public float CurrentIdleWeight => currentIdleWeight;
     #endregion
     
     #region Unity生命周期
@@ -540,4 +552,37 @@ public class NPC : MonoBehaviour, ISaveable
         Debug.Log($"[NPC] {data.npcName} ====================================================");
     }
     #endregion
+
+    public void SetPendingWork(Vector3 target, Building building)
+    {
+        pendingWorkTarget = target;
+        assignedBuilding = building;
+    }
+
+    public void ClearPendingWork()
+    {
+        pendingWorkTarget = null;
+        assignedBuilding = null;
+    }
+
+    public bool IsRestTime()
+    {
+        var currentTime = TimeManager.Instance.CurrentTime;
+        if (restStartHour > restEndHour)
+        {
+            // 跨天的情况
+            return currentTime.hour >= restStartHour || currentTime.hour < restEndHour;
+        }
+        return currentTime.hour >= restStartHour && currentTime.hour < restEndHour;
+    }
+
+    public void ResetIdleWeight()
+    {
+        currentIdleWeight = 0f;
+    }
+
+    public void IncreaseIdleWeight()
+    {
+        currentIdleWeight += idleTimeWeight * Time.deltaTime;
+    }
 } 
