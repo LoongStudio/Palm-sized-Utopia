@@ -5,8 +5,11 @@ public enum NPCState
     Working,   // 工作
     Resting,   // 休息
     Idle,      // 空闲
-    Social,    // 社交
+    PrepareForSocial, // 准备社交
     MovingToSocial, // 前往社交位置
+    Social,    // 社交中
+    SocialEndHappy, // 社交结束（友好）
+    SocialEndFight, // 社交结束（争吵）
     Transition, // 状态转换中
     MovingToSource,      // 前往采集点
     Collecting,          // 采集中

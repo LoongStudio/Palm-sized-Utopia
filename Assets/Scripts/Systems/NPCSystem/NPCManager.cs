@@ -150,10 +150,21 @@ public class NPCManager : SingletonManager<NPCManager>
 
     private IEnumerator ExecutePrepareForSocialInteraction(NPC npc1, NPC npc2)
     {
-        // 阶段0: 修改NPC状态
-        npc1.currentState = NPCState.MovingToSocial;
-        npc2.currentState = NPCState.MovingToSocial;
+        // 阶段0: 修改NPC状态为准备社交
+        npc1.ChangeState(NPCState.PrepareForSocial);
+        npc2.ChangeState(NPCState.PrepareForSocial);
+
+        // 转向对方
+        npc1.TurnToPosition(npc2.transform.position);
+        npc2.TurnToPosition(npc1.transform.position);
+
+        // 准备社交执行动画播放，完毕后会自动进入社交移动状态
         
+        // 等待两个NPC都进入社交移动状态
+        while(npc1.currentState != NPCState.MovingToSocial || npc2.currentState != NPCState.MovingToSocial){
+            yield return new WaitForSeconds(0.3f); // 不能检测过于频繁
+        }
+
         // 阶段1: 计算社交位置
         var socialPositions = CalculateSocialPositions(npc1, npc2);
         Debug.Log($"[NPCManager] 计算社交位置为: {socialPositions.npc1Position} 和 {socialPositions.npc2Position}");
@@ -161,6 +172,53 @@ public class NPCManager : SingletonManager<NPCManager>
         // 阶段2: 让两个NPC移动到社交位置
         yield return StartCoroutine(MoveNPCsToSocialPositions(npc1, npc2, socialPositions));
 
+    }
+
+    /// <summary>
+    /// 让两个NPC移动到社交位置
+    /// </summary>
+    private IEnumerator MoveNPCsToSocialPositions(NPC npc1, NPC npc2, SocialPositions positions)
+    {
+        Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
+        // 启动两个NPC的社交移动
+        npc1.movement.MoveToTarget(positions.npc1Position);
+        npc2.movement.MoveToTarget(positions.npc2Position);
+        
+        // 等待两个移动完成，或者超时
+        float startTime = Time.time;
+        
+        while ((!npc1.movement.isInPosition || !npc2.movement.isInPosition) && (Time.time - startTime) < socialSystem.socialTimeout)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // // 确保两个NPC都面向对方
+        // Vector3 direction1to2 = (positions.npc2Position - positions.npc1Position).normalized;
+        // Vector3 direction2to1 = -direction1to2;
+        
+        // npc1.transform.rotation = Quaternion.LookRotation(direction1to2);
+        // npc2.transform.rotation = Quaternion.LookRotation(direction2to1);
+        
+        // 转向对方
+        npc1.TurnToPosition(npc2.transform.position);
+        npc2.TurnToPosition(npc1.transform.position);
+
+        if (npc1.movement.isInPosition && npc2.movement.isInPosition)
+        {
+            Debug.Log($"[NPCManager] 两个NPC已到达社交位置，准备就绪");
+            // 触发事件广播准备就绪
+            var eventArgs = new NPCEventArgs
+            {
+                npc = npc1,
+                otherNPC = npc2,
+                timestamp = System.DateTime.Now
+            };
+            GameEvents.TriggerNPCReadyForSocialInteraction(eventArgs);
+        }
+        else
+        {
+            Debug.LogWarning($"[NPCManager] 社交移动超时或失败, 取消该次社交互动");
+        }
     }
 
     private void HandleSocialInteractionEnded(NPCEventArgs args){
@@ -181,6 +239,8 @@ public class NPCManager : SingletonManager<NPCManager>
         }
 
         // TODO：NPC的社交互动结束后的逻辑
+        // npc1.ChangeState(NPCState.Idle);
+        // npc2.ChangeState(NPCState.Idle);
     }
     #endregion
 
@@ -583,63 +643,7 @@ public class NPCManager : SingletonManager<NPCManager>
         return position; // 如果找不到，返回原位置
     }
 
-        /// <summary>
-    /// 让两个NPC移动到社交位置
-    /// </summary>
-    private IEnumerator MoveNPCsToSocialPositions(NPC npc1, NPC npc2, SocialPositions positions)
-    {
-        Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
-        // 启动两个NPC的社交移动
-        var moveCoroutine1 = StartCoroutine(npc1.MoveToSocialPosition(positions.npc1Position, socialSystem.socialMoveSpeed));
-        var moveCoroutine2 = StartCoroutine(npc2.MoveToSocialPosition(positions.npc2Position, socialSystem.socialMoveSpeed));
-        
-        // 等待两个移动完成，或者超时
-        float startTime = Time.time;
-        bool npc1Arrived = false;
-        bool npc2Arrived = false;
-        
-        while ((!npc1Arrived || !npc2Arrived) && (Time.time - startTime) < socialSystem.socialTimeout)
-        {
-            // 检查NPC1是否到达
-            if (!npc1Arrived)
-            {
-                
-                npc1Arrived = npc1.navAgent.remainingDistance <= npc1.navAgent.stoppingDistance;
-            }
-            
-            // 检查NPC2是否到达
-            if (!npc2Arrived)
-            {
-                npc2Arrived = npc2.navAgent.remainingDistance <= npc2.navAgent.stoppingDistance;
-            }
-            
-            yield return new WaitForSeconds(0.1f);
-        }
-        
-        // // 确保两个NPC都面向对方
-        // Vector3 direction1to2 = (positions.npc2Position - positions.npc1Position).normalized;
-        // Vector3 direction2to1 = -direction1to2;
-        
-        // npc1.transform.rotation = Quaternion.LookRotation(direction1to2);
-        // npc2.transform.rotation = Quaternion.LookRotation(direction2to1);
-        
-        if (npc1Arrived && npc2Arrived)
-        {
-            Debug.Log($"[NPCManager] 两个NPC已到达社交位置，准备就绪");
-            // 触发事件广播准备就绪
-            var eventArgs = new NPCEventArgs
-            {
-                npc = npc1,
-                otherNPC = npc2,
-                timestamp = System.DateTime.Now
-            };
-            GameEvents.TriggerNPCReadyForSocialInteraction(eventArgs);
-        }
-        else
-        {
-            Debug.LogWarning($"[NPCManager] 社交移动超时或失败, 取消该次社交互动");
-        }
-    }
+
 }
 
 /// <summary>

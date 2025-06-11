@@ -231,20 +231,22 @@ public class SocialSystem
         {
             relationshipChange = ProcessFight(npc1, npc2);
             Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 发生了争吵！互相之间好感度下降了 {relationshipChange}");
+            npc1.ChangeState(NPCState.SocialEndFight);
+            npc2.ChangeState(NPCState.SocialEndFight);
         }
         else
         {
             relationshipChange = ProcessFriendlyChat(npc1, npc2);
             Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 愉快地聊天了！互相之间好感度上升了 {relationshipChange}");
+            npc1.ChangeState(NPCState.SocialEndHappy);
+            npc2.ChangeState(NPCState.SocialEndHappy);
         }
         
         // 设置冷却时间
         var key = GetInteractionKey(npc1, npc2);
         interactionCooldowns[key] = interactionCooldown;
         
-        // 恢复NPC状态
-        npc1.ChangeState(NPCState.Idle);
-        npc2.ChangeState(NPCState.Idle);
+
         
         // 触发关系变化事件
         var eventArgs = new NPCEventArgs

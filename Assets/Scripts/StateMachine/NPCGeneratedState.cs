@@ -13,5 +13,8 @@ public class NPCGeneratedState : NPCStateBase
     }
     protected override void OnUpdateState(){
         base.OnUpdateState();
+        if(npc.movement.isLanded){
+            stateMachine.ChangeState(NPCState.Idle);
+        }
     }
 }
