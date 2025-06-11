@@ -9,7 +9,7 @@ public abstract class NPCStateBase
     [Header("状态基础信息")]
     [SerializeField] protected bool showDebugInfo = true;
     [SerializeField] protected string stateDescription = "";
-
+    [SerializeField] public NPCState State;
     protected NPCStateMachine stateMachine;
     protected NPC npc;
     private Animator animator;
@@ -19,7 +19,8 @@ public abstract class NPCStateBase
     public virtual NPCState nextState{get;protected set;} = NPCState.Idle;
 
     // 构造函数
-    public NPCStateBase(NPCStateMachine stateMachine, NPC npc){
+    public NPCStateBase(NPCState state, NPCStateMachine stateMachine, NPC npc){
+        this.State = state;
         this.stateMachine = stateMachine;
         this.npc = npc;
         this.animator = stateMachine.animator;

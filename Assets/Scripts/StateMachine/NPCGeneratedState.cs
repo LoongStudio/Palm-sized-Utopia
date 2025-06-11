@@ -6,7 +6,7 @@ public class NPCGeneratedState : NPCStateBase
     private float searchTimeout = 5f; // 搜索超时时间
     private float searchTimer = 0f;
 
-    public NPCGeneratedState(NPCStateMachine stateMachine, NPC npc) : base(stateMachine, npc)
+    public NPCGeneratedState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(state, stateMachine, npc)
     {
         stateDescription = "NPC生成状态 - 寻找住房";
         exitStateWhenTimeOut = true;
@@ -23,6 +23,8 @@ public class NPCGeneratedState : NPCStateBase
             Debug.Log($"[NPCGeneratedState] {npc.data.npcName} 开始寻找住房");
         }
         SearchForHousing();
+        // 成功注册后，通知状态机切换到Idle状态
+        stateMachine.ChangeState(NPCState.Idle);
     }
 
     protected override void OnUpdateState()
