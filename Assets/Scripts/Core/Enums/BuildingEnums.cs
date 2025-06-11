@@ -17,7 +17,8 @@ public enum BuildingSubType
     WaterTower,   // 水塔
     CompostYard,  // 堆肥场
     Warehouse,    // 仓库
-    Garden        // 花园
+    Garden,       // 花园
+    Apartment,    // 公寓
 }
 
 // 设备类型
