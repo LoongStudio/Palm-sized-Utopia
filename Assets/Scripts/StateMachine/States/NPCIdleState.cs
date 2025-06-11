@@ -21,6 +21,7 @@ public class NPCIdleState : NPCStateBase
         {
             Debug.Log($"[NPCIdleState] {npc.data.npcName} 进入空闲状态");
         }
+        npc.movement.StartRandomMovement();
     }
 
     public override void UpdateState()
@@ -71,7 +72,7 @@ public class NPCIdleState : NPCStateBase
         else if (randomValue < homeWeight + workWeight + socialWeight)
         {
             // 社交
-            stateMachine.ChangeState(NPCState.SocialPrepare);
+            stateMachine.ChangeState(NPCState.PrepareForSocial);
         }
         else
         {

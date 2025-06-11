@@ -8,10 +8,10 @@ public class NPCGeneratedState : NPCStateBase
 
     public NPCGeneratedState(NPCState npcState, NPCStateMachine stateMachine, NPC npc) : base(npcState, stateMachine, npc)
     {
-        stateDescription = "NPC生成状态 - 寻找住房";
-        exitStateWhenTimeOut = true;
-        stateExitTime = searchTimeout;
-        nextState = NPCState.Idle;
+        // stateDescription = "NPC生成状态 - 寻找住房";
+        // exitStateWhenTimeOut = true;
+        // stateExitTime = searchTimeout;
+        // nextState = NPCState.Idle;
     }
 
     protected override void OnEnterState()
@@ -24,18 +24,22 @@ public class NPCGeneratedState : NPCStateBase
         }
         SearchForHousing();
         // 成功注册后，通知状态机切换到Idle状态
-        stateMachine.ChangeState(NPCState.Idle);
+        // stateMachine.ChangeState(NPCState.Idle);
     }
 
     protected override void OnUpdateState()
     {
         base.OnUpdateState();
+        if(npc.movement.isLanded){
+            stateMachine.ChangeState(NPCState.Idle);
+        }
     }
 
     private void SearchForHousing()
     {
+        Debug.Log("[NPCGeneratedState] 开始寻找住房");
         // 查找场景中所有的HousingBuilding
-        HousingBuilding[] housingBuildings = Object.FindObjectsOfType<HousingBuilding>();
+        HousingBuilding[] housingBuildings = Object.FindObjectsByType<HousingBuilding>(FindObjectsSortMode.None);
         
         if (housingBuildings.Length == 0)
         {

@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class NPCSocializingState : NPCStateBase
+public class NPCSocialState : NPCStateBase
 {
-    public NPCSocializingState(NPCState stateType, NPCStateMachine stateMachine, NPC npc) 
+    public NPCSocialState(NPCState stateType, NPCStateMachine stateMachine, NPC npc) 
         : base(stateType, stateMachine, npc)
     {
         stateDescription = "进行社交活动";
-        nextState = NPCState.SocialSettle;
+        // nextState = NPCState.SocialSettle;
     }
 
     protected override void OnEnterState()
@@ -16,5 +16,11 @@ public class NPCSocializingState : NPCStateBase
         {
             Debug.Log($"[NPCSocializingState] {npc.data.npcName} 正在进行社交活动");
         }
+        animator.SetBool("isSocial", true);
+    }
+    protected override void OnExitState()
+    {
+        base.OnExitState();
+        animator.SetBool("isSocial", false);
     }
 } 

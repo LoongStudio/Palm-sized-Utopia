@@ -79,7 +79,6 @@ public class NPC : MonoBehaviour, ISaveable
     
     private void Update()
     {
-        UpdateState();
         UpdateMovement();
     }
     private void OnDestroy() {

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class NPCSocialPreparaionState : NPCStateBase
 {
-    public NPCSocialPreparaionState(NPCStateMachine stateMachine, NPC npc) : base(stateMachine, npc)
+    public NPCSocialPreparaionState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(NPCState.PrepareForSocial, stateMachine, npc)
     {
     }
     protected override void OnEnterState(){
