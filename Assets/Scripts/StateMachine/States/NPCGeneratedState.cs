@@ -6,7 +6,7 @@ public class NPCGeneratedState : NPCStateBase
     private float searchTimeout = 5f; // 搜索超时时间
     private float searchTimer = 0f;
 
-    public NPCGeneratedState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(state, stateMachine, npc)
+    public NPCGeneratedState(NPCState npcState, NPCStateMachine stateMachine, NPC npc) : base(npcState, stateMachine, npc)
     {
         stateDescription = "NPC生成状态 - 寻找住房";
         exitStateWhenTimeOut = true;

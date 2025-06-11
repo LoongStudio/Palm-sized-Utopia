@@ -9,19 +9,18 @@ public abstract class NPCStateBase
     [Header("状态基础信息")]
     [SerializeField] protected bool showDebugInfo = true;
     [SerializeField] protected string stateDescription = "";
-
+    [SerializeField] public NPCState npcState;
     protected NPCStateMachine stateMachine;
     protected NPC npc;
     protected Animator animator;
-    protected NPCState stateType;
     
     public virtual float stateExitTime{get;protected set;} = 0f;
     public virtual bool exitStateWhenTimeOut{get;protected set;} = false;
     public virtual NPCState nextState{get;protected set;} = NPCState.Idle;
 
     // 构造函数
-    public NPCStateBase(NPCState stateType, NPCStateMachine stateMachine, NPC npc){
-        this.stateType = stateType;
+    public NPCStateBase(NPCState npcState, NPCStateMachine stateMachine, NPC npc){
+        this.npcState = npcState;
         this.stateMachine = stateMachine;
         this.npc = npc;
         this.animator = stateMachine.animator;
@@ -104,7 +103,7 @@ public abstract class NPCStateBase
             return stateDescription;
         }
         
-        return $"{stateType} - {GetType().Name}";
+        return $"{npcState} - {GetType().Name}";
     }
     
     #endregion

@@ -47,13 +47,13 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if (!assignedNPCs.Contains(npc) 
             && npc.assignedBuilding == this
             && (npc.currentState == NPCState.Working 
-                || npc.currentState == NPCState.MovingToDestination))
+                || npc.currentState == NPCState.Transporting))
         {
             assignedNPCs.Add(npc);
         }
         if (!tempAssignedNPCs.Contains(npc)
             && npc.assignedBuilding == this
-            && npc.currentState == NPCState.Delivering)
+            && npc.currentState == NPCState.Transporting)
         {
             tempAssignedNPCs.Add(npc);
             npc.StartDelivering(this);

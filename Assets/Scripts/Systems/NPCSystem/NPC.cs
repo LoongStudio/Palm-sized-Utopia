@@ -23,8 +23,8 @@ public class NPC : MonoBehaviour, ISaveable
     
     [Header("状态管理")]
     public NPCStateMachine stateMachine;
-    public NPCState currentState => stateMachine.currentState.State;
-    public NPCState previousState => stateMachine.previousState.State;
+    public NPCState currentState => stateMachine.currentState.npcState;
+    public NPCState previousState => stateMachine.previousState.npcState;
     private float stateTimer;
 
     [Header("任务和背包")]
@@ -171,20 +171,20 @@ public class NPC : MonoBehaviour, ISaveable
     private void UpdateState() 
     { 
         stateTimer += Time.deltaTime;
-
-        // TODO: 状态机
-        switch (currentState){
-            case NPCState.Working:
-                break;
-            case NPCState.Resting:
-                break;
-            case NPCState.Idle:
-                break;
-            case NPCState.Social:
-                break;
-            default:
-                break;
-        }
+        //
+        // // TODO: 状态机
+        // switch (currentState){
+        //     case NPCState.Working:
+        //         break;
+        //     case NPCState.Resting:
+        //         break;
+        //     case NPCState.Idle:
+        //         break;
+        //     case NPCState.Social:
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
     #endregion
 
