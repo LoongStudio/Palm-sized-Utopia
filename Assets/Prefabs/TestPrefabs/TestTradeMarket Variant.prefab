@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data:
     buildingType: 0
-    subType: 0
+    subType: 2
     buildingName: 
     purchasePrice: 0
     upgradePrices: 
