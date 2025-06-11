@@ -29,7 +29,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     {
         if (BuildingManager.Instance.BuildingBuilt(this))
             return true;
-        BuildingManager.Instance.RegistBuilding(this);
+        BuildingManager.Instance.RegisterBuilding(this);
         status = BuildingStatus.Inactive;
         return false;
     }
