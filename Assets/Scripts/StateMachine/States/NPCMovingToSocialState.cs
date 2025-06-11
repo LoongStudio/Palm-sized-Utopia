@@ -6,7 +6,7 @@ public class NPCMovingToSocialState : NPCStateBase
         : base(stateType, stateMachine, npc)
     {
         stateDescription = "前往社交地点";
-        nextState = NPCState.Socializing;
+        nextState = NPCState.Social;
     }
 
     protected override void OnEnterState()

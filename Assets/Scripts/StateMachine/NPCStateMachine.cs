@@ -48,7 +48,7 @@ public class NPCStateMachine : MonoBehaviour
         // 设置初始状态
         if (states.Count > 0)
         {
-            ChangeState(NPCState.Generated);
+            // ChangeState(NPCState.Generated);
         }
         else
         {
@@ -82,13 +82,13 @@ public class NPCStateMachine : MonoBehaviour
     private void InitializeStates()
     {
         // TODO: 获取或创建各种状态
-        states[NPCState.Generated] = new NPCGeneratedState(this, npc);
-        states[NPCState.Idle] = new NPCIdleState(this, npc);
-        states[NPCState.PrepareForSocial] = new NPCSocialPreparaionState(this, npc);
-        states[NPCState.MovingToSocial] = new NPCMoveToSocialState(this, npc);
-        states[NPCState.Social] = new NPCSocialState(this, npc);
-        states[NPCState.SocialEndHappy] = new NPCSocialEndHappyState(this, npc);
-        states[NPCState.SocialEndFight] = new NPCSocialEndFightState(this, npc);
+        states[NPCState.Generated] = new NPCGeneratedState(NPCState.Generated, this, npc);
+        states[NPCState.Idle] = new NPCIdleState(NPCState.Idle, this, npc);
+        states[NPCState.PrepareForSocial] = new NPCSocialPreparaionState(NPCState.PrepareForSocial, this, npc);
+        states[NPCState.MovingToSocial] = new NPCMovingToSocialState(NPCState.MovingToSocial, this, npc);
+        states[NPCState.Social] = new NPCSocialState(NPCState.Social, this, npc);
+        states[NPCState.SocialEndHappy] = new NPCSocialEndHappyState(NPCState.SocialEndHappy, this, npc);
+        states[NPCState.SocialEndFight] = new NPCSocialEndFightState(NPCState.SocialEndFight, this, npc);
         // 工作相关状态
         states[NPCState.MovingToWork] = new NPCMovingToWorkState(NPCState.MovingToWork, this, npc);
         states[NPCState.Working] = new NPCWorkingState(NPCState.Working, this, npc);

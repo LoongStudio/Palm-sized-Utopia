@@ -199,8 +199,8 @@ public class SocialSystem
         activeInteractions[key] = interaction;
         
         // 设置NPC状态为社交
-        npc1.ChangeState(NPCState.Socializing);
-        npc2.ChangeState(NPCState.Socializing);
+        npc1.ChangeState(NPCState.Social);
+        npc2.ChangeState(NPCState.Social);
         
         // 增加每日互动计数
         IncrementDailyInteractionCount(npc1);

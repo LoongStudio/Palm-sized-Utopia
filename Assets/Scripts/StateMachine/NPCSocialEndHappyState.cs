@@ -5,7 +5,7 @@ public class NPCSocialEndHappyState : NPCStateBase
     public override float stateExitTime => 2f;
     public override bool exitStateWhenTimeOut => true;
     public override NPCState nextState => NPCState.Idle;
-    public NPCSocialEndHappyState(NPCStateMachine stateMachine, NPC npc) : base(stateMachine, npc)
+    public NPCSocialEndHappyState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(NPCState.SocialEndHappy, stateMachine, npc)
     {
     }
     protected override void OnEnterState()
