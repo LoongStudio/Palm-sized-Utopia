@@ -2,13 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
+using UnityEditor;
+using System;
 
 public class NPC : MonoBehaviour, ISaveable
 {
     #region 字段声明
     [Header("基本信息")]
     public NPCData data;
-    public Building assignedBuilding;
+    public HousingBuilding housing; // 添加住房属性
     
     [Header("社交系统")]
     public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
@@ -36,8 +38,21 @@ public class NPC : MonoBehaviour, ISaveable
     [SerializeField] private float turnSpeed = 5f;              // 转向速度
     [SerializeField] private float turnThreshold = 10f;         // 转向阈值角度
     [SerializeField] private bool enableTurnBeforeMove = true;  // 是否在移动前转向
+    
     private bool isTurning = false;                             // 是否正在转向
     private Vector3 targetDirection;                            // 目标方向
+
+    [Header("工作系统")]
+    [SerializeField] private Vector3? pendingWorkTarget;         // 待处理的工作目标位置
+    [SerializeField] private Building assignedBuilding;          // 分配的建筑
+    [SerializeField] private int restStartHour = 22;             // 晚上10点
+    [SerializeField] private int restEndHour = 6;                // 早上6点
+    [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
+    [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
+
+    public Vector3? PendingWorkTarget => pendingWorkTarget;
+    public Building AssignedBuilding => assignedBuilding;
+    public float CurrentIdleWeight => currentIdleWeight;
     #endregion
     
     #region Unity生命周期
@@ -48,7 +63,6 @@ public class NPC : MonoBehaviour, ISaveable
         }
     }
     private void Start() {
-
         if(navAgent == null){
             navAgent = GetComponent<NavMeshAgent>();
         }
@@ -65,6 +79,7 @@ public class NPC : MonoBehaviour, ISaveable
     
     private void Update()
     {
+        UpdateState();
         UpdateMovement();
     }
     private void OnDestroy() {
@@ -443,49 +458,49 @@ public class NPC : MonoBehaviour, ISaveable
         }
     }
     
-    // public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
+    public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
         
-    //     // 使用NavMeshAgent移动
-    //     if (navAgent != null)
-    //     {
-    //         Debug.Log($"[NPC] {data.npcName} 开始移动到社交位置: {position}");
-    //         // 保存当前位置和速度
-    //         // Vector3 previousPosition = transform.position;
-    //         float previousSpeed = navAgent.speed;
-    //         // 设置移动速度
-    //         navAgent.speed = socialMoveSpeed;
+        // 使用NavMeshAgent移动
+        if (navAgent != null)
+        {
+            Debug.Log($"[NPC] {data.npcName} 开始移动到社交位置: {position}");
+            // 保存当前位置和速度
+            // Vector3 previousPosition = transform.position;
+            float previousSpeed = navAgent.speed;
+            // 设置移动速度
+            navAgent.speed = socialMoveSpeed;
             
-    //         // 如果启用转向，先转向目标
-    //         if (enableTurnBeforeMove)
-    //         {
-    //             // TODO: 这里需要优化，因为这里会立即转向，不合理
-    //             TurnToPositionImmediate(position); // 社交移动使用立即转向，避免复杂的异步逻辑
-    //         }
+            // 如果启用转向，先转向目标
+            if (enableTurnBeforeMove)
+            {
+                // TODO: 这里需要优化，因为这里会立即转向，不合理
+                TurnToPositionImmediate(position); // 社交移动使用立即转向，避免复杂的异步逻辑
+            }
             
-    //         // 设置目标位置
-    //         navAgent.SetDestination(position);
+            // 设置目标位置
+            navAgent.SetDestination(position);
             
-    //         // 等待到达目标位置
-    //         while (navAgent.pathPending || navAgent.remainingDistance > navAgent.stoppingDistance)
-    //         {
-    //             // 检查是否卡住
-    //             if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > navAgent.stoppingDistance)
-    //             {
-    //                 // 可能卡住了，等待一小段时间
-    //                 yield return new WaitForSeconds(0.5f);
-    //             }
-    //             else
-    //             {
-    //                 yield return new WaitForSeconds(0.1f);
-    //             }
-    //         }
-    //         // 恢复速度
-    //         navAgent.speed = previousSpeed;
-    //         Debug.Log($"[NPC] {data.npcName} 已到达社交位置");
-    //     } else{
-    //         Debug.LogError($"[NPC] {data.npcName} 没有NavMeshAgent组件，无法移动");
-    //     }
-    // }
+            // 等待到达目标位置
+            while (navAgent.pathPending || navAgent.remainingDistance > navAgent.stoppingDistance)
+            {
+                // 检查是否卡住
+                if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > navAgent.stoppingDistance)
+                {
+                    // 可能卡住了，等待一小段时间
+                    yield return new WaitForSeconds(0.5f);
+                }
+                else
+                {
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            // 恢复速度
+            navAgent.speed = previousSpeed;
+            Debug.Log($"[NPC] {data.npcName} 已到达社交位置");
+        } else{
+            Debug.LogError($"[NPC] {data.npcName} 没有NavMeshAgent组件，无法移动");
+        }
+    }
     
     public void AssignTask() {}
     
@@ -514,4 +529,37 @@ public class NPC : MonoBehaviour, ISaveable
         Debug.Log($"[NPC] {data.npcName} ====================================================");
     }
     #endregion
+
+    public void SetPendingWork(Vector3 target, Building building)
+    {
+        pendingWorkTarget = target;
+        assignedBuilding = building;
+    }
+
+    public void ClearPendingWork()
+    {
+        pendingWorkTarget = null;
+        assignedBuilding = null;
+    }
+
+    public bool IsRestTime()
+    {
+        var currentTime = TimeManager.Instance.CurrentTime;
+        if (restStartHour > restEndHour)
+        {
+            // 跨天的情况
+            return currentTime.hour >= restStartHour || currentTime.hour < restEndHour;
+        }
+        return currentTime.hour >= restStartHour && currentTime.hour < restEndHour;
+    }
+
+    public void ResetIdleWeight()
+    {
+        currentIdleWeight = 0f;
+    }
+
+    public void IncreaseIdleWeight()
+    {
+        currentIdleWeight += idleTimeWeight * Time.deltaTime;
+    }
 } 

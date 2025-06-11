@@ -29,7 +29,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     {
         if (BuildingManager.Instance.BuildingBuilt(this))
             return true;
-        BuildingManager.Instance.RegistBuilding(this);
+        BuildingManager.Instance.RegisterBuilding(this);
         status = BuildingStatus.Inactive;
         return false;
     }
@@ -45,15 +45,15 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     {
         // 如果NPC不在已有槽位中且目标就是这个建筑
         if (!assignedNPCs.Contains(npc) 
-            && npc.assignedBuilding == this
+            && npc.AssignedBuilding == this
             && (npc.currentState == NPCState.Working 
-                || npc.currentState == NPCState.MovingToDestination))
+                || npc.currentState == NPCState.Transporting))
         {
             assignedNPCs.Add(npc);
         }
         if (!tempAssignedNPCs.Contains(npc)
-            && npc.assignedBuilding == this
-            && npc.currentState == NPCState.Delivering)
+            && npc.AssignedBuilding == this
+            && npc.currentState == NPCState.Transporting)
         {
             tempAssignedNPCs.Add(npc);
             npc.StartDelivering(this);
@@ -62,7 +62,8 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual void TryRemoveNPC(NPC npc)
     {
         assignedNPCs.Remove(npc);
-        npc.assignedBuilding = null;
+        // npc.AssignedBuilding = null;
+        npc.ChangeState(NPCState.Idle);
     }
     public virtual void InstallEquipment(Equipment equipment) { }
     public virtual void RemoveEquipment(Equipment equipment) { }

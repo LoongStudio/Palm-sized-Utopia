@@ -234,7 +234,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
     public bool BuildBuilding(BuildingSubType type, Vector2Int position) { return false; }
     public bool UpgradeBuilding(Building building) { return false; }
     public bool DestroyBuilding(Building building) { return false; }
-    public bool RegistBuilding(Building building)
+    public bool RegisterBuilding(Building building)
     {
         if (_buildings.Contains(building)) return false;
         _buildings.Add(building);
@@ -254,4 +254,83 @@ public class BuildingManager : SingletonManager<BuildingManager>
     
     // 建筑解锁检查
     public bool IsBuildingUnlocked(BuildingSubType type) { return false; }
+
+    /// <summary>
+    /// 获取需要工作的建筑列表，按优先级排序
+    /// </summary>
+    public List<Building> GetBuildingsNeedingWork()
+    {
+        List<Building> result = new List<Building>();
+        
+        foreach (var building in _buildings)
+        {
+            // 检查是否有空余槽位
+            if (building.assignedNPCs.Count < building.maxSlotAmount)
+            {
+                result.Add(building);
+                continue;
+            }
+
+            // 检查是否需要输入资源
+            foreach (var res in building.AcceptResources)
+            {
+                int targetSubType = Convert.ToInt32(res);
+                var current = building.inventory.currentSubResource
+                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
+                var max = building.inventory.maximumSubResource
+                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
+
+                if (current < max)
+                {
+                    result.Add(building);
+                    break;
+                }
+            }
+
+            // 检查是否需要转移资源
+            foreach (var res in building.inventory.currentSubResource)
+            {
+                var maxEntry = building.inventory.maximumSubResource.FirstOrDefault(r =>
+                    r.subResource.resourceType == res.subResource.resourceType &&
+                    r.subResource.subType == res.subResource.subType);
+
+                int max = maxEntry?.resourceValue ?? 0;
+
+                // 如果资源超过最大值的80%，需要转移
+                if (max > 0 && res.resourceValue > 0.8f * max)
+                {
+                    result.Add(building);
+                    break;
+                }
+            }
+        }
+
+        // 按优先级排序：空余槽位 > 需要输入资源 > 需要转移资源
+        return result.OrderBy(b => 
+        {
+            if (b.assignedNPCs.Count < b.maxSlotAmount) return 0;
+            if (b.AcceptResources.Any()) return 1;
+            return 2;
+        }).ToList();
+    }
+
+    /// <summary>
+    /// 获取最适合NPC工作的建筑
+    /// </summary>
+    public Building GetBestWorkBuildingForNPC(NPC npc)
+    {
+        var buildings = GetBuildingsNeedingWork();
+        if (buildings.Count == 0) return null;
+
+        // 优先选择有空余槽位的建筑
+        var buildingWithSlot = buildings.FirstOrDefault(b => b.assignedNPCs.Count < b.maxSlotAmount);
+        if (buildingWithSlot != null) return buildingWithSlot;
+
+        // 其次选择需要输入资源的建筑
+        var buildingNeedingInput = buildings.FirstOrDefault(b => b.AcceptResources.Any());
+        if (buildingNeedingInput != null) return buildingNeedingInput;
+
+        // 最后选择需要转移资源的建筑
+        return buildings.FirstOrDefault();
+    }
 }
