@@ -28,13 +28,14 @@ public class NPCMovement : MonoBehaviour
     [Header("组件引用")]
     private Animator animator;
     private NavMeshAgent navAgent;
-    private NPC npcComponent;
+    private NPC npc;
     
     // 状态变量
     private Vector3 currentTarget;
     private bool isMoving = false;
     private bool isWaiting = false;
     public bool isLanded = false;
+    public bool isInPosition = false;
     private Coroutine movementCoroutine;
     
     // 统计信息
@@ -62,7 +63,7 @@ public class NPCMovement : MonoBehaviour
         }
         
         // 获取NPC组件（如果存在）
-        npcComponent = GetComponent<NPC>();
+        npc = GetComponent<NPC>();
         
         // 获取Animator组件
         animator = GetComponent<Animator>();
@@ -123,6 +124,7 @@ public class NPCMovement : MonoBehaviour
         navAgent.angularSpeed = npcMovementConfig.turnSpeed;
         navAgent.acceleration = npcMovementConfig.acceleration;
         navAgent.obstacleAvoidanceType = ObstacleAvoidanceType.MedQualityObstacleAvoidance;
+        // navAgent.isStopped = true; // 默认停止移动
 
         // 顺便设置移动属性
         stoppingDistance = npcMovementConfig.stoppingDistance;
@@ -148,7 +150,7 @@ public class NPCMovement : MonoBehaviour
             StopCoroutine(movementCoroutine);
         }
         // TODO: 这里需要根据NPC的配置来决定是否开启随机移动
-        // movementCoroutine = StartCoroutine(RandomMovementLoop());
+        movementCoroutine = StartCoroutine(RandomMovementLoop());
         Debug.Log($"[NPCMovement] {name} 开始随机移动");
     }
     
@@ -189,7 +191,7 @@ public class NPCMovement : MonoBehaviour
             if (randomTarget != Vector3.zero)
             {
                 // 移动到目标点
-                yield return StartCoroutine(MoveToTarget(randomTarget));
+                yield return StartCoroutine(MoveToTargetCoroutine(randomTarget));
                 
                 // 到达后等待
                 yield return StartCoroutine(WaitAtTarget());
@@ -243,18 +245,25 @@ public class NPCMovement : MonoBehaviour
         return Vector3.zero;
     }
     
-    private IEnumerator MoveToTarget(Vector3 target)
+    public void MoveToTarget(Vector3 target){
+        if(navAgent == null || target == null) return;
+        if(movementCoroutine != null){
+            StopCoroutine(movementCoroutine);
+        }
+
+        movementCoroutine = StartCoroutine(MoveToTargetCoroutine(target));
+    }
+    private IEnumerator MoveToTargetCoroutine(Vector3 target, float speed = 0.5f)
     {
         currentTarget = target;
         isMoving = true;
         float moveStartTime = Time.time;
-        
-        // 更新NPC状态（如果有NPC组件）
-        if (npcComponent != null)
-        {
-            npcComponent.ChangeState(NPCState.MovingToSource);
-        }
-        
+        isInPosition = false;
+        // 记录原速度，设置新速度，允许移动
+        float previousSpeed = navAgent.speed;
+        navAgent.speed = speed;
+        navAgent.isStopped = false;
+
         // 设置NavMeshAgent目标
         navAgent.SetDestination(target);
         
@@ -283,25 +292,30 @@ public class NPCMovement : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
+        currentTarget = Vector3.zero;
         isMoving = false;
         totalMoves++;
         totalMoveTime += Time.time - moveStartTime;
-        
+        isInPosition = true;
+        // 恢复原速度,并停止移动
+        navAgent.speed = previousSpeed;
+        navAgent.isStopped = true;
+
         if (showDebugInfo)
         {
             Debug.Log($"[NPCMovement] {name} 到达目标点 {target}，移动次数: {totalMoves}");
         }
     }
-    
+    public void MoveToRandomPosition(){
+        Vector3 randomTarget = GenerateRandomTarget();
+        if(randomTarget != Vector3.zero){
+            MoveToTarget(randomTarget);
+        }
+    }
     private IEnumerator WaitAtTarget()
     {
         isWaiting = true;
         
-        // 更新NPC状态
-        if (npcComponent != null)
-        {
-            npcComponent.ChangeState(NPCState.Idle);
-        }
         
         float waitTime = Random.Range(minWaitTime, maxWaitTime);
         
@@ -336,6 +350,7 @@ public class NPCMovement : MonoBehaviour
         }else{
             animator.SetFloat("Speed",0);
         }
+
         // // 监控NavMeshAgent状态
         // if (navAgent != null && !navAgent.isOnNavMesh)
         // {

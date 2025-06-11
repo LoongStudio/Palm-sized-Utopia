@@ -339,24 +339,24 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         npcComponent.SetData(npcData);
 
         
-        // 2. 设置NavMeshAgent
-        NavMeshAgent navAgent = npcObject.GetComponent<NavMeshAgent>();
-        if (navAgent == null)
-        {
-            navAgent = npcObject.AddComponent<NavMeshAgent>();
-            Debug.Log($"[NPCSpawner] 添加NavMeshAgent组件: {npcObject.name}");
-        }
+        // // 2. 设置NavMeshAgent
+        // NavMeshAgent navAgent = npcObject.GetComponent<NavMeshAgent>();
+        // if (navAgent == null)
+        // {
+        //     navAgent = npcObject.AddComponent<NavMeshAgent>();
+        //     Debug.Log($"[NPCSpawner] 添加NavMeshAgent组件: {npcObject.name}");
+        // }
         
 
-        // 3. 设置NPCMovement
-        NPCMovement movement = npcObject.GetComponent<NPCMovement>();
-        if (movement == null)
-        {
-            movement = npcObject.AddComponent<NPCMovement>();
-            Debug.Log($"[NPCSpawner] 添加NPCMovement组件: {npcObject.name}");
-        }
-        // TODO: 设置NPCMovement
-        movement.npcMovementConfig = npcMovementConfig;
+        // // 3. 设置NPCMovement
+        // NPCMovement movement = npcObject.GetComponent<NPCMovement>();
+        // if (movement == null)
+        // {
+        //     movement = npcObject.AddComponent<NPCMovement>();
+        //     Debug.Log($"[NPCSpawner] 添加NPCMovement组件: {npcObject.name}");
+        // }
+        // // TODO: 设置NPCMovement
+        // movement.npcMovementConfig = npcMovementConfig;
 
         // 4. 添加可选组件
         SetupOptionalComponents(npcObject);
@@ -433,13 +433,14 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         
         // 重新启用NavMeshAgent
         navAgent.enabled = true;
-        
-        // 启动随机移动（如果有的话）
-        var movementController = npcObject.GetComponent<NPCMovement>();
-        if (movementController != null)
+
+        // 设置NPC为落地状态
+        var npc = npcObject.GetComponent<NPC>();
+        if (npc != null)
         {
-            movementController.StartRandomMovement();
+            npc.movement.isLanded = true;
         }
+        
         
         if (showDebugInfo)
         {

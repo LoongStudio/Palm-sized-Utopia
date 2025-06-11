@@ -12,11 +12,11 @@ public class NPCStateMachine : MonoBehaviour
     public Animator animator;
 
     [Header("状态机调试")]
-    [SerializeField] protected bool showDebugLogs = true;
-    [SerializeField] protected NPCState initialState;
-    [SerializeField] protected NPCStateBase currentState;
-    [SerializeField] protected NPCStateBase previousState;
-    [SerializeField] protected float stateTimer = 0f;
+    [SerializeField] private bool showDebugLogs = true;
+    [SerializeField] private NPCState initialState;
+    [SerializeField] private NPCStateBase currentState;
+    [SerializeField] private NPCStateBase previousState;
+    [SerializeField] private float stateTimer = 0f;
 
     public NPCState CurrentState => GetStateType(currentState);
     public NPCState PreviousState => GetStateType(previousState);
@@ -29,6 +29,13 @@ public class NPCStateMachine : MonoBehaviour
         if (npc == null)
         {
             Debug.LogError($"[StateMachine] {name} 缺少NPC组件！");
+            enabled = false;
+            return;
+        }
+        animator = npc.GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogError($"[StateMachine] {name} 缺少Animator组件！");
             enabled = false;
             return;
         }
@@ -75,8 +82,13 @@ public class NPCStateMachine : MonoBehaviour
     private void InitializeStates()
     {
         // TODO: 获取或创建各种状态
-        states[NPCState.Idle] = new NPCIdleState(this, npc);
         states[NPCState.Generated] = new NPCGeneratedState(this, npc);
+        states[NPCState.Idle] = new NPCIdleState(this, npc);
+        states[NPCState.PrepareForSocial] = new NPCSocialPreparaionState(this, npc);
+        states[NPCState.MovingToSocial] = new NPCMoveToSocialState(this, npc);
+        states[NPCState.Social] = new NPCSocialState(this, npc);
+        states[NPCState.SocialEndHappy] = new NPCSocialEndHappyState(this, npc);
+        states[NPCState.SocialEndFight] = new NPCSocialEndFightState(this, npc);
         
         if (showDebugLogs)
         {
@@ -190,6 +202,14 @@ public class NPCStateMachine : MonoBehaviour
         
         return NPCState.Idle;
     }
+    #endregion
+    #region 调试
+    [ContextMenu("Print Current State")]
+    public void PrintCurrentState()
+    {
+        Debug.Log($"[NPCStateMachine] {npc.name} 当前状态: {CurrentState}");
+    }
+    
     #endregion
 }
 

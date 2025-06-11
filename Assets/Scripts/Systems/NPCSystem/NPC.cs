@@ -20,9 +20,10 @@ public class NPC : MonoBehaviour, ISaveable
     // [SerializeField] private int defaultRelationship = 50;
     
     [Header("状态管理")]
-    public NPCState currentState = NPCState.Idle;
-    public NPCState previousState;
-    private float stateTimer;
+    public NPCStateMachine stateMachine;
+    public NPCState currentState => stateMachine.CurrentState;
+    public NPCState previousState => stateMachine.PreviousState;
+    public float stateTimer => stateMachine.GetStateTimer();
 
     [Header("任务和背包")]
     public Inventory inventory;           // 背包
@@ -30,27 +31,40 @@ public class NPC : MonoBehaviour, ISaveable
     public NavMeshAgent navAgent;           // 导航组件
     public int transferSpeed = 10;          // 转移物体的数量
     [Header("移动配置")]
+    public NPCMovement movement;
     public float stoppingDistance = 0.05f;              // 向目标移动时可接受的距离阈值
     [SerializeField] private float turnSpeed = 5f;              // 转向速度
     [SerializeField] private float turnThreshold = 10f;         // 转向阈值角度
     [SerializeField] private bool enableTurnBeforeMove = true;  // 是否在移动前转向
-    
     private bool isTurning = false;                             // 是否正在转向
     private Vector3 targetDirection;                            // 目标方向
     #endregion
     
     #region Unity生命周期
+    private void Awake() {
+        // 添加状态机组件
+        if(stateMachine == null){
+            stateMachine = gameObject.AddComponent<NPCStateMachine>();
+        }
+    }
     private void Start() {
+
         if(navAgent == null){
             navAgent = GetComponent<NavMeshAgent>();
         }
+
+        movement = GetComponent<NPCMovement>();
+        if(movement == null){
+            movement = gameObject.AddComponent<NPCMovement>();
+        }
+
+        
         // 由NPCManager订阅事件并分发，防止广播风暴
         // SubscribeToEvents();
     }
     
     private void Update()
     {
-        UpdateState();
         UpdateMovement();
     }
     private void OnDestroy() {
@@ -76,21 +90,21 @@ public class NPC : MonoBehaviour, ISaveable
     /// 重置NPC的动态数据, 可在生成一个全新的NPC时调用
     /// </summary>
     public void ResetDynamicData() {
-        // TODO: 从存档加载NPC数据
-        ChangeState(NPCState.Idle);
-        currentTarget = null; // 解除目标位置
-        assignedBuilding = null; // 解除建筑分配
-        // 清空背包
-        if(inventory != null){
-            inventory.Clear(); 
-        }
-        relationships.Clear(); // 清空社交关系
+        // // TODO: 从存档加载NPC数据
+        // ChangeState(NPCState.Idle);
+        // currentTarget = null; // 解除目标位置
+        // assignedBuilding = null; // 解除建筑分配
+        // // 清空背包
+        // if(inventory != null){
+        //     inventory.Clear(); 
+        // }
+        // relationships.Clear(); // 清空社交关系
 
-        // 重置NavMeshAgent
-        if(navAgent != null){
-            navAgent.enabled = false;
-            navAgent.enabled = true;
-        }
+        // // 重置NavMeshAgent
+        // if(navAgent != null){
+        //     navAgent.enabled = false;
+        //     navAgent.enabled = true;
+        // }
     }
     
     /// <summary>
@@ -101,9 +115,7 @@ public class NPC : MonoBehaviour, ISaveable
         data = other.data;
         assignedBuilding = other.assignedBuilding;
         relationships = other.relationships;
-        currentState = other.currentState;
-        previousState = other.previousState;
-        stateTimer = other.stateTimer;
+        stateMachine = other.stateMachine;
         inventory = other.inventory;
         currentTarget = other.currentTarget;
     }
@@ -145,41 +157,10 @@ public class NPC : MonoBehaviour, ISaveable
     { 
         if (currentState != newState)
         {
-            previousState = currentState;
-            currentState = newState;
-            stateTimer = 0f;
-            
-            // 触发状态变化事件
-            var eventArgs = new NPCEventArgs
-            {
-                npc = this,
-                eventType = NPCEventArgs.NPCEventType.StateChanged,
-                oldState = previousState,
-                newState = currentState,
-                timestamp = System.DateTime.Now
-            };
-            GameEvents.TriggerNPCStateChanged(eventArgs);
+            stateMachine.ChangeState(newState);
         }
     }
     
-    private void UpdateState() 
-    { 
-        stateTimer += Time.deltaTime;
-
-        // TODO: 状态机
-        switch (currentState){
-            case NPCState.Working:
-                break;
-            case NPCState.Resting:
-                break;
-            case NPCState.Idle:
-                break;
-            case NPCState.Social:
-                break;
-            default:
-                break;
-        }
-    }
     #endregion
 
     #region 工作相关
@@ -261,7 +242,6 @@ public class NPC : MonoBehaviour, ISaveable
         {
             yield return new WaitForSeconds(1f);
         }
-        currentState = NPCState.Idle;
         ChangeState(NPCState.Idle);
         assignedBuilding = null;
     }
@@ -463,49 +443,49 @@ public class NPC : MonoBehaviour, ISaveable
         }
     }
     
-    public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
+    // public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
         
-        // 使用NavMeshAgent移动
-        if (navAgent != null)
-        {
-            Debug.Log($"[NPC] {data.npcName} 开始移动到社交位置: {position}");
-            // 保存当前位置和速度
-            // Vector3 previousPosition = transform.position;
-            float previousSpeed = navAgent.speed;
-            // 设置移动速度
-            navAgent.speed = socialMoveSpeed;
+    //     // 使用NavMeshAgent移动
+    //     if (navAgent != null)
+    //     {
+    //         Debug.Log($"[NPC] {data.npcName} 开始移动到社交位置: {position}");
+    //         // 保存当前位置和速度
+    //         // Vector3 previousPosition = transform.position;
+    //         float previousSpeed = navAgent.speed;
+    //         // 设置移动速度
+    //         navAgent.speed = socialMoveSpeed;
             
-            // 如果启用转向，先转向目标
-            if (enableTurnBeforeMove)
-            {
-                // TODO: 这里需要优化，因为这里会立即转向，不合理
-                TurnToPositionImmediate(position); // 社交移动使用立即转向，避免复杂的异步逻辑
-            }
+    //         // 如果启用转向，先转向目标
+    //         if (enableTurnBeforeMove)
+    //         {
+    //             // TODO: 这里需要优化，因为这里会立即转向，不合理
+    //             TurnToPositionImmediate(position); // 社交移动使用立即转向，避免复杂的异步逻辑
+    //         }
             
-            // 设置目标位置
-            navAgent.SetDestination(position);
+    //         // 设置目标位置
+    //         navAgent.SetDestination(position);
             
-            // 等待到达目标位置
-            while (navAgent.pathPending || navAgent.remainingDistance > navAgent.stoppingDistance)
-            {
-                // 检查是否卡住
-                if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > navAgent.stoppingDistance)
-                {
-                    // 可能卡住了，等待一小段时间
-                    yield return new WaitForSeconds(0.5f);
-                }
-                else
-                {
-                    yield return new WaitForSeconds(0.1f);
-                }
-            }
-            // 恢复速度
-            navAgent.speed = previousSpeed;
-            Debug.Log($"[NPC] {data.npcName} 已到达社交位置");
-        } else{
-            Debug.LogError($"[NPC] {data.npcName} 没有NavMeshAgent组件，无法移动");
-        }
-    }
+    //         // 等待到达目标位置
+    //         while (navAgent.pathPending || navAgent.remainingDistance > navAgent.stoppingDistance)
+    //         {
+    //             // 检查是否卡住
+    //             if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > navAgent.stoppingDistance)
+    //             {
+    //                 // 可能卡住了，等待一小段时间
+    //                 yield return new WaitForSeconds(0.5f);
+    //             }
+    //             else
+    //             {
+    //                 yield return new WaitForSeconds(0.1f);
+    //             }
+    //         }
+    //         // 恢复速度
+    //         navAgent.speed = previousSpeed;
+    //         Debug.Log($"[NPC] {data.npcName} 已到达社交位置");
+    //     } else{
+    //         Debug.LogError($"[NPC] {data.npcName} 没有NavMeshAgent组件，无法移动");
+    //     }
+    // }
     
     public void AssignTask() {}
     

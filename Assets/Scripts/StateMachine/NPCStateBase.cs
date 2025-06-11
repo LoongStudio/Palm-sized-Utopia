@@ -12,7 +12,7 @@ public abstract class NPCStateBase
 
     protected NPCStateMachine stateMachine;
     protected NPC npc;
-    private Animator animator;
+    protected Animator animator;
     
     public virtual float stateExitTime{get;protected set;} = 0f;
     public virtual bool exitStateWhenTimeOut{get;protected set;} = false;
