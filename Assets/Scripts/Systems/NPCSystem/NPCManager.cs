@@ -239,8 +239,6 @@ public class NPCManager : SingletonManager<NPCManager>
         }
 
         // TODO：NPC的社交互动结束后的逻辑
-        // npc1.ChangeState(NPCState.Idle);
-        // npc2.ChangeState(NPCState.Idle);
     }
     #endregion
 

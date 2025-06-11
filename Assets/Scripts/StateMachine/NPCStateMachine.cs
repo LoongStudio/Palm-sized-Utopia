@@ -89,6 +89,16 @@ public class NPCStateMachine : MonoBehaviour
         states[NPCState.Social] = new NPCSocialState(this, npc);
         states[NPCState.SocialEndHappy] = new NPCSocialEndHappyState(this, npc);
         states[NPCState.SocialEndFight] = new NPCSocialEndFightState(this, npc);
+        // 工作相关状态
+        states[NPCState.MovingToWork] = new NPCMovingToWorkState(NPCState.MovingToWork, this, npc);
+        states[NPCState.Working] = new NPCWorkingState(NPCState.Working, this, npc);
+        states[NPCState.Transporting] = new NPCTransportingState(NPCState.Transporting, this, npc);
+        states[NPCState.WorkComplete] = new NPCWorkCompleteState(NPCState.WorkComplete, this, npc);
+        
+        // 回家相关状态
+        states[NPCState.MovingHome] = new NPCMovingHomeState(NPCState.MovingHome, this, npc);
+        states[NPCState.ArrivedHome] = new NPCArrivedHomeState(NPCState.ArrivedHome, this, npc);
+        states[NPCState.Sleeping] = new NPCSleepingState(NPCState.Sleeping, this, npc);
         
         if (showDebugLogs)
         {
