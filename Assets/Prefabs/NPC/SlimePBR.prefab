@@ -113,6 +113,7 @@ GameObject:
   - component: {fileID: -3640491458511613307}
   - component: {fileID: 6222079410607490007}
   - component: {fileID: -3895718881952932244}
+  - component: {fileID: 6802671182719644152}
   m_Layer: 0
   m_Name: SlimePBR
   m_TagString: Untagged
@@ -195,7 +196,9 @@ MonoBehaviour:
     personality: 0
     traits: 
   assignedBuilding: {fileID: 0}
-  stateMachine: {fileID: 0}
+  housing: {fileID: 0}
+  currentState: 0
+  previousState: 0
   inventory:
     currentSubResource: []
     maximumSubResource: []
@@ -204,7 +207,6 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   navAgent: {fileID: 0}
   transferSpeed: 10
-  movement: {fileID: 0}
   stoppingDistance: 0.05
   turnSpeed: 5
   turnThreshold: 10
@@ -232,7 +234,6 @@ MonoBehaviour:
   pathColor: {r: 0, g: 1, b: 0, a: 1}
   isRandomMovementEnabled: 1
   isLanded: 0
-  isInPosition: 0
 --- !u!195 &-3895718881952932244
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -255,6 +256,22 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &6802671182719644152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d448547f0452c142ad5114ab8864959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  showDebugLogs: 1
+  initialState: 0
+  stateTimer: 0
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0

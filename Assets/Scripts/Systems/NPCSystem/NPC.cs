@@ -9,6 +9,7 @@ public class NPC : MonoBehaviour, ISaveable
     [Header("基本信息")]
     public NPCData data;
     public Building assignedBuilding;
+    public HousingBuilding housing; // 添加住房属性
     
     [Header("社交系统")]
     public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
