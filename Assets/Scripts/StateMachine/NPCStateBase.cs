@@ -9,24 +9,23 @@ public abstract class NPCStateBase
     [Header("状态基础信息")]
     [SerializeField] protected bool showDebugInfo = true;
     [SerializeField] protected string stateDescription = "";
-    [SerializeField] public NPCState State;
+
     protected NPCStateMachine stateMachine;
     protected NPC npc;
-    private Animator animator;
+    protected Animator animator;
+    protected NPCState stateType;
     
     public virtual float stateExitTime{get;protected set;} = 0f;
     public virtual bool exitStateWhenTimeOut{get;protected set;} = false;
     public virtual NPCState nextState{get;protected set;} = NPCState.Idle;
 
     // 构造函数
-    public NPCStateBase(NPCState state, NPCStateMachine stateMachine, NPC npc){
-        this.State = state;
+    public NPCStateBase(NPCState stateType, NPCStateMachine stateMachine, NPC npc){
+        this.stateType = stateType;
         this.stateMachine = stateMachine;
         this.npc = npc;
         this.animator = stateMachine.animator;
     }
-    
-    
     
     #region 状态生命周期
     
@@ -36,7 +35,6 @@ public abstract class NPCStateBase
     public virtual void EnterState()
     {
         OnEnterState();
-        
     }
     
     /// <summary>
@@ -94,7 +92,6 @@ public abstract class NPCStateBase
     
     #endregion
     
-    
     #region 辅助方法
     
     /// <summary>
@@ -107,10 +104,8 @@ public abstract class NPCStateBase
             return stateDescription;
         }
         
-        return $"{GetType().Name} - 描述: {stateDescription}";
+        return $"{stateType} - {GetType().Name}";
     }
-    
-    
     
     #endregion
     
@@ -143,5 +138,4 @@ public abstract class NPCStateBase
     protected virtual void OnStateResumed() { }
     
     #endregion
-
 }

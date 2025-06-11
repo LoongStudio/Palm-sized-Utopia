@@ -1,18 +1,19 @@
 // NPC状态
 public enum NPCState
 {
-    Generated, // 生成
-    Working,   // 工作
-    Resting,   // 休息
-    Idle,      // 空闲
-    Social,    // 社交
-    MovingToSocial, // 前往社交位置
-    Transition, // 状态转换中
-    MovingToSource,      // 前往采集点
-    Collecting,          // 采集中
-    MovingToDestination, // 前往目的地
-    Delivering,          // 卸货中
-    WaitingForTask       // 等待任务
+    Generated,       // 生成
+    Idle,           // 空闲
+    SocialPrepare,  // 社交准备
+    MovingToSocial, // 前往社交
+    Socializing,    // 社交进行
+    SocialSettle,   // 社交结算
+    MovingToWork,   // 前往工作
+    Working,        // 进行工作
+    Transporting,   // 运输阶段
+    WorkComplete,   // 完成工作
+    MovingHome,     // 回家阶段
+    ArrivedHome,    // 到家阶段
+    Sleeping        // 休眠阶段
 }
 
 // NPC性格

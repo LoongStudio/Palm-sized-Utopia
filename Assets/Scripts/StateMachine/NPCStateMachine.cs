@@ -80,6 +80,23 @@ public class NPCStateMachine : MonoBehaviour
         states[NPCState.Idle] = new NPCIdleState(NPCState.Idle, this, npc);
         states[NPCState.Generated] = new NPCGeneratedState(NPCState.Generated, this, npc);
         
+        // 社交相关状态
+        states[NPCState.SocialPrepare] = new NPCSocialPrepareState(NPCState.SocialPrepare, this, npc);
+        states[NPCState.MovingToSocial] = new NPCMovingToSocialState(NPCState.MovingToSocial, this, npc);
+        states[NPCState.Socializing] = new NPCSocializingState(NPCState.Socializing, this, npc);
+        states[NPCState.SocialSettle] = new NPCSocialSettleState(NPCState.SocialSettle, this, npc);
+        
+        // 工作相关状态
+        states[NPCState.MovingToWork] = new NPCMovingToWorkState(NPCState.MovingToWork, this, npc);
+        states[NPCState.Working] = new NPCWorkingState(NPCState.Working, this, npc);
+        states[NPCState.Transporting] = new NPCTransportingState(NPCState.Transporting, this, npc);
+        states[NPCState.WorkComplete] = new NPCWorkCompleteState(NPCState.WorkComplete, this, npc);
+        
+        // 回家相关状态
+        states[NPCState.MovingHome] = new NPCMovingHomeState(NPCState.MovingHome, this, npc);
+        states[NPCState.ArrivedHome] = new NPCArrivedHomeState(NPCState.ArrivedHome, this, npc);
+        states[NPCState.Sleeping] = new NPCSleepingState(NPCState.Sleeping, this, npc);
+        
         if (showDebugLogs)
         {
             Debug.Log($"[StateMachine] {name} 初始化了 {states.Count} 个状态");
