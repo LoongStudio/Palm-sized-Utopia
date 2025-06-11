@@ -109,6 +109,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1370650100185386935}
   - component: {fileID: 893983246051486831}
+  - component: {fileID: -4941050625622135936}
+  - component: {fileID: -3640491458511613307}
+  - component: {fileID: 6222079410607490007}
+  - component: {fileID: -3895718881952932244}
   m_Layer: 0
   m_Name: SlimePBR
   m_TagString: Untagged
@@ -155,6 +159,102 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-4941050625622135936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad5ceb1a7ee697341b2ebe8bb2675d69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-3640491458511613307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a9d110ea41a7fe419e3be180b5dbf73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data:
+    npcName: 
+    baseSalary: 0
+    restTimeStart: 0
+    restTimeEnd: 0
+    workTimeStart: 0
+    workTimeEnd: 0
+    baseWorkAbility: 0
+    itemCapacity: 0
+    personality: 0
+    traits: 
+  assignedBuilding: {fileID: 0}
+  stateMachine: {fileID: 0}
+  inventory:
+    currentSubResource: []
+    maximumSubResource: []
+    whiteList: []
+    blackList: []
+  currentTarget: {fileID: 0}
+  navAgent: {fileID: 0}
+  transferSpeed: 10
+  movement: {fileID: 0}
+  stoppingDistance: 0.05
+  turnSpeed: 5
+  turnThreshold: 10
+  enableTurnBeforeMove: 1
+--- !u!114 &6222079410607490007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee3921e6d291297458907dfe8a9a33b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcMovementConfig: {fileID: 11400000, guid: f149d6c08bc9fa44f8ad5470f95bea6f, type: 2}
+  moveRadius: 3
+  minWaitTime: 1
+  maxWaitTime: 2
+  movementSpeed: 2
+  stoppingDistance: 0.5
+  showDebugInfo: 1
+  drawGizmos: 1
+  pathColor: {r: 0, g: 1, b: 0, a: 1}
+  isRandomMovementEnabled: 1
+  isLanded: 0
+  isInPosition: 0
+--- !u!195 &-3895718881952932244
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0
