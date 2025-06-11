@@ -12,9 +12,27 @@ public class NPCMovingToWorkState : NPCStateBase
     protected override void OnEnterState()
     {
         base.OnEnterState();
+        
+        // 如果没有待处理的工作，寻找新的工作
+        if (!npc.PendingWorkTarget.HasValue)
+        {
+            var targetBuilding = BuildingManager.Instance.GetBestWorkBuildingForNPC(npc);
+            if (targetBuilding != null)
+            {
+                npc.currentTarget.position = targetBuilding.transform.position;
+                npc.SetPendingWork(targetBuilding.transform.position, targetBuilding);
+            }
+            else
+            {
+                // 如果没有找到工作，返回空闲状态
+                stateMachine.ChangeState(NPCState.Idle);
+                return;
+            }
+        }
+
         if (showDebugInfo)
         {
-            Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 正在前往工作地点");
+            Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 正在前往工作地点: {npc.AssignedBuilding?.data.buildingName ?? "未知"}");
         }
     }
 
