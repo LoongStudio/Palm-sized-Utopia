@@ -252,7 +252,7 @@ public class NPCMovement : MonoBehaviour
         // 更新NPC状态（如果有NPC组件）
         if (npcComponent != null)
         {
-            npcComponent.ChangeState(NPCState.MovingToSource);
+            // npcComponent.ChangeState(NPCState.T); TODO: 状态机算法重写中
         }
         
         // 设置NavMeshAgent目标
