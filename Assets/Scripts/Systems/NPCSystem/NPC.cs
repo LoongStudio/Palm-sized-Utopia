@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
+using UnityEditor;
 
 public class NPC : MonoBehaviour, ISaveable
 {
@@ -21,8 +22,9 @@ public class NPC : MonoBehaviour, ISaveable
     // [SerializeField] private int defaultRelationship = 50;
     
     [Header("状态管理")]
-    public NPCState currentState = NPCState.Idle;
-    public NPCState previousState;
+    public NPCStateMachine stateMachine;
+    public NPCState currentState => stateMachine.currentState.State;
+    public NPCState previousState => stateMachine.previousState.State;
     private float stateTimer;
 
     [Header("任务和背包")]
@@ -44,6 +46,10 @@ public class NPC : MonoBehaviour, ISaveable
     private void Start() {
         if(navAgent == null){
             navAgent = GetComponent<NavMeshAgent>();
+        }
+        if (stateMachine == null)
+        {
+            stateMachine = GetComponent<NPCStateMachine>();
         }
         // 由NPCManager订阅事件并分发，防止广播风暴
         // SubscribeToEvents();
@@ -102,8 +108,6 @@ public class NPC : MonoBehaviour, ISaveable
         data = other.data;
         assignedBuilding = other.assignedBuilding;
         relationships = other.relationships;
-        currentState = other.currentState;
-        previousState = other.previousState;
         stateTimer = other.stateTimer;
         inventory = other.inventory;
         currentTarget = other.currentTarget;
@@ -144,23 +148,24 @@ public class NPC : MonoBehaviour, ISaveable
     #region 状态管理
     public void ChangeState(NPCState newState) 
     { 
-        if (currentState != newState)
-        {
-            previousState = currentState;
-            currentState = newState;
-            stateTimer = 0f;
-            
-            // 触发状态变化事件
-            var eventArgs = new NPCEventArgs
-            {
-                npc = this,
-                eventType = NPCEventArgs.NPCEventType.StateChanged,
-                oldState = previousState,
-                newState = currentState,
-                timestamp = System.DateTime.Now
-            };
-            GameEvents.TriggerNPCStateChanged(eventArgs);
-        }
+        stateMachine.ChangeState(newState);
+        // if (currentState != newState)
+        // {
+        //     previousState = currentState;
+        //     currentState = newState;
+        //     stateTimer = 0f;
+        //     
+        //     // 触发状态变化事件
+        //     var eventArgs = new NPCEventArgs
+        //     {
+        //         npc = this,
+        //         eventType = NPCEventArgs.NPCEventType.StateChanged,
+        //         oldState = previousState,
+        //         newState = currentState,
+        //         timestamp = System.DateTime.Now
+        //     };
+        //     GameEvents.TriggerNPCStateChanged(eventArgs);
+        // }
     }
     
     private void UpdateState() 
@@ -262,7 +267,7 @@ public class NPC : MonoBehaviour, ISaveable
         {
             yield return new WaitForSeconds(1f);
         }
-        currentState = NPCState.Idle;
+        // currentState = NPCState.Idle;
         ChangeState(NPCState.Idle);
         assignedBuilding = null;
     }

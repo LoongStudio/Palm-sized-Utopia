@@ -14,8 +14,8 @@ public class NPCStateMachine : MonoBehaviour
     [Header("状态机调试")]
     [SerializeField] protected bool showDebugLogs = true;
     [SerializeField] protected NPCState initialState;
-    [SerializeField] protected NPCStateBase currentState;
-    [SerializeField] protected NPCStateBase previousState;
+    [SerializeField] public NPCStateBase currentState;
+    [SerializeField] public NPCStateBase previousState;
     [SerializeField] protected float stateTimer = 0f;
 
     public NPCState CurrentState => GetStateType(currentState);
@@ -75,8 +75,8 @@ public class NPCStateMachine : MonoBehaviour
     private void InitializeStates()
     {
         // TODO: 获取或创建各种状态
-        states[NPCState.Idle] = new NPCIdleState(this, npc);
-        states[NPCState.Generated] = new NPCGeneratedState(this, npc);
+        states[NPCState.Idle] = new NPCIdleState(NPCState.Idle, this, npc);
+        states[NPCState.Generated] = new NPCGeneratedState(NPCState.Generated, this, npc);
         
         if (showDebugLogs)
         {

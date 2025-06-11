@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class NPCIdleState : NPCStateBase
 {
-    public NPCIdleState(NPCStateMachine stateMachine, NPC npc) : base(stateMachine, npc)
+    public NPCIdleState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(state, stateMachine, npc)
     {
     }
 

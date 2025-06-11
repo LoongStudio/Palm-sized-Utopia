@@ -151,8 +151,8 @@ public class NPCManager : SingletonManager<NPCManager>
     private IEnumerator ExecutePrepareForSocialInteraction(NPC npc1, NPC npc2)
     {
         // 阶段0: 修改NPC状态
-        npc1.currentState = NPCState.MovingToSocial;
-        npc2.currentState = NPCState.MovingToSocial;
+        // npc1.currentState = NPCState.MovingToSocial;
+        // npc2.currentState = NPCState.MovingToSocial;
         
         // 阶段1: 计算社交位置
         var socialPositions = CalculateSocialPositions(npc1, npc2);
