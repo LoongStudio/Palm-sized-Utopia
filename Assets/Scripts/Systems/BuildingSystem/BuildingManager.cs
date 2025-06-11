@@ -234,7 +234,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
     public bool BuildBuilding(BuildingSubType type, Vector2Int position) { return false; }
     public bool UpgradeBuilding(Building building) { return false; }
     public bool DestroyBuilding(Building building) { return false; }
-    public bool RegistBuilding(Building building)
+    public bool RegisterBuilding(Building building)
     {
         if (_buildings.Contains(building)) return false;
         _buildings.Add(building);
