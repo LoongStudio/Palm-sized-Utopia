@@ -59,7 +59,8 @@ public class NPC : MonoBehaviour, ISaveable
     private void Awake() {
         // 添加状态机组件
         if(stateMachine == null){
-            stateMachine = gameObject.AddComponent<NPCStateMachine>();
+            if (!TryGetComponent<NPCStateMachine>(out stateMachine))
+                stateMachine = gameObject.AddComponent<NPCStateMachine>();
         }
     }
     private void Start() {
@@ -71,7 +72,6 @@ public class NPC : MonoBehaviour, ISaveable
         if(movement == null){
             movement = gameObject.AddComponent<NPCMovement>();
         }
-
         
         // 由NPCManager订阅事件并分发，防止广播风暴
         // SubscribeToEvents();

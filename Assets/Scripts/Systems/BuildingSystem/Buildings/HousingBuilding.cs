@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public abstract class HousingBuilding : Building
 {
@@ -7,6 +8,7 @@ public abstract class HousingBuilding : Building
 
 	public bool RegisterLivingNPC(NPC npc)
 	{
+		Debug.Log($"[住房] 注册住房NPC {npc.name}");
 		if (livingNPCs.Contains(npc) || livingNPCs.Count >= maxLivingNPCs) return false;
 		livingNPCs.Add(npc);
 		return true;
@@ -14,6 +16,7 @@ public abstract class HousingBuilding : Building
 
 	public bool UnRegisterLivingNPC(NPC npc)
 	{
+		Debug.Log($"[住房] 取消注册住房NPC {npc.name}");
 		if (!livingNPCs.Contains(npc)) return false;
 		livingNPCs.Remove(npc);
 		return true;
