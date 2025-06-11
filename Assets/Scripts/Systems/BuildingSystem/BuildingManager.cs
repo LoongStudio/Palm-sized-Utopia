@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+[DisallowMultipleComponent]
 public class BuildingManager : SingletonManager<BuildingManager>
 {
     private List<Building> _buildings;

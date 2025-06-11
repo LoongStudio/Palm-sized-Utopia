@@ -172,6 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad5ceb1a7ee697341b2ebe8bb2675d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: 1
 --- !u!114 &-3640491458511613307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,10 +196,8 @@ MonoBehaviour:
     itemCapacity: 0
     personality: 0
     traits: 
-  assignedBuilding: {fileID: 0}
   housing: {fileID: 0}
-  currentState: 0
-  previousState: 0
+  stateMachine: {fileID: 6802671182719644152}
   inventory:
     currentSubResource: []
     maximumSubResource: []
@@ -207,10 +206,16 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   navAgent: {fileID: 0}
   transferSpeed: 10
+  movement: {fileID: 0}
   stoppingDistance: 0.05
   turnSpeed: 5
   turnThreshold: 10
   enableTurnBeforeMove: 1
+  assignedBuilding: {fileID: 0}
+  restStartHour: 22
+  restEndHour: 6
+  idleTimeWeight: 0.1
+  currentIdleWeight: 0
 --- !u!114 &6222079410607490007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,6 +239,7 @@ MonoBehaviour:
   pathColor: {r: 0, g: 1, b: 0, a: 1}
   isRandomMovementEnabled: 1
   isLanded: 0
+  isInPosition: 0
 --- !u!195 &-3895718881952932244
 NavMeshAgent:
   m_ObjectHideFlags: 0

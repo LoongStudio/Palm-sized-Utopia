@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public class NPCStateMachine : MonoBehaviour
 {
     // 状态字典
@@ -48,7 +49,7 @@ public class NPCStateMachine : MonoBehaviour
         // 设置初始状态
         if (states.Count > 0)
         {
-            // ChangeState(NPCState.Generated);
+            ChangeState(NPCState.Generated);
         }
         else
         {
