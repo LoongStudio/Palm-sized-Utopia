@@ -18,8 +18,10 @@ public class NPCStateMachine : MonoBehaviour
     [SerializeField] public NPCStateBase previousState;
     [SerializeField] protected float stateTimer = 0f;
 
+    // 公开属性，用于Inspector显示
     public NPCState CurrentState => GetStateType(currentState);
     public NPCState PreviousState => GetStateType(previousState);
+    public float GetStateTimer() => stateTimer;
 
     #region 生命周期
     
@@ -74,7 +76,7 @@ public class NPCStateMachine : MonoBehaviour
     /// </summary>
     private void InitializeStates()
     {
-        // TODO: 获取或创建各种状态
+        // 初始化各种状态
         states[NPCState.Idle] = new NPCIdleState(NPCState.Idle, this, npc);
         states[NPCState.Generated] = new NPCGeneratedState(NPCState.Generated, this, npc);
         
@@ -111,7 +113,6 @@ public class NPCStateMachine : MonoBehaviour
             return;
         }
         
-
         // 退出当前状态
         if (currentState != null)
         {
@@ -131,7 +132,6 @@ public class NPCStateMachine : MonoBehaviour
         TriggerStateChangeEvent();
     }
 
-
     #endregion
 
     #region 状态查询
@@ -145,10 +145,6 @@ public class NPCStateMachine : MonoBehaviour
     /// </summary>
     public NPCState GetPreviousState() => GetStateType(previousState);
     
-    /// <summary>
-    /// 获取状态持续时间
-    /// </summary>
-    public float GetStateTimer() => stateTimer;
     #endregion
 
     #region 事件处理
