@@ -1203,14 +1203,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2785173545176079049, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
-      propertyPath: data.subType
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 2785173545176079049, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
-      propertyPath: data.buildingType
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 5590697140018055236, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
       propertyPath: m_Name
       value: TestApartment
