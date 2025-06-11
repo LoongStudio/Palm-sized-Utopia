@@ -552,6 +552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 6c67d94c223b9d84fb8928bcc852acb4, type: 2}
   playerCamera: {fileID: 0}
+  maxDragRaycastDistance: 100
 --- !u!114 &1451548090
 MonoBehaviour:
   m_ObjectHideFlags: 0

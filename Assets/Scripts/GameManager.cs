@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameManager : SingletonManager<GameManager>
@@ -12,7 +13,7 @@ public class GameManager : SingletonManager<GameManager>
     
     [Header("游戏状态")]
     public bool isGamePaused;
-    public float gameSpeed = 1f;
+    public float gameSpeed => timeManager.currentTimeScale;
     public System.DateTime gameStartTime;
     public System.DateTime currentGameTime;
     
@@ -51,12 +52,32 @@ public class GameManager : SingletonManager<GameManager>
         // 社交系统由NPCManager自身负责更新，避免重复调用
         // TODO: 在这里添加其他需要集中更新的系统
     }
-    private void UpdateGameTime() { }
+    private void UpdateGameTime()
+    {
+        currentGameTime += TimeSpan.FromSeconds(Time.deltaTime);
+    }
     
     public void StartNewGame() { }
-    public void LoadGame() { }
-    public void SaveGame() { }
-    public void PauseGame() { }
-    public void ResumeGame() { }
-    public void SetGameSpeed(float speed) { }
+    public void LoadGame()
+    {
+        saveManager.LoadGame();
+    }
+    public void SaveGame()
+    {
+        saveManager.SaveGame();
+    }
+    private float _gameSpeedBeforePause;
+    public void PauseGame()
+    {
+        _gameSpeedBeforePause = gameSpeed;
+        SetGameSpeed(0);
+    }
+    public void ResumeGame()
+    {
+        SetGameSpeed(_gameSpeedBeforePause);
+    }
+    public void SetGameSpeed(float speed)
+    {
+        timeManager.SetTimeScale(speed);
+    }
 }
