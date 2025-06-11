@@ -360,27 +360,6 @@ MonoBehaviour:
   latitude: 45
   moonMaxIntensity: 0.3
   sunTwilightIntensity: 0.1
---- !u!1 &120132158 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4704072471082765480, guid: b4a2a18de903a57429843280c168519c, type: 3}
-  m_PrefabInstance: {fileID: 1937368158}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &120132165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 120132158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d448547f0452c142ad5114ab8864959, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 0}
-  showDebugLogs: 1
-  initialState: 0
-  stateTimer: 0
 --- !u!1001 &302657416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -963,10 +942,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4704072471082765480, guid: b4a2a18de903a57429843280c168519c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 120132165}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b4a2a18de903a57429843280c168519c, type: 3}
 --- !u!1001 &1976584859
 PrefabInstance:
