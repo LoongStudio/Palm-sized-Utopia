@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class ResourceManager : SingletonManager<ResourceManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     [SerializeField] public List<Resource> resourcesData;      // 当前资源信息, 以类的形式存储
     private Dictionary<ResourceType, Dictionary<int, int>> resources;      // 当前资源数量
     private Dictionary<ResourceType, int> storageLimit;                   // 存储上限, 同类资源共用一个存储上限
@@ -33,13 +36,15 @@ public class ResourceManager : SingletonManager<ResourceManager>
         {
             resources[resource.type] = new Dictionary<int, int>();
             resources[resource.type][resource.subType] = resource.amount;
-            Debug.Log($"[ResourceManager] 名为 {resource.type} 的资源被设置为 {resource.amount}");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 名为 {resource.type} 的资源被设置为 {resource.amount}");
         }
 
         foreach (var resource in resourcesData)
         {
             storageLimit[resource.type] = resource.storageLimit;
-            Debug.Log($"[ResourceManager] 名为 {resource.type} 的存储上限被设置为 {resource.storageLimit}");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 名为 {resource.type} 的存储上限被设置为 {resource.storageLimit}");
         }
     }
 
@@ -77,20 +82,23 @@ public class ResourceManager : SingletonManager<ResourceManager>
         // 边缘条件判断
         if (amount <= 0)
         {
-            Debug.Log($"[ResourceManager] 添加的资源数量不能小于等于0");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 添加的资源数量不能小于等于0");
             return false;
         }
         // 存储空间判断
         if (IsStorageFull(type, subType))
         {
-            Debug.Log($"[ResourceManager] 名为 {type} 的资源存储已满, 无法添加 {amount} 个");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 名为 {type} 的资源存储已满, 无法添加 {amount} 个");
             return false;
         }
 
         // 存储空间不足判断
         if (resources[type][subType] + amount > storageLimit[type])
         {
-            Debug.Log($"[ResourceManager] 名为 {type} 的资源存储空间不足, 原本数量为 {resources[type][subType]}, 无法添加 {amount} 个, 已将资源数量设置为存储上限 {storageLimit[type]}");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 名为 {type} 的资源存储空间不足, 原本数量为 {resources[type][subType]}, 无法添加 {amount} 个, 已将资源数量设置为存储上限 {storageLimit[type]}");
             resources[type][subType] = storageLimit[type];
             return true;
         }
@@ -99,7 +107,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
         int oldAmount = resources[type][subType];
         resources[type][subType] += amount;
 
-        Debug.Log($"[ResourceManager] 名为 {type} 的资源被添加了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
+        if(showDebugInfo)
+            Debug.Log($"[ResourceManager] 名为 {type} 的资源被添加了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
 
         OnResourceChanged?.Invoke(type, oldAmount, resources[type][subType]);
         return true;
@@ -114,13 +123,15 @@ public class ResourceManager : SingletonManager<ResourceManager>
 
         if (amount <= 0)
         {
-            Debug.Log($"[ResourceManager] 移除的资源数量不能小于等于0");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 移除的资源数量不能小于等于0");
             return false;
         }
 
         if (!HasEnoughResource(type, subType, amount))
         {
-            Debug.Log($"[ResourceManager] 名为 {type} 的资源数量不足, 原本为 {resources[type][subType]}, 无法移除 {amount} 个, 已将资源数量设置为0");
+            if(showDebugInfo)
+                Debug.Log($"[ResourceManager] 名为 {type} 的资源数量不足, 原本为 {resources[type][subType]}, 无法移除 {amount} 个, 已将资源数量设置为0");
             resources[type][subType] = 0;
             return true;
         }
@@ -128,7 +139,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
         int oldAmount = resources[type][subType];
         resources[type][subType] -= amount;
 
-        Debug.Log($"[ResourceManager] 名为 {type} 的资源被移除了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
+        if(showDebugInfo)
+            Debug.Log($"[ResourceManager] 名为 {type} 的资源被移除了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
 
         OnResourceChanged?.Invoke(type, oldAmount, resources[type][subType]);
         return true;
@@ -187,7 +199,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
     public void SetStorageLimit(ResourceType type, int limit)
     {
         storageLimit[type] = limit;
-        Debug.Log($"[ResourceManager]名为 {type} 的存储上限被设置为{limit}");
+        if(showDebugInfo)
+            Debug.Log($"[ResourceManager]名为 {type} 的存储上限被设置为{limit}");
     }
     public int GetStorageLimit(ResourceType type)
     {

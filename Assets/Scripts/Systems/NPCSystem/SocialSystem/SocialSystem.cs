@@ -55,7 +55,8 @@ public class SocialSystem
         GameEvents.OnDayChanged += OnDayChanged;
         GameEvents.OnNPCReadyForSocialInteraction += StartInteraction;
         
-        Debug.Log($"[SocialSystem] 初始化完成，管理 {npcs.Count} 个NPC的社交关系");
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log($"[SocialSystem] 初始化完成，管理 {npcs.Count} 个NPC的社交关系");
     }
 
     public void InitializeUsingConfig()
@@ -87,7 +88,8 @@ public class SocialSystem
         // 检查新的潜在互动和其他操作 - 受时间间隔限制
         if (Time.time - lastCheckTime >= interactionCheckInterval)
         {
-            Debug.Log($"[SocialSystem] 社交系统定期更新");
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 社交系统定期更新");
             
             // 检查新的潜在互动
             CheckForPotentialInteractions();
@@ -147,29 +149,53 @@ public class SocialSystem
 
     private bool CanInteract(NPC npc1, NPC npc2)
     {
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log($"[SocialSystem] 检查两个NPC是否可以互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
         // 检查基本条件，仅有Idle状态的NPC才能进行社交互动
         if (npc1 == npc2 || npc1.currentState != NPCState.Idle || npc2.currentState != NPCState.Idle)
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC不能互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
+        }
         
         // 检查NavMesh中的实际距离
         float navMeshDistance = CalculateNavMeshDistance(npc1.transform.position, npc2.transform.position);
         if (navMeshDistance > interactionRadius || navMeshDistance < 0) // navMeshDistance < 0 表示无法到达
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC距离太远: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
+        }
         
         // 检查冷却时间
         var key = GetInteractionKey(npc1, npc2);
         if (interactionCooldowns.ContainsKey(key) && interactionCooldowns[key] > 0)
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC冷却时间未到: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
+        }
         
         // 检查每日互动次数
         if (GetDailyInteractionCount(npc1) >= maxDailyInteractions || 
             GetDailyInteractionCount(npc2) >= maxDailyInteractions)
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC每日互动次数已满: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
+        }
         
         // 检查是否已经在互动中
         if (IsInInteraction(npc1) || IsInInteraction(npc2))
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC已经在互动中: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
+        }
         
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log($"[SocialSystem] 两个NPC可以互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
         return true;
     }
     private static void PrepareForSocialInteraction(NPC npc1, NPC npc2)
@@ -206,7 +232,8 @@ public class SocialSystem
         IncrementDailyInteractionCount(npc1);
         IncrementDailyInteractionCount(npc2);
         
-        Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 开始社交互动");
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 开始社交互动");
         DebugDrawSocialInteraction(npc1, npc2);
         
         // 触发事件
@@ -222,7 +249,8 @@ public class SocialSystem
 
     private void CompleteInteraction(NPC npc1, NPC npc2, SocialInteraction interaction)
     {
-        Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 社交互动结束");
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 社交互动结束");
         // 计算互动结果
         bool isFight = WillNPCsFight(npc1, npc2);
         int relationshipChange;
@@ -230,14 +258,16 @@ public class SocialSystem
         if (isFight)
         {
             relationshipChange = ProcessFight(npc1, npc2);
-            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 发生了争吵！互相之间好感度下降了 {relationshipChange}");
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 发生了争吵！互相之间好感度下降了 {relationshipChange}");
             npc1.ChangeState(NPCState.SocialEndFight);
             npc2.ChangeState(NPCState.SocialEndFight);
         }
         else
         {
             relationshipChange = ProcessFriendlyChat(npc1, npc2);
-            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 愉快地聊天了！互相之间好感度上升了 {relationshipChange}");
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 愉快地聊天了！互相之间好感度上升了 {relationshipChange}");
             npc1.ChangeState(NPCState.SocialEndHappy);
             npc2.ChangeState(NPCState.SocialEndHappy);
         }
@@ -398,7 +428,8 @@ public class SocialSystem
         npc1.IncreaseRelationship(npc2, bonus);
         npc2.IncreaseRelationship(npc1, bonus);
         
-        Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 因共同工作获得好感度 +{bonus}");
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 因共同工作获得好感度 +{bonus}");
     }
     #endregion
 
@@ -433,7 +464,8 @@ public class SocialSystem
             }
         }
         
-        Debug.Log("[SocialSystem] 处理每日好感度衰减完成");
+        if(NPCManager.Instance.showDebugInfo) 
+            Debug.Log("[SocialSystem] 处理每日好感度衰减完成");
     }
     #endregion
 

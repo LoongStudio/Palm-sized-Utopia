@@ -6,6 +6,8 @@ using UnityEngine.AI;
 
 public class NPCManager : SingletonManager<NPCManager>
 {
+    [Header("调试信息")]
+    [SerializeField] public bool showDebugInfo = false;
     [Header("社交系统")]
     [SerializeField] private bool enableSocialSystem = true;
     [SerializeField] private SocialSystemConfig defaultSocialSystemConfig;
@@ -59,7 +61,8 @@ public class NPCManager : SingletonManager<NPCManager>
         // 3. 初始化社交系统
         InitializeSocialSystem();
 
-        Debug.Log($"[NPCManager] 初始化完成，管理 {allNPCs.Count} 个NPC");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 初始化完成，管理 {allNPCs.Count} 个NPC");
     }
 
     /// <summary>
@@ -74,7 +77,8 @@ public class NPCManager : SingletonManager<NPCManager>
             RegisterNPC(npc);
         }
         
-        Debug.Log($"[NPCManager] 从场景中收集到 {sceneNPCs.Count} 个NPC");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 从场景中收集到 {sceneNPCs.Count} 个NPC");
     }
 
     /// <summary>
@@ -134,7 +138,8 @@ public class NPCManager : SingletonManager<NPCManager>
             return;
         }
 
-        Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 准备开始社交互动");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 准备开始社交互动");
         NPC npc1 = args.npc;
         NPC npc2 = args.otherNPC;
 
@@ -167,7 +172,9 @@ public class NPCManager : SingletonManager<NPCManager>
 
         // 阶段1: 计算社交位置
         var socialPositions = CalculateSocialPositions(npc1, npc2);
-        Debug.Log($"[NPCManager] 计算社交位置为: {socialPositions.npc1Position} 和 {socialPositions.npc2Position}");
+        
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 计算社交位置为: {socialPositions.npc1Position} 和 {socialPositions.npc2Position}");
 
         // 阶段2: 让两个NPC移动到社交位置
         yield return StartCoroutine(MoveNPCsToSocialPositions(npc1, npc2, socialPositions));
@@ -179,7 +186,8 @@ public class NPCManager : SingletonManager<NPCManager>
     /// </summary>
     private IEnumerator MoveNPCsToSocialPositions(NPC npc1, NPC npc2, SocialPositions positions)
     {
-        Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
         // 启动两个NPC的社交移动
         npc1.MoveToTarget(positions.npc1Position);  
         npc2.MoveToTarget(positions.npc2Position);
@@ -205,7 +213,8 @@ public class NPCManager : SingletonManager<NPCManager>
 
         if (npc1.isInPosition && npc2.isInPosition)
         {
-            Debug.Log($"[NPCManager] 两个NPC已到达社交位置，准备就绪");
+            if(showDebugInfo) 
+                Debug.Log($"[NPCManager] 两个NPC已到达社交位置，准备就绪");
             // 触发事件广播准备就绪
             var eventArgs = new NPCEventArgs
             {
@@ -228,7 +237,8 @@ public class NPCManager : SingletonManager<NPCManager>
             Debug.LogWarning("[NPCManager] 社交事件中的NPC为空");
             return;
         }
-        Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 结束社交互动");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 结束社交互动");
         NPC npc1 = args.npc;
         NPC npc2 = args.otherNPC;
 
@@ -272,7 +282,8 @@ public class NPCManager : SingletonManager<NPCManager>
             availableNPCs.Add(npc);
         }
         
-        Debug.Log($"[NPCManager] 注册NPC: {npc.data?.npcName}，当前总数: {allNPCs.Count}");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 注册NPC: {npc.data?.npcName}，当前总数: {allNPCs.Count}");
     }
     
     /// <summary>
@@ -286,7 +297,8 @@ public class NPCManager : SingletonManager<NPCManager>
         allNPCs.Remove(npc);
         availableNPCs.Remove(npc);
         
-        Debug.Log($"[NPCManager] 移除NPC: {npc.data?.npcName}，剩余总数: {allNPCs.Count}");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 移除NPC: {npc.data?.npcName}，剩余总数: {allNPCs.Count}");
     }
     
     /// <summary>
@@ -307,7 +319,8 @@ public class NPCManager : SingletonManager<NPCManager>
             npcData = GenerateRandomNPCData();
         }
 
-        Debug.Log($"[NPCManager] 尝试雇佣NPC: {npcData.npcName}");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 尝试雇佣NPC: {npcData.npcName}");
 
         // 雇佣NPC事件
         var eventArgs = new NPCEventArgs(){
@@ -325,7 +338,8 @@ public class NPCManager : SingletonManager<NPCManager>
         // 注册NPC
         if(args.npc != null){
             RegisterNPC(args.npc);
-            Debug.Log($"[NPCManager] 雇佣NPC成功: {args.npc.data.npcName}");
+            if(showDebugInfo) 
+                Debug.Log($"[NPCManager] 雇佣NPC成功: {args.npc.data.npcName}");
         } else{
             Debug.LogError("[NPCManager] 雇佣NPC失败，原因：NPC实例化失败");
         }
@@ -373,7 +387,8 @@ public class NPCManager : SingletonManager<NPCManager>
         // 生成词条
         npcData.traits = GenerateRandomTraits(activeConfig);
         
-        Debug.Log($"[NPCManager] 生成了新NPC: {npcData.npcName} - 性格:{npcData.personality} - 词条数量:{npcData.traits.Count}");
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 生成了新NPC: {npcData.npcName} - 性格:{npcData.personality} - 词条数量:{npcData.traits.Count}");
         return npcData;
     }
 

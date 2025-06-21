@@ -3,6 +3,9 @@ using UnityEngine;
 /// 输入管理器
 public class InputManager : SingletonManager<InputManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private float maxDragRaycastDistance  = 100f;
@@ -97,7 +100,8 @@ public class InputManager : SingletonManager<InputManager>
     private void ToggleEditMode()
     {
         isEditMode = !isEditMode;
-        Debug.Log($"[InputManager] Edit Mode: {(isEditMode ? "ON" : "OFF")}");
+        if(showDebugInfo)
+            Debug.Log($"[InputManager] Edit Mode: {(isEditMode ? "ON" : "OFF")}");
         
         // 通知其他系统
         var placementManager = FindAnyObjectByType<PlacementManager>();

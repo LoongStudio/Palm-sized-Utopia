@@ -4,6 +4,9 @@ using System.Collections.Generic;
 /// 预览管理器
 public class PreviewManager : SingletonManager<PreviewManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     [SerializeField] private PlacementSettings settings;
     [SerializeField] private Material validPreviewMaterial;
     [SerializeField] private Material invalidPreviewMaterial;
