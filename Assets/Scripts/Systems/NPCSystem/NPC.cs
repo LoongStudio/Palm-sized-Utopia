@@ -8,6 +8,8 @@ using System;
 public class NPC : MonoBehaviour, ISaveable
 {
     #region 字段声明
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
     [Header("基本信息")]
     public NPCData data;
     public HousingBuilding housing; // 添加住房属性
@@ -249,7 +251,8 @@ public class NPC : MonoBehaviour, ISaveable
     }
     private IEnumerator StartDeliveringCoroutine(Building building)
     {
-        Debug.Log($"NPC {gameObject.name} 开始投送物资到 {building.name}");
+        if(showDebugInfo) 
+            Debug.Log($"NPC {gameObject.name} 开始投送物资到 {building.name}");
         while (inventory.TransferTo(building.inventory, transferSpeed))
         {
             yield return new WaitForSeconds(1f);

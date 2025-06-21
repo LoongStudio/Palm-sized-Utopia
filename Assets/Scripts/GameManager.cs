@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class GameManager : SingletonManager<GameManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     [Header("系统管理器")]
     public ResourceManager resourceManager;
     public BuildingManager buildingManager;

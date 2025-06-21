@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class SaveManager : SingletonManager<SaveManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     private string saveFilePath;
     protected override void Awake()
     {

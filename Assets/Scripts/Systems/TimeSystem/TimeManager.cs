@@ -8,6 +8,9 @@ public class TimeManager : SingletonManager<TimeManager>
 {
     #region 字段和属性 (Fields & Properties)
     
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     [Header("时间设置")]
     [SerializeField] private TimeSettings settings;
     
@@ -62,7 +65,8 @@ public class TimeManager : SingletonManager<TimeManager>
         }
         
         previousTime = currentTime;
-        Debug.Log($"[TimeManager] 时间系统初始化完成，当前时间: {currentTime.ToLongString()}");
+        if(showDebugInfo)
+            Debug.Log($"[TimeManager] 时间系统初始化完成，当前时间: {currentTime.ToLongString()}");
     }
     
     private void StartTimeSystem()
@@ -73,7 +77,8 @@ public class TimeManager : SingletonManager<TimeManager>
         }
         
         timeUpdateCoroutine = StartCoroutine(TimeUpdateLoop());
-        Debug.Log("[TimeManager] 时间系统启动");
+        if(showDebugInfo)
+            Debug.Log("[TimeManager] 时间系统启动");
     }
     
     #endregion
@@ -194,19 +199,24 @@ public class TimeManager : SingletonManager<TimeManager>
     public void PauseTime()
     {
         isPaused = true;
-        Debug.Log("[TimeManager] 时间暂停");
+        if(showDebugInfo)
+            Debug.Log("[TimeManager] 时间暂停");
     }
     
     public void ResumeTime()
     {
         isPaused = false;
-        Debug.Log("[TimeManager] 时间恢复");
+        if(showDebugInfo)
+            Debug.Log("[TimeManager] 时间恢复");
     }
     
     public void SetTimeScale(float scale)
     {
+        // TODO: 这里是否有点小问题
         currentTimeScale = Mathf.Max(0.1f, scale);
-        Debug.Log($"[TimeManager] 时间倍速设置为: {currentTimeScale}x");
+        // currentTimeScale = Mathf.Clamp(scale, 0f, 10f);
+        if(showDebugInfo)
+            Debug.Log($"[TimeManager] 时间倍率设置为: {currentTimeScale}");
     }
     
     public void SetTime(GameTime newTime)

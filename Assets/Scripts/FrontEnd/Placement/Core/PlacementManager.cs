@@ -4,6 +4,9 @@ using System.Collections;
 /// 放置系统主管理器
 public class PlacementManager : SingletonManager<PlacementManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     [Header("系统设置")]
     [SerializeField] private PlacementSettings settings;
     
@@ -53,7 +56,8 @@ public class PlacementManager : SingletonManager<PlacementManager>
         ValidateSystems();
         
         IsInitialized = true;
-        Debug.Log("[PlacementManager] Placement system initialized successfully");
+        if(showDebugInfo)
+            Debug.Log("[PlacementManager] Placement system initialized successfully");
     }
     
     private void AutoGetComponents()
@@ -79,17 +83,20 @@ public class PlacementManager : SingletonManager<PlacementManager>
         // 初始化各个子系统
         if (gridSystem != null)
         {
-            Debug.Log("[PlacementManager] GridSystem initialized");
+            if(showDebugInfo)
+                Debug.Log("[PlacementManager] GridSystem initialized");
         }
         
         if (dragHandler != null)
         {
-            Debug.Log("[PlacementManager] DragHandler initialized");
+            if(showDebugInfo)
+                Debug.Log("[PlacementManager] DragHandler initialized");
         }
         
         if (inputManager != null)
         {
-            Debug.Log("[PlacementManager] InputManager initialized");
+            if(showDebugInfo)
+                Debug.Log("[PlacementManager] InputManager initialized");
         }
     }
     
@@ -134,7 +141,8 @@ public class PlacementManager : SingletonManager<PlacementManager>
             dragHandler.CancelDrag();
         }
         
-        Debug.Log($"[PlacementManager] Edit Mode: {(enabled ? "Enabled" : "Disabled")}");
+        if(showDebugInfo)
+            Debug.Log($"[PlacementManager] Edit Mode: {(enabled ? "Enabled" : "Disabled")}");
     }
     
     /// <summary>
@@ -166,7 +174,8 @@ public class PlacementManager : SingletonManager<PlacementManager>
             // 清空网格
             gridSystem.ClearAll();
             
-            Debug.Log("[PlacementManager] All placements cleared");
+            if(showDebugInfo)
+                Debug.Log("[PlacementManager] All placements cleared");
         }
     }
     

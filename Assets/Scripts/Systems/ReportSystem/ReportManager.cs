@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 public class ReportManager : SingletonManager<ReportManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     private DataCollector dataCollector;
     private List<Report> historicalReports;
     protected override void Awake()

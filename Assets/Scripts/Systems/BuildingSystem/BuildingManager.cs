@@ -6,6 +6,9 @@ using System.Linq;
 [DisallowMultipleComponent]
 public class BuildingManager : SingletonManager<BuildingManager>
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+    
     private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
@@ -223,12 +226,12 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <param name="building"></param>
     public bool BuildingBuilt(Building building)
     {
-        // 注册建筑占用
-        foreach (var buildingPosition in building.positions)
-            if (_buildingOccupies.ContainsKey(buildingPosition)) return false;
-        foreach (var buildingPosition in building.positions)
-            _buildingOccupies[buildingPosition] = building;
-        // 呼叫事件
+        if (building == null) return false;
+        
+        _buildings.Add(building);
+        if(showDebugInfo)
+            Debug.Log($"[BuildingManager] 建筑 {building.name} 已建造");
+        
         OnBuildingBuilt?.Invoke(building);
         return true;
     }
@@ -237,8 +240,11 @@ public class BuildingManager : SingletonManager<BuildingManager>
     public bool DestroyBuilding(Building building) { return false; }
     public bool RegisterBuilding(Building building)
     {
-        if (_buildings.Contains(building)) return false;
+        if (building == null) return false;
+        
         _buildings.Add(building);
+        if(showDebugInfo)
+            Debug.Log($"[BuildingManager] 建筑 {building.name} 已注册");
         return true;
     }
     // 查询方法
