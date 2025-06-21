@@ -181,13 +181,13 @@ public class NPCManager : SingletonManager<NPCManager>
     {
         Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
         // 启动两个NPC的社交移动
-        npc1.movement.MoveToTarget(positions.npc1Position);
-        npc2.movement.MoveToTarget(positions.npc2Position);
+        npc1.MoveToTarget(positions.npc1Position);  
+        npc2.MoveToTarget(positions.npc2Position);
         
         // 等待两个移动完成，或者超时
         float startTime = Time.time;
         
-        while ((!npc1.movement.isInPosition || !npc2.movement.isInPosition) && (Time.time - startTime) < socialSystem.socialTimeout)
+        while ((!npc1.isInPosition || !npc2.isInPosition) && (Time.time - startTime) < socialSystem.socialTimeout)
         {
             yield return new WaitForSeconds(0.1f);
         }
@@ -203,7 +203,7 @@ public class NPCManager : SingletonManager<NPCManager>
         npc1.TurnToPosition(npc2.transform.position);
         npc2.TurnToPosition(npc1.transform.position);
 
-        if (npc1.movement.isInPosition && npc2.movement.isInPosition)
+        if (npc1.isInPosition && npc2.isInPosition)
         {
             Debug.Log($"[NPCManager] 两个NPC已到达社交位置，准备就绪");
             // 触发事件广播准备就绪

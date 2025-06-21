@@ -10,7 +10,7 @@ public class NPCSocialPreparaionState : NPCStateBase
         animator.SetBool("isSocialPreparation", true);
 
         // 停止移动
-        npc.movement.StopRandomMovement();
+        npc.StopRandomMovement();
 
         
     }

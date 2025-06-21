@@ -19,6 +19,15 @@ public class NPCMovement : MonoBehaviour
     [SerializeField] private float movementSpeed = 2f;          // 移动速度
     [SerializeField] private float stoppingDistance = 0.5f;       // 到达目标的停止距离
     
+    [Header("转向设置")]
+    [SerializeField] public float turnSpeed = 5f;              // 转向速度
+    [SerializeField] public float turnThreshold = 10f;         // 转向阈值角度
+    [SerializeField] public bool enableTurnBeforeMove = true;  // 是否在移动前转向
+    
+    public bool isTurning = false;                             // 是否正在转向
+    public Vector3 targetDirection;                            // 目标方向
+    public Transform currentTarget;                            // 当前目标位置
+    
     [Header("调试设置")]
     [SerializeField] private bool showDebugInfo = true;           // 显示调试信息
     [SerializeField] private bool drawGizmos = true;              // 绘制调试线条
@@ -31,7 +40,7 @@ public class NPCMovement : MonoBehaviour
     private NPC npc;
     
     // 状态变量
-    private Vector3 currentTarget;
+    private Vector3 currentTargetPosition;
     private bool isMoving = false;
     private bool isWaiting = false;
     public bool isLanded = false;
@@ -50,6 +59,8 @@ public class NPCMovement : MonoBehaviour
     public float MinWaitTime => minWaitTime;
     public float MaxWaitTime => maxWaitTime;
     public float MovementSpeed => movementSpeed;
+    public bool IsTurning => isTurning;
+    public Transform CurrentTarget => currentTarget;
 
 
 
@@ -255,7 +266,7 @@ public class NPCMovement : MonoBehaviour
     }
     private IEnumerator MoveToTargetCoroutine(Vector3 target, float speed = 0.5f)
     {
-        currentTarget = target;
+        currentTargetPosition = target;
         isMoving = true;
         float moveStartTime = Time.time;
         isInPosition = false;
@@ -292,7 +303,7 @@ public class NPCMovement : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
-        currentTarget = Vector3.zero;
+        currentTargetPosition = Vector3.zero;
         isMoving = false;
         totalMoves++;
         totalMoveTime += Time.time - moveStartTime;
@@ -344,6 +355,12 @@ public class NPCMovement : MonoBehaviour
     
     private void Update()
     {
+        // 处理转向逻辑
+        if (isTurning)
+        {
+            UpdateTurning();
+        }
+        
         // 如果NavMeshAgent在NavMesh上，则设置动画速度
         if(navAgent.isOnNavMesh){
             animator.SetFloat("Speed",navAgent.velocity.magnitude);
@@ -363,8 +380,209 @@ public class NPCMovement : MonoBehaviour
         //         transform.position = validPosition;
         //     }
         // }
-
-
+    }
+    
+    /// <summary>
+    /// 更新转向逻辑
+    /// </summary>
+    public void UpdateTurning()
+    {
+        if (targetDirection == Vector3.zero) return;
+        
+        // 计算当前方向和目标方向的角度差
+        float angle = Vector3.Angle(transform.forward, targetDirection);
+        
+        // 如果角度差小于阈值，停止转向
+        if (angle < turnThreshold)
+        {
+            isTurning = false;
+            OnTurnCompleted();
+            return;
+        }
+        
+        // 平滑转向目标方向
+        Vector3 newDirection = Vector3.Slerp(transform.forward, targetDirection, turnSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+    
+    /// <summary>
+    /// 转向完成回调
+    /// </summary>
+    public void OnTurnCompleted()
+    {
+        Debug.Log($"[NPCMovement] {name} 转向完成，开始移动");
+        targetDirection = Vector3.zero;
+        
+        // 转向完成后，开始移动
+        if (currentTarget != null && navAgent != null)
+        {
+            navAgent.SetDestination(currentTarget.position);
+        }
+    }
+    
+    /// <summary>
+    /// 转向指定方向
+    /// </summary>
+    /// <param name="direction">目标方向</param>
+    public void TurnToDirection(Vector3 direction)
+    {
+        if (direction == Vector3.zero) return;
+        
+        targetDirection = direction.normalized;
+        isTurning = true;
+        
+        Debug.Log($"[NPCMovement] {name} 开始转向目标方向");
+    }
+    
+    /// <summary>
+    /// 转向指定位置
+    /// </summary>
+    /// <param name="targetPosition">目标位置</param>
+    public void TurnToPosition(Vector3 targetPosition)
+    {
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // 忽略Y轴，只在水平面转向
+        TurnToDirection(direction);
+    }
+    
+    /// <summary>
+    /// 立即转向目标位置（不使用平滑转向）
+    /// </summary>
+    /// <param name="targetPosition">目标位置</param>
+    public void TurnToPositionImmediate(Vector3 targetPosition)
+    {
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // 忽略Y轴，只在水平面转向
+        
+        if (direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
+            Debug.Log($"[NPCMovement] {name} 立即转向目标位置");
+        }
+    }
+    
+    /// <summary>
+    /// 移动到指定Transform目标
+    /// </summary>
+    /// <param name="target">目标Transform</param>
+    // public void MoveToTarget(Transform target) {
+    //     if(navAgent == null || target == null) return;
+        
+    //     currentTarget = target;
+        
+    //     if (enableTurnBeforeMove)
+    //     {
+    //         // 先转向目标，转向完成后再开始移动
+    //         Vector3 direction = (target.position - transform.position).normalized;
+    //         direction.y = 0; // 忽略Y轴，只在水平面转向
+            
+    //         // 检查是否需要转向
+    //         float angle = Vector3.Angle(transform.forward, direction);
+    //         if (angle > turnThreshold)
+    //         {
+    //             Debug.Log($"[NPCMovement] {name} 需要转向 {angle:F1}度，开始转向");
+    //             TurnToDirection(direction);
+    //         }
+    //         else
+    //         {
+    //             // 角度差很小，直接移动
+    //             Debug.Log($"[NPCMovement] {name} 角度差较小({angle:F1}度)，直接移动");
+    //             navAgent.SetDestination(target.position);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         // 直接移动，不转向
+    //         navAgent.SetDestination(target.position);
+    //     }
+    // }
+    
+    /// <summary>
+    /// 移动到指定位置（重载方法）
+    /// </summary>
+    /// <param name="targetPosition">目标位置</param>
+    public void MoveToPosition(Vector3 targetPosition)
+    {
+        if(navAgent == null) return;
+        
+        if (enableTurnBeforeMove)
+        {
+            // 先转向目标，转向完成后再开始移动
+            Vector3 direction = (targetPosition - transform.position).normalized;
+            direction.y = 0; // 忽略Y轴，只在水平面转向
+            
+            // 检查是否需要转向
+            float angle = Vector3.Angle(transform.forward, direction);
+            if (angle > turnThreshold)
+            {
+                Debug.Log($"[NPCMovement] {name} 需要转向 {angle:F1}度，开始转向到位置 {targetPosition}");
+                // 临时存储目标位置
+                currentTarget = new GameObject("TempTarget").transform;
+                currentTarget.position = targetPosition;
+                TurnToDirection(direction);
+            }
+            else
+            {
+                // 角度差很小，直接移动
+                Debug.Log($"[NPCMovement] {name} 角度差较小({angle:F1}度)，直接移动到位置 {targetPosition}");
+                navAgent.SetDestination(targetPosition);
+            }
+        }
+        else
+        {
+            // 直接移动，不转向
+            navAgent.SetDestination(targetPosition);
+        }
+    }
+    
+    /// <summary>
+    /// 移动到社交位置的协程方法
+    /// </summary>
+    /// <param name="position">目标位置</param>
+    /// <param name="socialMoveSpeed">社交移动速度</param>
+    /// <returns></returns>
+    public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
+        
+        // 使用NavMeshAgent移动
+        if (navAgent != null)
+        {
+            Debug.Log($"[NPCMovement] {name} 开始移动到社交位置: {position}");
+            // 保存当前位置和速度
+            // Vector3 previousPosition = transform.position;
+            float previousSpeed = navAgent.speed;
+            // 设置移动速度
+            navAgent.speed = socialMoveSpeed;
+            
+            // 如果启用转向，先转向目标
+            if (enableTurnBeforeMove)
+            {
+                // TODO: 这里需要优化，因为这里会立即转向，不合理
+                TurnToPositionImmediate(position); // 社交移动使用立即转向，避免复杂的异步逻辑
+            }
+            
+            // 设置目标位置
+            navAgent.SetDestination(position);
+            
+            // 等待到达目标位置
+            while (navAgent.pathPending || navAgent.remainingDistance > navAgent.stoppingDistance)
+            {
+                // 检查是否卡住
+                if (navAgent.velocity.magnitude < 0.1f && navAgent.remainingDistance > navAgent.stoppingDistance)
+                {
+                    // 可能卡住了，等待一小段时间
+                    yield return new WaitForSeconds(0.5f);
+                }
+                else
+                {
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            // 恢复速度
+            navAgent.speed = previousSpeed;
+            Debug.Log($"[NPCMovement] {name} 已到达社交位置");
+        } else{
+            Debug.LogError($"[NPCMovement] {name} 没有NavMeshAgent组件，无法移动");
+        }
     }
     
     private void OnDrawGizmos()
@@ -376,14 +594,14 @@ public class NPCMovement : MonoBehaviour
         GizmoExtensions.DrawWireCircle(transform.position, moveRadius);
         
         // 绘制当前目标
-        if (isMoving && currentTarget != Vector3.zero)
+        if (isMoving && currentTargetPosition != Vector3.zero)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(currentTarget, 0.5f);
+            Gizmos.DrawWireSphere(currentTargetPosition, 0.5f);
             
             // 绘制到目标的直线
             Gizmos.color = pathColor;
-            Gizmos.DrawLine(transform.position, currentTarget);
+            Gizmos.DrawLine(transform.position, currentTargetPosition);
         }
         
         // 绘制NavMeshAgent路径
@@ -415,7 +633,7 @@ public class NPCMovement : MonoBehaviour
     // 公共接口
     public bool IsMoving => isMoving;
     public bool IsWaiting => isWaiting;
-    public Vector3 CurrentTarget => currentTarget;
+    public Vector3 CurrentTargetPosition => currentTargetPosition;
     public int TotalMoves => totalMoves;
     public float AverageMoveTime => totalMoves > 0 ? totalMoveTime / totalMoves : 0f;
     
