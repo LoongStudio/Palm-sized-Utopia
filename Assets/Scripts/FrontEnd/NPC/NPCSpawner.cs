@@ -438,7 +438,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         var npc = npcObject.GetComponent<NPC>();
         if (npc != null)
         {
-            npc.movement.isLanded = true;
+            npc.SetLanded(true);
         }
         
         

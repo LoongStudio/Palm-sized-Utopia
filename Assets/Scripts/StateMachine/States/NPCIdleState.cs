@@ -21,7 +21,7 @@ public class NPCIdleState : NPCStateBase
         {
             Debug.Log($"[NPCIdleState] {npc.data.npcName} 进入空闲状态");
         }
-        npc.movement.StartRandomMovement();
+        npc.StartRandomMovement();
     }
 
     public override void UpdateState()
