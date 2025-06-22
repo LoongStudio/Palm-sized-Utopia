@@ -19,7 +19,8 @@ public class NPCMovingToWorkState : NPCStateBase
             var targetBuilding = BuildingManager.Instance.GetBestWorkBuildingForNPC(npc);
             if (targetBuilding != null)
             {
-                npc.currentTarget.position = targetBuilding.transform.position;
+                // 使用NPCMovement的MoveToTarget方法，而不是直接设置currentTarget
+                npc.MoveToTarget(targetBuilding.transform.position);
                 npc.SetPendingWork(targetBuilding.transform.position, targetBuilding);
             }
             else
@@ -28,6 +29,11 @@ public class NPCMovingToWorkState : NPCStateBase
                 stateMachine.ChangeState(NPCState.Idle);
                 return;
             }
+        }
+        else
+        {
+            // 有待处理的工作，直接移动到目标位置
+            npc.MoveToTarget(npc.PendingWorkTarget.Value);
         }
 
         if (showDebugInfo)
@@ -40,8 +46,8 @@ public class NPCMovingToWorkState : NPCStateBase
     {
         base.UpdateState();
         
-        // 检查是否到达工作地点
-        if (Vector3.Distance(npc.transform.position, npc.currentTarget.position) < 0.1f)
+        // 检查是否到达工作地点 - 使用NPCMovement的isInPosition属性
+        if (npc.isInPosition)
         {
             // 如果这是待处理的工作，清除待处理标记
             if (npc.PendingWorkTarget.HasValue)

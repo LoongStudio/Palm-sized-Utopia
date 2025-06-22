@@ -667,4 +667,30 @@ public class NPCMovement : MonoBehaviour
     {
         StopRandomMovement();
     }
+
+    /// <summary>
+    /// 设置当前目标Transform
+    /// </summary>
+    /// <param name="target">目标Transform</param>
+    public void SetCurrentTarget(Transform target)
+    {
+        currentTarget = target;
+        if (showDebugInfo)
+        {
+            Debug.Log($"[NPCMovement] {name} 设置当前目标: {(target != null ? target.name : "null")}");
+        }
+    }
+
+    /// <summary>
+    /// 设置当前目标位置
+    /// </summary>
+    /// <param name="position">目标位置</param>
+    public void SetCurrentTargetPosition(Vector3 position)
+    {
+        currentTargetPosition = position;
+        if (showDebugInfo)
+        {
+            Debug.Log($"[NPCMovement] {name} 设置当前目标位置: {position}");
+        }
+    }
 }
