@@ -43,15 +43,15 @@ public class NPC : MonoBehaviour, ISaveable
     public bool isInPosition => movement?.isInPosition ?? false;
 
     [Header("工作系统")]
-    [SerializeField] private Vector3? pendingWorkTarget;         // 待处理的工作目标位置
-    [SerializeField] private Building assignedBuilding;          // 分配的建筑
+    [SerializeField] private Building pendingWorkBuilding;       // 待处理的工作建筑
     [SerializeField] private int restStartHour = 22;             // 晚上10点
     [SerializeField] private int restEndHour = 6;                // 早上6点
     [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
 
-    public Vector3? PendingWorkTarget => pendingWorkTarget;
-    public Building AssignedBuilding => assignedBuilding;
+    public Building PendingWorkBuilding => pendingWorkBuilding;
+    public Vector3? PendingWorkTarget => pendingWorkBuilding?.transform.position;
+    public Building AssignedBuilding { get; set; }               // 分配的建筑
     public float CurrentIdleWeight => currentIdleWeight;
     #endregion
     
@@ -113,7 +113,7 @@ public class NPC : MonoBehaviour, ISaveable
         // // TODO: 从存档加载NPC数据
         // ChangeState(NPCState.Idle);
         // currentTarget = null; // 解除目标位置
-        // assignedBuilding = null; // 解除建筑分配
+        // AssignedBuilding = null; // 解除建筑分配
         // // 清空背包
         // if(inventory != null){
         //     inventory.Clear(); 
@@ -133,7 +133,7 @@ public class NPC : MonoBehaviour, ISaveable
     /// <param name="other"></param>
     public void CopyFrom(NPC other){
         data = other.data;
-        assignedBuilding = other.assignedBuilding;
+        AssignedBuilding = other.AssignedBuilding;
         relationships = other.relationships;
         stateMachine = other.stateMachine;
         inventory = other.inventory;
@@ -225,11 +225,11 @@ public class NPC : MonoBehaviour, ISaveable
             switch (trait)
             {
                 case NPCTraitType.FarmExpert:
-                    if (assignedBuilding?.data.subType == BuildingSubType.Farm)
+                    if (AssignedBuilding?.data.subType == BuildingSubType.Farm)
                         multiplier *= 1.5f; // 50%加成
                     break;
                 case NPCTraitType.LivestockExpert:
-                    if (assignedBuilding?.data.subType == BuildingSubType.Ranch)
+                    if (AssignedBuilding?.data.subType == BuildingSubType.Ranch)
                         multiplier *= 1.5f;
                     break;
                 case NPCTraitType.CheapLabor:
@@ -242,20 +242,7 @@ public class NPC : MonoBehaviour, ISaveable
     }
 
     private Coroutine _deliveryRoutine;
-    public void StartDelivering(Building building)
-    {
-        if (_deliveryRoutine != null)
-            StopCoroutine(_deliveryRoutine);
-        _deliveryRoutine = StartCoroutine(StartDeliveringCoroutine(building));
-    }
-
-    public void StopDelivering()
-    {
-        StopCoroutine(_deliveryRoutine);
-        ChangeState(NPCState.Idle);
-        assignedBuilding = null;
-    }
-    private IEnumerator StartDeliveringCoroutine(Building building)
+    public IEnumerator StartDelivering(Building building)
     {
         if(showDebugInfo) 
             Debug.Log($"NPC {gameObject.name} 开始投送物资到 {building.name}");
@@ -264,10 +251,15 @@ public class NPC : MonoBehaviour, ISaveable
             yield return new WaitForSeconds(1f);
         }
         ChangeState(NPCState.Idle);
-        assignedBuilding = null;
+        AssignedBuilding = null;
     }
-    
-    
+
+    public void StopDelivering()
+    {
+        StopCoroutine(_deliveryRoutine);
+        ChangeState(NPCState.Idle);
+        AssignedBuilding = null;
+    }
     #endregion
     
     #region 社交相关
@@ -423,16 +415,14 @@ public class NPC : MonoBehaviour, ISaveable
     }
     #endregion
 
-    public void SetPendingWork(Vector3 target, Building building)
+    public void SetPendingWork(Building building)
     {
-        pendingWorkTarget = target;
-        assignedBuilding = building;
+        pendingWorkBuilding = building;
     }
 
     public void ClearPendingWork()
     {
-        pendingWorkTarget = null;
-        assignedBuilding = null;
+        pendingWorkBuilding = null;
     }
 
     public bool IsRestTime()
