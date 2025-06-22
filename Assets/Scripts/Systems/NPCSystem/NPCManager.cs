@@ -656,7 +656,26 @@ public class NPCManager : SingletonManager<NPCManager>
         return position; // 如果找不到，返回原位置
     }
 
-
+    /// <summary>
+    /// 安全地销毁NPC，确保从管理系统中正确移除
+    /// </summary>
+    /// <param name="npc">要销毁的NPC</param>
+    public void DestroyNPC(NPC npc)
+    {
+        if (npc == null) return;
+        
+        if(showDebugInfo) 
+            Debug.Log($"[NPCManager] 安全销毁NPC: {npc.data?.npcName}");
+        
+        // 先从管理系统中移除
+        UnregisterNPC(npc);
+        
+        // 然后销毁GameObject
+        if (npc.gameObject != null)
+        {
+            Object.Destroy(npc.gameObject);
+        }
+    }
 }
 
 /// <summary>

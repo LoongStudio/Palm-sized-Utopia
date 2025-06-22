@@ -47,7 +47,15 @@ public class NPCGeneratedState : NPCStateBase
             {
                 Debug.LogWarning($"[NPCGeneratedState] {npc.data.npcName} 没有找到任何住房建筑，将被销毁");
             }
-            Object.Destroy(npc.gameObject);
+            // 使用NPCManager的安全销毁方法
+            if (NPCManager.Instance != null)
+            {
+                NPCManager.Instance.DestroyNPC(npc);
+            }
+            else
+            {
+                Object.Destroy(npc.gameObject);
+            }
             return;
         }
 
@@ -70,7 +78,15 @@ public class NPCGeneratedState : NPCStateBase
         {
             Debug.LogWarning($"[NPCGeneratedState] {npc.data.npcName} 所有住房都已满，将被销毁");
         }
-        Object.Destroy(npc.gameObject);
+        // 使用NPCManager的安全销毁方法
+        if (NPCManager.Instance != null)
+        {
+            NPCManager.Instance.DestroyNPC(npc);
+        }
+        else
+        {
+            Object.Destroy(npc.gameObject);
+        }
     }
 
     protected override void OnExitState()
@@ -82,7 +98,15 @@ public class NPCGeneratedState : NPCStateBase
             {
                 Debug.LogWarning($"[NPCGeneratedState] {npc.data.npcName} 未能找到住房，将被销毁");
             }
-            Object.Destroy(npc.gameObject);
+            // 使用NPCManager的安全销毁方法
+            if (NPCManager.Instance != null)
+            {
+                NPCManager.Instance.DestroyNPC(npc);
+            }
+            else
+            {
+                Object.Destroy(npc.gameObject);
+            }
         }
     }
 }

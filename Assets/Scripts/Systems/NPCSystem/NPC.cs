@@ -84,6 +84,12 @@ public class NPC : MonoBehaviour, ISaveable
     private void OnDestroy() {
         // 由NPCManager取消订阅事件，防止广播风暴
         // UnsubscribeFromEvents();
+        
+        // 确保从NPCManager中移除
+        if (NPCManager.Instance != null)
+        {
+            NPCManager.Instance.UnregisterNPC(this);
+        }
     }
     #endregion
     
