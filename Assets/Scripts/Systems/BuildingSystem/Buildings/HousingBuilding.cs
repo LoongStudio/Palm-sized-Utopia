@@ -8,7 +8,7 @@ public abstract class HousingBuilding : Building
 
 	public bool RegisterLivingNPC(NPC npc)
 	{
-		Debug.Log($"[住房] 注册住房NPC {npc.name}");
+		Debug.Log($"[住房] 注册住房NPC {npc.data.npcName}");
 		if (livingNPCs.Contains(npc) || livingNPCs.Count >= maxLivingNPCs) return false;
 		livingNPCs.Add(npc);
 		return true;

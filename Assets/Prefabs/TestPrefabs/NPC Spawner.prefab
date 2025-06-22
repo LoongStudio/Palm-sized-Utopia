@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9b70d8f3716a7a45b301e7d863c07b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  npcPrefab: {fileID: 6149902239832814201, guid: 5e23c83f348f02e479eb0963c0bc35cd, type: 3}
+  npcPrefab: {fileID: 4704072471082765480, guid: b4a2a18de903a57429843280c168519c, type: 3}
   npcMovementConfig: {fileID: 11400000, guid: f149d6c08bc9fa44f8ad5470f95bea6f, type: 2}
   spawnRadius: 5
   spawnHeight: 10

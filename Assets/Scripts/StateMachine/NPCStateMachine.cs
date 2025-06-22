@@ -141,7 +141,7 @@ public class NPCStateMachine : MonoBehaviour
             currentState.ExitState();
         }
         // 更新状态信息
-        previousState = currentState;
+        previousState = currentState == null ? new NPCGeneratedState(NPCState.Generated, this, npc) : currentState;
         currentState = newStateComponent;
         stateTimer = 0f;
 
