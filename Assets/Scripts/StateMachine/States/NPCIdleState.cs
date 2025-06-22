@@ -56,7 +56,7 @@ public class NPCIdleState : NPCStateBase
             // 回家
             if (npc.housing != null)
             {
-                npc.currentTarget.position = npc.housing.transform.position;
+                npc.MoveToTarget(npc.housing.transform.position);
                 stateMachine.ChangeState(NPCState.MovingHome);
             }
         }
@@ -65,7 +65,7 @@ public class NPCIdleState : NPCStateBase
             // 执行待处理的工作
             if (npc.PendingWorkTarget.HasValue)
             {
-                npc.currentTarget.position = npc.PendingWorkTarget.Value;
+                npc.MoveToTarget(npc.PendingWorkTarget.Value);
                 stateMachine.ChangeState(NPCState.MovingToWork);
             }
         }
