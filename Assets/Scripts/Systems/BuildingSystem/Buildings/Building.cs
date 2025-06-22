@@ -56,7 +56,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
             && npc.currentState == NPCState.Transporting)
         {
             tempAssignedNPCs.Add(npc);
-            npc.StartDelivering(this);
+            StartCoroutine(npc.StartDelivering(this));
         }
     }
     public virtual void TryRemoveNPC(NPC npc)

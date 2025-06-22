@@ -39,7 +39,7 @@ public class NPCIdleState : NPCStateBase
     private void DetermineNextState()
     {
         float restTimeWeight = npc.IsRestTime() ? REST_TIME_WEIGHT : 0f;
-        float pendingWorkWeight = npc.PendingWorkTarget.HasValue ? PENDING_WORK_WEIGHT : 0f;
+        float pendingWorkWeight = npc.PendingWorkBuilding != null ? PENDING_WORK_WEIGHT : 0f;
         
         // 计算各种状态的权重
         float homeWeight = restTimeWeight;
@@ -63,9 +63,9 @@ public class NPCIdleState : NPCStateBase
         else if (randomValue < homeWeight + workWeight)
         {
             // 执行待处理的工作
-            if (npc.PendingWorkTarget.HasValue)
+            if (npc.PendingWorkBuilding != null)
             {
-                npc.MoveToTarget(npc.PendingWorkTarget.Value);
+                npc.MoveToTarget(npc.PendingWorkBuilding.transform.position);
                 stateMachine.ChangeState(NPCState.MovingToWork);
             }
         }
