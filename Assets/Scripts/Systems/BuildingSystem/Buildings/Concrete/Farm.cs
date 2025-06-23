@@ -27,7 +27,9 @@ public class Farm : ProductionBuilding
                 new SubResourceValue<int>(SeedSubType.Corn, 30),
                 new SubResourceValue<int>(CropSubType.Wheat, 30),
                 new SubResourceValue<int>(CropSubType.Corn, 30),
-            });
+            },
+            Inventory.InventoryOwnerType.Building
+        );
     }
     protected override void SetupProductionRule()
     {

@@ -5,6 +5,6 @@ public class Apartment : HousingBuilding
 
 	public override void InitialSelfStorage()
 	{
-		inventory = new Inventory();
+		inventory = new Inventory(Inventory.InventoryOwnerType.Building);
 	}
 }

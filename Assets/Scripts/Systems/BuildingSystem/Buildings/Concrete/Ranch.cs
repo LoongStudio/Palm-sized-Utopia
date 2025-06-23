@@ -39,7 +39,8 @@ public class Ranch : ProductionBuilding
                 new SubResourceValue<int>(BreedingStockSubType.Sheep, 10),
                 new SubResourceValue<int>(LivestockSubType.Cattle, 10),
                 new SubResourceValue<int>(LivestockSubType.Sheep, 10),
-            }, AcceptResources, null);
+            }, AcceptResources, null, Inventory.InventoryOwnerType.Building
+        );
     }
     protected override void SetupProductionRule()
     {

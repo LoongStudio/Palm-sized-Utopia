@@ -114,10 +114,12 @@ public class NPC : MonoBehaviour, ISaveable
         // ChangeState(NPCState.Idle);
         // currentTarget = null; // 解除目标位置
         // AssignedBuilding = null; // 解除建筑分配
-        // // 清空背包
-        // if(inventory != null){
-        //     inventory.Clear(); 
-        // }
+        // 清空背包
+        if (inventory == null) {
+            inventory = new Inventory(Inventory.InventoryOwnerType.NPC);
+        } else {
+            inventory.ownerType = Inventory.InventoryOwnerType.NPC;
+        }
         // relationships.Clear(); // 清空社交关系
 
         // // 重置NavMeshAgent

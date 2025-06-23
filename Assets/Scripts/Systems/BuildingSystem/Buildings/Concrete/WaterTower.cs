@@ -8,8 +8,9 @@ public class WaterTower : BuffBuilding
         AcceptResources = new List<SubResource>() { };
         inventory = new Inventory(
             new List<SubResourceValue<int>> { },
-            new List<SubResourceValue<int>>() { }
-            );
+            new List<SubResourceValue<int>>() { },
+            Inventory.InventoryOwnerType.Building
+        );
     }
     protected override void InitBuildingAndBuffTypes()
     {

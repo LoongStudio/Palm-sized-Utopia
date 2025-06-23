@@ -80,6 +80,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
             Debug.LogError($"[Building] 建筑 {this.ToString()} 放置失败, 游戏开始时所有建筑应正常被放置成功");    
         }
         InitialSelfStorage();
+        // 注册资源变动事件
+        if (inventory != null && inventory.ownerType == Inventory.InventoryOwnerType.Building)
+        {
+            inventory.OnResourceChanged += BuildingManager.Instance.OnBuildingResourceChanged;
+        }
     }
 
     public override string ToString()
