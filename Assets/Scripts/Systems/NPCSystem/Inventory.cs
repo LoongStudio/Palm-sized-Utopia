@@ -6,6 +6,15 @@ using UnityEngine;
 [System.Serializable]
 public class Inventory
 {
+    public enum InventoryOwnerType
+    {
+        Building,
+        NPC,
+        None
+    }
+
+    public InventoryOwnerType ownerType = InventoryOwnerType.NPC;
+    public event Action<ResourceType, int, int> OnResourceChanged; // type, subType, value变化量
     public List<SubResourceValue<int>> currentSubResource;
     public List<SubResourceValue<int>> maximumSubResource;
     public List<SubResource> whiteList;
@@ -20,8 +29,10 @@ public class Inventory
         List<SubResourceValue<int>> currentSubResource,
         List<SubResourceValue<int>> maximumSubResource,
         List<SubResource> whiteList,
-        List<SubResource> blackList)
+        List<SubResource> blackList,
+        InventoryOwnerType ownerType = InventoryOwnerType.None)
     {
+        this.ownerType = ownerType;
         // 初始化输入
         this.currentSubResource = currentSubResource ?? new List<SubResourceValue<int>>();
         this.maximumSubResource = maximumSubResource ?? new List<SubResourceValue<int>>();
@@ -68,14 +79,24 @@ public class Inventory
 
     public Inventory()
     {
+        ownerType = InventoryOwnerType.None;
+        currentSubResource = new List<SubResourceValue<int>>();
+        maximumSubResource = new List<SubResourceValue<int>>();
+    }
+    
+    public Inventory(InventoryOwnerType ownerType = InventoryOwnerType.None)
+    {
+        this.ownerType = ownerType;
         currentSubResource = new List<SubResourceValue<int>>();
         maximumSubResource = new List<SubResourceValue<int>>();
     }
 
     public Inventory(
         List<SubResourceValue<int>> currentSubResource,
-        List<SubResourceValue<int>> maximumSubResource)
+        List<SubResourceValue<int>> maximumSubResource,
+        InventoryOwnerType ownerType = InventoryOwnerType.None)
     {
+        this.ownerType = ownerType;
         this.currentSubResource = currentSubResource;
         this.maximumSubResource = maximumSubResource;
         // 构建资源种类全集
@@ -199,6 +220,7 @@ public class Inventory
         if (!CanAddItem(type, amount)) return false;
         var cur = GetCurrent(type);
         cur.resourceValue += amount;
+        OnResourceChanged?.Invoke(type, cur.subResource.subType, amount);
         return true;
     }
 
@@ -207,6 +229,7 @@ public class Inventory
         var cur = GetCurrent(type);
         if (cur == null || cur.resourceValue < amount) return false;
         cur.resourceValue -= amount;
+        OnResourceChanged?.Invoke(type, cur.subResource.subType, -amount);
         return true;
     }
 

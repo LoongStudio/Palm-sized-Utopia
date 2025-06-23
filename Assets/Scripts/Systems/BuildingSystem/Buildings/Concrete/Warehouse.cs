@@ -18,7 +18,9 @@ public class Warehouse : FunctionalBuilding
                 new SubResourceValue<int>(FeedSubType.Feed, 30),
                 new SubResourceValue<int>(CoinSubType.Gold, 30),
                 new SubResourceValue<int>(TicketSubType.Ticket, 30),
-            });
+            },
+            Inventory.InventoryOwnerType.Building
+        );
     }
     [Header("仓库专属")]
     public int storageCapacity = 500;

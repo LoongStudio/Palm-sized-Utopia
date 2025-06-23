@@ -22,6 +22,10 @@ public class BuildingManager : SingletonManager<BuildingManager>
     // Buff 加成
     public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
     
+    // 资源需求与输出表
+    private Dictionary<(ResourceType, int), List<Building>> resourceNeeds = new();
+    private Dictionary<(ResourceType, int), List<Building>> resourceOutputs = new();
+
     private void OnEnable()
     {
         BuffBuilding.OnBuffBuildingBuilt += HandleBuffBuildingBuilt;
@@ -368,5 +372,14 @@ public class BuildingManager : SingletonManager<BuildingManager>
         if (bestBuildings.Count == 1) return bestBuildings[0];
         // 多个得分相同，随机分配
         return bestBuildings[UnityEngine.Random.Range(0, bestBuildings.Count)];
+    }
+
+    // 资源变动事件处理
+    public void OnBuildingResourceChanged(ResourceType type, int subType, int value)
+    {
+        // TODO: 这里可以根据value正负判断是产出还是消耗，动态维护resourceNeeds/resourceOutputs表
+        // 这里只做Debug输出，后续可完善
+        if (showDebugInfo)
+            Debug.Log($"[BuildingManager] 资源变动: {type}-{subType} 变化量: {value}");
     }
 }

@@ -10,7 +10,9 @@ public class TradeMarket : ProductionBuilding
             new List<SubResourceValue<int>>()
             {
                 
-            });
+            },
+            Inventory.InventoryOwnerType.Building
+        );
     }
 
     [Header("贸易市场专属")]
