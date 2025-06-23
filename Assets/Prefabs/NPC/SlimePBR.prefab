@@ -213,8 +213,6 @@ MonoBehaviour:
   transferSpeed: 10
   movement: {fileID: 0}
   pendingWorkBuilding: {fileID: 0}
-  restStartHour: 22
-  restEndHour: 6
   idleTimeWeight: 0.1
   currentIdleWeight: 0
 --- !u!114 &6222079410607490007
@@ -230,6 +228,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcMovementConfig: {fileID: 11400000, guid: f149d6c08bc9fa44f8ad5470f95bea6f, type: 2}
+  showDebugInfo: 0
+  drawGizmos: 1
+  pathColor: {r: 0, g: 1, b: 0, a: 1}
+  isRandomMovementEnabled: 1
   moveRadius: 3
   minWaitTime: 1
   maxWaitTime: 2
@@ -241,10 +243,6 @@ MonoBehaviour:
   isTurning: 0
   targetDirection: {x: 0, y: 0, z: 0}
   currentTarget: {fileID: 0}
-  showDebugInfo: 1
-  drawGizmos: 1
-  pathColor: {r: 0, g: 1, b: 0, a: 1}
-  isRandomMovementEnabled: 1
   isLanded: 0
   isInPosition: 0
 --- !u!195 &-3895718881952932244

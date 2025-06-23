@@ -11,6 +11,11 @@ public class NPCMovement : MonoBehaviour
     [Header("NPC移动配置")]
     public NPCMovementConfig npcMovementConfig;    // NPC移动配置
 
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;           // 显示调试信息
+    [SerializeField] private bool drawGizmos = true;              // 绘制调试线条
+    [SerializeField] private Color pathColor = Color.green;       // 路径颜色
+    [SerializeField] private bool isRandomMovementEnabled = true; // 是否开启随机移动
 
     [Header("移动设置")]
     [SerializeField] private float moveRadius = 3f;              // 移动半径
@@ -27,12 +32,6 @@ public class NPCMovement : MonoBehaviour
     public bool isTurning = false;                             // 是否正在转向
     public Vector3 targetDirection;                            // 目标方向
     public Transform currentTarget;                            // 当前目标位置
-    
-    [Header("调试设置")]
-    [SerializeField] private bool showDebugInfo = true;           // 显示调试信息
-    [SerializeField] private bool drawGizmos = true;              // 绘制调试线条
-    [SerializeField] private Color pathColor = Color.green;       // 路径颜色
-    [SerializeField] private bool isRandomMovementEnabled = true; // 是否开启随机移动
     
     [Header("组件引用")]
     private Animator animator;
@@ -123,7 +122,8 @@ public class NPCMovement : MonoBehaviour
         // 现在可以安全地初始化
         InitializeNavAgent();
         
-        Debug.Log($"[NPCMovement] {name} 延迟初始化完成，开始随机移动");
+        if (showDebugInfo)
+            Debug.Log($"[NPCMovement] {name} 延迟初始化完成，开始随机移动");
         // 注意：不在这里调用StartRandomMovement，让NPCSpawner控制何时开始移动
     }
     
@@ -144,7 +144,8 @@ public class NPCMovement : MonoBehaviour
         maxWaitTime = npcMovementConfig.maxWaitTime;
         movementSpeed = npcMovementConfig.moveSpeed;
         
-        Debug.Log($"[NPCMovement] {name} NavMeshAgent配置完成");
+        if (showDebugInfo)
+            Debug.Log($"[NPCMovement] {name} NavMeshAgent配置完成");
     }
     
     public void StartRandomMovement()
@@ -162,7 +163,9 @@ public class NPCMovement : MonoBehaviour
         }
         // TODO: 这里需要根据NPC的配置来决定是否开启随机移动
         movementCoroutine = StartCoroutine(RandomMovementLoop());
-        Debug.Log($"[NPCMovement] {name} 开始随机移动");
+        
+        if (showDebugInfo)
+            Debug.Log($"[NPCMovement] {name} 开始随机移动");
     }
     
     public void StopRandomMovement()
@@ -181,7 +184,8 @@ public class NPCMovement : MonoBehaviour
         isMoving = false;
         isWaiting = false;
         
-        Debug.Log($"[NPCMovement] {name} 停止随机移动");
+        if (showDebugInfo)
+            Debug.Log($"[NPCMovement] {name} 停止随机移动");
     }
     
     private IEnumerator RandomMovementLoop()
@@ -243,9 +247,7 @@ public class NPCMovement : MonoBehaviour
                     if (navAgent.CalculatePath(hit.position, path) && path.status == NavMeshPathStatus.PathComplete)
                     {
                         if (showDebugInfo)
-                        {
                             Debug.Log($"[NPCMovement] {name} 生成目标点: {hit.position} (尝试 {i + 1} 次)");
-                        }
                         return hit.position;
                     }
                 }
@@ -279,9 +281,7 @@ public class NPCMovement : MonoBehaviour
         navAgent.SetDestination(target);
         
         if (showDebugInfo)
-        {
             Debug.Log($"[NPCMovement] {name} 开始移动到 {target}");
-        }
         
         // 等待到达目标
         while (navAgent.pathPending || navAgent.remainingDistance > stoppingDistance)
@@ -313,9 +313,7 @@ public class NPCMovement : MonoBehaviour
         navAgent.isStopped = true;
 
         if (showDebugInfo)
-        {
             Debug.Log($"[NPCMovement] {name} 到达目标点 {target}，移动次数: {totalMoves}");
-        }
     }
     public void MoveToRandomPosition(){
         Vector3 randomTarget = GenerateRandomTarget();
@@ -331,9 +329,7 @@ public class NPCMovement : MonoBehaviour
         float waitTime = Random.Range(minWaitTime, maxWaitTime);
         
         if (showDebugInfo)
-        {
             Debug.Log($"[NPCMovement] {name} 在目标点等待 {waitTime:F1} 秒");
-        }
         
         yield return new WaitForSeconds(waitTime);
         
@@ -410,7 +406,8 @@ public class NPCMovement : MonoBehaviour
     /// </summary>
     public void OnTurnCompleted()
     {
-        Debug.Log($"[NPCMovement] {name} 转向完成，开始移动");
+        if (showDebugInfo)
+            Debug.Log($"[NPCMovement] {name} 转向完成，开始移动");
         targetDirection = Vector3.zero;
         
         // 转向完成后，开始移动
@@ -431,7 +428,8 @@ public class NPCMovement : MonoBehaviour
         targetDirection = direction.normalized;
         isTurning = true;
         
-        Debug.Log($"[NPCMovement] {name} 开始转向目标方向");
+        if (showDebugInfo)
+            Debug.Log($"[NPCMovement] {name} 开始转向目标方向");
     }
     
     /// <summary>
@@ -457,7 +455,8 @@ public class NPCMovement : MonoBehaviour
         if (direction != Vector3.zero)
         {
             transform.rotation = Quaternion.LookRotation(direction);
-            Debug.Log($"[NPCMovement] {name} 立即转向目标位置");
+            if (showDebugInfo)
+                Debug.Log($"[NPCMovement] {name} 立即转向目标位置");
         }
     }
     
@@ -515,7 +514,8 @@ public class NPCMovement : MonoBehaviour
             float angle = Vector3.Angle(transform.forward, direction);
             if (angle > turnThreshold)
             {
-                Debug.Log($"[NPCMovement] {name} 需要转向 {angle:F1}度，开始转向到位置 {targetPosition}");
+                if (showDebugInfo)
+                    Debug.Log($"[NPCMovement] {name} 需要转向 {angle:F1}度，开始转向到位置 {targetPosition}");
                 // 临时存储目标位置
                 currentTarget = new GameObject("TempTarget").transform;
                 currentTarget.position = targetPosition;
@@ -524,7 +524,8 @@ public class NPCMovement : MonoBehaviour
             else
             {
                 // 角度差很小，直接移动
-                Debug.Log($"[NPCMovement] {name} 角度差较小({angle:F1}度)，直接移动到位置 {targetPosition}");
+                if (showDebugInfo)
+                    Debug.Log($"[NPCMovement] {name} 角度差较小({angle:F1}度)，直接移动到位置 {targetPosition}");
                 navAgent.SetDestination(targetPosition);
             }
         }
@@ -546,7 +547,8 @@ public class NPCMovement : MonoBehaviour
         // 使用NavMeshAgent移动
         if (navAgent != null)
         {
-            Debug.Log($"[NPCMovement] {name} 开始移动到社交位置: {position}");
+            if (showDebugInfo)
+                Debug.Log($"[NPCMovement] {name} 开始移动到社交位置: {position}");
             // 保存当前位置和速度
             // Vector3 previousPosition = transform.position;
             float previousSpeed = navAgent.speed;
@@ -579,7 +581,8 @@ public class NPCMovement : MonoBehaviour
             }
             // 恢复速度
             navAgent.speed = previousSpeed;
-            Debug.Log($"[NPCMovement] {name} 已到达社交位置");
+            if (showDebugInfo)
+                Debug.Log($"[NPCMovement] {name} 已到达社交位置");
         } else{
             Debug.LogError($"[NPCMovement] {name} 没有NavMeshAgent组件，无法移动");
         }
@@ -676,9 +679,7 @@ public class NPCMovement : MonoBehaviour
     {
         currentTarget = target;
         if (showDebugInfo)
-        {
             Debug.Log($"[NPCMovement] {name} 设置当前目标: {(target != null ? target.name : "null")}");
-        }
     }
 
     /// <summary>
@@ -689,8 +690,6 @@ public class NPCMovement : MonoBehaviour
     {
         currentTargetPosition = position;
         if (showDebugInfo)
-        {
             Debug.Log($"[NPCMovement] {name} 设置当前目标位置: {position}");
-        }
     }
 }
