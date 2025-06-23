@@ -11,6 +11,10 @@ public class TradeMarket : ProductionBuilding
             {
                 
             },
+            Inventory.InventoryAcceptMode.OnlyDefined,
+            Inventory.InventoryListFilterMode.AcceptList,
+            AcceptResources,
+            null,
             Inventory.InventoryOwnerType.Building
         );
     }

@@ -28,6 +28,10 @@ public class Farm : ProductionBuilding
                 new SubResourceValue<int>(CropSubType.Wheat, 30),
                 new SubResourceValue<int>(CropSubType.Corn, 30),
             },
+            Inventory.InventoryAcceptMode.OnlyDefined,
+            Inventory.InventoryListFilterMode.AcceptList,
+            AcceptResources,
+            null,
             Inventory.InventoryOwnerType.Building
         );
     }

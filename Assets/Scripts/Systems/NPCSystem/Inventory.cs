@@ -19,77 +19,73 @@ public class Inventory
     public List<SubResourceValue<int>> maximumSubResource;
     public List<SubResource> whiteList;
     public List<SubResource> blackList;
+    // 策略选项
+    public InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined;
+    public InventoryListFilterMode filterMode = InventoryListFilterMode.None;
+    public List<SubResource> acceptList = new();
+    public List<SubResource> rejectList = new();
     // 事件
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public event System.Action<ResourceType, int> OnItemAdded;
     // public event System.Action<ResourceType, int> OnItemRemoved;
     // public event System.Action OnInventoryFull;
     // public event System.Action OnInventoryEmpty;
+    /// <summary>
+    /// 背包资源主接收模式
+    /// </summary>
+    public enum InventoryAcceptMode
+    {
+        AllowAll,      // 允许所有物品（自动补全）
+        OnlyDefined    // 只允许current/max已定义的物品
+    }
+
+    /// <summary>
+    /// 白名单/黑名单过滤模式
+    /// </summary>
+    public enum InventoryListFilterMode
+    {
+        None,           // 不启用白名单/黑名单
+        AcceptList,     // 只允许白名单
+        RejectList,     // 只拒绝黑名单
+        Both            // 白名单和黑名单都启用（先黑名单后白名单）
+    }
+    /// <summary>
+    /// 推荐唯一构造函数，必须传入所有关键参数。
+    /// </summary>
     public Inventory(
         List<SubResourceValue<int>> currentSubResource,
         List<SubResourceValue<int>> maximumSubResource,
-        List<SubResource> whiteList,
-        List<SubResource> blackList,
+        InventoryAcceptMode acceptMode,
+        InventoryListFilterMode filterMode,
+        List<SubResource> acceptList,
+        List<SubResource> rejectList,
         InventoryOwnerType ownerType = InventoryOwnerType.None)
     {
-        this.ownerType = ownerType;
-        // 初始化输入
         this.currentSubResource = currentSubResource ?? new List<SubResourceValue<int>>();
         this.maximumSubResource = maximumSubResource ?? new List<SubResourceValue<int>>();
-
-        // 构建所有出现过的资源类型
+        this.acceptMode = acceptMode;
+        this.filterMode = filterMode;
+        this.acceptList = acceptList ?? new List<SubResource>();
+        this.rejectList = rejectList ?? new List<SubResource>();
+        this.ownerType = ownerType;
+        // 自动补全机制同原有逻辑
         var allTypes = new HashSet<SubResource>();
         foreach (var c in this.currentSubResource)
             allTypes.Add(c.subResource);
         foreach (var m in this.maximumSubResource)
             allTypes.Add(m.subResource);
-
-        // --- 应用白名单优先规则 ---
-        if (whiteList != null && whiteList.Count > 0)
-        {
-            allTypes.IntersectWith(whiteList);
-
-            // 清除 current 和 max 中不在白名单中的资源
-            this.currentSubResource = this.currentSubResource
-                .Where(r => whiteList.Contains(r.subResource)).ToList();
-            this.maximumSubResource = this.maximumSubResource
-                .Where(r => whiteList.Contains(r.subResource)).ToList();
-        }
-        else if (blackList != null && blackList.Count > 0)
-        {
-            allTypes.ExceptWith(blackList);
-
-            // 清除 current 和 max 中出现在黑名单中的资源
-            this.currentSubResource = this.currentSubResource
-                .Where(r => !blackList.Contains(r.subResource)).ToList();
-            this.maximumSubResource = this.maximumSubResource
-                .Where(r => !blackList.Contains(r.subResource)).ToList();
-        }
-
-        // --- 补齐 current / maximum 中缺失的资源项 ---
         foreach (var type in allTypes)
         {
             if (!this.currentSubResource.Exists(r => r.subResource.Equals(type)))
                 this.currentSubResource.Add(new SubResourceValue<int>(type, 0));
-
             if (!this.maximumSubResource.Exists(r => r.subResource.Equals(type)))
                 this.maximumSubResource.Add(new SubResourceValue<int>(type, 0));
         }
     }
 
-    public Inventory()
-    {
-        ownerType = InventoryOwnerType.None;
-        currentSubResource = new List<SubResourceValue<int>>();
-        maximumSubResource = new List<SubResourceValue<int>>();
-    }
-    
-    public Inventory(InventoryOwnerType ownerType = InventoryOwnerType.None)
-    {
-        this.ownerType = ownerType;
-        currentSubResource = new List<SubResourceValue<int>>();
-        maximumSubResource = new List<SubResourceValue<int>>();
-    }
+    // [Obsolete("请使用完整参数构造函数")] public Inventory() { throw new NotSupportedException("请使用完整参数构造函数"); }
+    // [Obsolete("请使用完整参数构造函数")] public Inventory(List<SubResourceValue<int>> currentSubResource, List<SubResourceValue<int>> maximumSubResource) { throw new NotSupportedException("请使用完整参数构造函数"); }
+    // [Obsolete("请使用完整参数构造函数")] public Inventory(List<SubResourceValue<int>> currentSubResource, List<SubResourceValue<int>> maximumSubResource, List<SubResource> whiteList, List<SubResource> blackList, InventoryOwnerType ownerType = InventoryOwnerType.None) { throw new NotSupportedException("请使用完整参数构造函数"); }
 
     public Inventory(
         List<SubResourceValue<int>> currentSubResource,
@@ -206,24 +202,77 @@ public class Inventory
         return maximumSubResource.Find(r => r.subResource.resourceType == type);
     }
     
-    public bool CanAddItem(ResourceType type, int amount)
+    /// <summary>
+    /// 判断能否添加物品，先按过滤模式处理，再按主接收模式处理
+    /// </summary>
+    public bool CanAddItem(SubResource type, int amount)
     {
-        if (whiteList != null && !whiteList.Contains(new SubResource(type, amount))) return false;
-        if (blackList != null && blackList.Contains(new SubResource(type, amount))) return false;
-        var cur = GetCurrent(type);
-        var max = GetMaximum(type);
-        return cur != null && max != null && (cur.resourceValue + amount <= max.resourceValue);
+        // 1. 先处理白名单/黑名单过滤
+        switch (filterMode)
+        {
+            case InventoryListFilterMode.AcceptList:
+                if (!acceptList.Contains(type)) return false;
+                break;
+            case InventoryListFilterMode.RejectList:
+                if (rejectList.Contains(type)) return false;
+                break;
+            case InventoryListFilterMode.Both:
+                if (rejectList.Contains(type)) return false;
+                if (!acceptList.Contains(type)) return false;
+                break;
+            case InventoryListFilterMode.None:
+            default:
+                break;
+        }
+        // 2. 主策略
+        switch (acceptMode)
+        {
+            case InventoryAcceptMode.AllowAll:
+                if (!currentSubResource.Exists(r => r.subResource.Equals(type)))
+                    currentSubResource.Add(new SubResourceValue<int>(type, 0));
+                if (!maximumSubResource.Exists(r => r.subResource.Equals(type)))
+                    maximumSubResource.Add(new SubResourceValue<int>(type, 0));
+                return true;
+            case InventoryAcceptMode.OnlyDefined:
+                bool currHas = currentSubResource.Exists(r => r.subResource.Equals(type));
+                bool maxHas = maximumSubResource.Exists(r => r.subResource.Equals(type));
+                if (!currHas && !maxHas) return false;
+                if (!currHas && maxHas) currentSubResource.Add(new SubResourceValue<int>(type, 0));
+                if (currHas && !maxHas)
+                {
+                    var curr = currentSubResource.First(r => r.subResource.Equals(type));
+                    maximumSubResource.Add(new SubResourceValue<int>(type, curr.resourceValue));
+                }
+                return true;
+        }
+        return false;
     }
 
+    /// <summary>
+    /// 添加物品，按输入策略处理
+    /// </summary>
     public bool AddItem(ResourceType type, int amount)
     {
-        if (!CanAddItem(type, amount)) return false;
+        var subType = new SubResource(type, amount);
+        if (!CanAddItem(subType, amount)) return false;
         var cur = GetCurrent(type);
         cur.resourceValue += amount;
         OnResourceChanged?.Invoke(type, cur.subResource.subType, amount);
         return true;
     }
 
+    /// <summary>
+    /// 判断能否移除物品，只判断数量
+    /// </summary>
+    public bool CanRemoveItem(ResourceType type, int amount)
+    {
+        var cur = GetCurrent(type);
+        return cur != null && cur.resourceValue >= amount;
+    }
+
+    /// <summary>
+    /// 移除物品，只判断数量
+    /// </summary>
     public bool RemoveItem(ResourceType type, int amount)
     {
         var cur = GetCurrent(type);

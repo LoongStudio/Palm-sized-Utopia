@@ -19,6 +19,10 @@ public class Warehouse : FunctionalBuilding
                 new SubResourceValue<int>(CoinSubType.Gold, 30),
                 new SubResourceValue<int>(TicketSubType.Ticket, 30),
             },
+            Inventory.InventoryAcceptMode.OnlyDefined,
+            Inventory.InventoryListFilterMode.AcceptList,
+            AcceptResources,
+            null,
             Inventory.InventoryOwnerType.Building
         );
     }
