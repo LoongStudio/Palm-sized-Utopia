@@ -5,20 +5,43 @@ public class TradeMarket : ProductionBuilding
 {
     public override void InitialSelfStorage()
     {
+        AcceptResources = new List<SubResource>() { SubResource.CreateFromEnum(CoinSubType.Gold) };
         inventory = new Inventory(
             new List<SubResourceValue<int>>(),
             new List<SubResourceValue<int>>()
             {
-                
             },
-            Inventory.InventoryAcceptMode.OnlyDefined,
-            Inventory.InventoryListFilterMode.AcceptList,
+            Inventory.InventoryAcceptMode.AllowAll,
+            Inventory.InventoryListFilterMode.None,
             AcceptResources,
             null,
             Inventory.InventoryOwnerType.Building
         );
     }
 
+    protected override void SetupProductionRule()
+    {
+        base.SetupProductionRule();
+        productionRules = new List<ConversionRule>()
+        {
+            new ConversionRule()
+            {
+                inputs = new List<SubResourceValue<int>> { },
+                outputs = new List<SubResourceValue<int>> 
+                { 
+                    new SubResourceValue<int>(SeedSubType.Wheat, 1)
+                }
+            },
+            new ConversionRule()
+            {
+                inputs = new List<SubResourceValue<int>> { },
+                outputs = new List<SubResourceValue<int>> 
+                {
+                    new SubResourceValue<int>(SeedSubType.Corn, 1)
+                }
+            },
+        };
+    }
     [Header("贸易市场专属")]
     public float tradeEfficiencyMultiplier = 1.0f;
     
