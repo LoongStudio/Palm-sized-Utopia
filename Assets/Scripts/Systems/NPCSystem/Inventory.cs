@@ -253,11 +253,11 @@ public class Inventory
     /// </summary>
     public bool AddItem(ResourceType type, int amount)
     {
-        var subType = new SubResource(type, amount);
-        if (!CanAddItem(subType, amount)) return false;
+        if (!CanAddItem(new SubResource(type, amount), amount)) return false;
         var cur = GetCurrent(type);
         cur.resourceValue += amount;
-        OnResourceChanged?.Invoke(type, cur.subResource.subType, amount);
+        if (ownerType == InventoryOwnerType.Building)
+            OnResourceChanged?.Invoke(type, cur.subResource.subType, amount);
         return true;
     }
 
@@ -278,7 +278,8 @@ public class Inventory
         var cur = GetCurrent(type);
         if (cur == null || cur.resourceValue < amount) return false;
         cur.resourceValue -= amount;
-        OnResourceChanged?.Invoke(type, cur.subResource.subType, -amount);
+        if (ownerType == InventoryOwnerType.Building)
+            OnResourceChanged?.Invoke(type, cur.subResource.subType, -amount);
         return true;
     }
 

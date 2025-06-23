@@ -6,6 +6,7 @@ public class NPCIdleState : NPCStateBase
     private const float PENDING_WORK_WEIGHT = 0.7f; // 待处理工作权重
     private const float SOCIAL_WEIGHT = 0.3f;       // 社交权重
     private const float WORK_WEIGHT = 0.4f;         // 工作权重
+    private const float REST_TIME_MULTIPLIER = 2.0f; // 在休息时间段内的额外权重倍数
 
     public NPCIdleState(NPCState stateType, NPCStateMachine stateMachine, NPC npc) 
         : base(stateType, stateMachine, npc)
@@ -38,14 +39,18 @@ public class NPCIdleState : NPCStateBase
 
     private void DetermineNextState()
     {
-        float restTimeWeight = npc.IsRestTime() ? REST_TIME_WEIGHT : 0f;
+        // 检查是否在休息时间段内
+        bool isRestTime = npc.IsRestTime();
+        float restTimeWeight = isRestTime ? REST_TIME_WEIGHT * REST_TIME_MULTIPLIER : REST_TIME_WEIGHT;
         float pendingWorkWeight = npc.PendingWorkBuilding != null ? PENDING_WORK_WEIGHT : 0f;
+        
+        // 如果在休息时间段内，降低其他活动的权重
+        float socialWeight = isRestTime ? SOCIAL_WEIGHT * 0.5f : SOCIAL_WEIGHT;
+        float newWorkWeight = isRestTime ? WORK_WEIGHT * 0.3f : WORK_WEIGHT;
         
         // 计算各种状态的权重
         float homeWeight = restTimeWeight;
         float workWeight = pendingWorkWeight;
-        float socialWeight = SOCIAL_WEIGHT;
-        float newWorkWeight = WORK_WEIGHT;
 
         // 根据权重选择下一个状态
         float totalWeight = homeWeight + workWeight + socialWeight + newWorkWeight;
@@ -56,6 +61,10 @@ public class NPCIdleState : NPCStateBase
             // 回家
             if (npc.housing != null)
             {
+                if (showDebugInfo && isRestTime)
+                {
+                    Debug.Log($"[NPCIdleState] {npc.data.npcName} 在休息时间段内，决定回家休息");
+                }
                 npc.MoveToTarget(npc.housing.transform.position);
                 stateMachine.ChangeState(NPCState.MovingHome);
             }
@@ -73,22 +82,36 @@ public class NPCIdleState : NPCStateBase
         {
             // 社交 这里由社交系统全部接管，不进行状态切换
             // stateMachine.ChangeState(NPCState.PrepareForSocial);
-            
         }
         else
         {
-            // 寻找新工作
-            // TODO: 实现寻找新工作的逻辑
-            stateMachine.ChangeState(NPCState.MovingToWork);
+            // 在休息时间段内，优先考虑回家而不是找新工作
+            if (isRestTime && npc.housing != null)
+            {
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[NPCIdleState] {npc.data.npcName} 本想找工作，但因为在休息时间段内，决定回家休息");
+                }
+                npc.MoveToTarget(npc.housing.transform.position);
+                stateMachine.ChangeState(NPCState.MovingHome);
+            }
+            else
+            {
+                // 寻找新工作
+                stateMachine.ChangeState(NPCState.MovingToWork);
+            }
         }
 
         npc.ResetIdleWeight();
     }
 
-    protected override void OnExitState(){
+    protected override void OnExitState()
+    {
         base.OnExitState();
     }
-    protected override void OnFixedUpdateState(){
+    
+    protected override void OnFixedUpdateState()
+    {
         base.OnFixedUpdateState();
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21485512efce0ee4ab4e46345b64dffd, type: 3}
   m_Name: TimeSettings
   m_EditorClassIdentifier: 
-  timeScale: 1
+  timeScale: 20
   realSecondsPerGameHour: 60
   pauseAtNight: 0
   nightStartHour: 22
