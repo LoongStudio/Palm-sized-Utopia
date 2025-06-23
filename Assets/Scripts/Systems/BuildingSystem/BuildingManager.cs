@@ -329,15 +329,44 @@ public class BuildingManager : SingletonManager<BuildingManager>
         var buildings = GetBuildingsNeedingWork();
         if (buildings.Count == 0) return null;
 
-        // 优先选择有空余槽位的建筑
-        var buildingWithSlot = buildings.FirstOrDefault(b => b.assignedNPCs.Count < b.maxSlotAmount);
-        if (buildingWithSlot != null) return buildingWithSlot;
+        float weightSlot = 0.5f;
+        float weightResource = 0.5f;
+        List<(Building building, float score)> scored = new();
+        foreach (var building in buildings)
+        {
+            // 缺人程度
+            float slotRatio = 0f;
+            if (building.maxSlotAmount > 0)
+                slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs.Count) / building.maxSlotAmount;
 
-        // 其次选择需要输入资源的建筑
-        var buildingNeedingInput = buildings.FirstOrDefault(b => b.AcceptResources.Any());
-        if (buildingNeedingInput != null) return buildingNeedingInput;
+            // 缺资源程度（对所有AcceptResources取平均）
+            float resourceRatio = 0f;
+            int resourceCount = 0;
+            float resourceSum = 0f;
+            foreach (var res in building.AcceptResources)
+            {
+                int targetSubType = res.subType;
+                var current = building.inventory.currentSubResource
+                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
+                var max = building.inventory.maximumSubResource
+                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
+                if (max > 0)
+                {
+                    resourceSum += 1f - (float)current / max;
+                    resourceCount++;
+                }
+            }
+            if (resourceCount > 0)
+                resourceRatio = resourceSum / resourceCount;
 
-        // 最后选择需要转移资源的建筑
-        return buildings.FirstOrDefault();
+            float score = slotRatio * weightSlot + resourceRatio * weightResource;
+            scored.Add((building, score));
+        }
+        if (scored.Count == 0) return null;
+        float maxScore = scored.Max(x => x.score);
+        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f).Select(x => x.building).ToList();
+        if (bestBuildings.Count == 1) return bestBuildings[0];
+        // 多个得分相同，随机分配
+        return bestBuildings[UnityEngine.Random.Range(0, bestBuildings.Count)];
     }
 }

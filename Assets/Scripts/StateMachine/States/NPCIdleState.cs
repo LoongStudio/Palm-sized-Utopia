@@ -71,8 +71,9 @@ public class NPCIdleState : NPCStateBase
         }
         else if (randomValue < homeWeight + workWeight + socialWeight)
         {
-            // 社交
-            stateMachine.ChangeState(NPCState.PrepareForSocial);
+            // 社交 这里由社交系统全部接管，不进行状态切换
+            // stateMachine.ChangeState(NPCState.PrepareForSocial);
+            
         }
         else
         {
