@@ -39,32 +39,43 @@ public class NPCIdleState : NPCStateBase
 
     private void DetermineNextState()
     {
-        // 检查各种时间状态
         bool isRestTime = npc.IsRestTime();
         bool canWorkNow = npc.CanWorkNow();
 
-        // 计算基础权重
-        float restTimeWeight = isRestTime ? REST_TIME_WEIGHT * REST_TIME_MULTIPLIER : 0f;  // 只在休息时间有回家权重
-        float pendingWorkWeight = (canWorkNow && npc.PendingWorkBuilding != null) ? PENDING_WORK_WEIGHT : 0f;
-        float socialWeight = SOCIAL_WEIGHT;
-        float newWorkWeight = canWorkNow ? WORK_WEIGHT : 0f;
+        float restTimeWeight = 0f;
+        float workWeight = 0f;
+        float pendingWorkWeight = 0f;
+        float socialWeight = 0.2f; // 默认社交权重
 
-        // 只有在工作时间才有工作权重
-        if (!canWorkNow)
+        if (canWorkNow)
         {
-            newWorkWeight = 0f;
+            // 工作时间段
+            workWeight = 1.0f;
+            pendingWorkWeight = (npc.PendingWorkBuilding != null) ? 1.2f : 0f;
+            restTimeWeight = 0f; // 工作时间不考虑回家
+            socialWeight = 0.2f;
+        }
+        else if (isRestTime)
+        {
+            // 休息时间段
+            restTimeWeight = 1.0f;
+            workWeight = 0f;
             pendingWorkWeight = 0f;
+            socialWeight = 0.2f;
+        }
+        else
+        {
+            // 其他自由时间
+            restTimeWeight = 0.2f;
+            workWeight = 0f;
+            pendingWorkWeight = 0f;
+            socialWeight = 0.8f;
         }
 
-        // 计算最终权重
-        float homeWeight = restTimeWeight;
-        float workWeight = pendingWorkWeight;
-
-        // 根据权重选择下一个状态
-        float totalWeight = homeWeight + workWeight + socialWeight + newWorkWeight;
+        float totalWeight = restTimeWeight + workWeight + pendingWorkWeight + socialWeight;
         float randomValue = Random.Range(0f, totalWeight);
 
-        if (randomValue < homeWeight)
+        if (randomValue < restTimeWeight)
         {
             // 回家
             if (npc.housing != null)
@@ -78,7 +89,7 @@ public class NPCIdleState : NPCStateBase
                 stateMachine.ChangeState(NPCState.MovingHome);
             }
         }
-        else if (randomValue < homeWeight + workWeight)
+        else if (randomValue < restTimeWeight + pendingWorkWeight)
         {
             // 执行待处理的工作
             if (npc.PendingWorkBuilding != null)
@@ -91,7 +102,7 @@ public class NPCIdleState : NPCStateBase
                 stateMachine.ChangeState(NPCState.MovingToWork);
             }
         }
-        else if (randomValue < homeWeight + workWeight + socialWeight)
+        else if (randomValue < restTimeWeight + pendingWorkWeight + socialWeight)
         {
             // 社交 这里由社交系统全部接管，不进行状态切换
             if (showDebugInfo)
@@ -110,7 +121,7 @@ public class NPCIdleState : NPCStateBase
                 }
                 stateMachine.ChangeState(NPCState.MovingToWork);
             }
-            else if (npc.housing != null && isRestTime)  // 只在休息时间才会因为没事做而回家
+            else if (npc.housing != null && isRestTime)
             {
                 // 非工作时间且是休息时间，优先回家
                 if (showDebugInfo)
