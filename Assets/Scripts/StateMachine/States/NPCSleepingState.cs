@@ -23,8 +23,9 @@ public class NPCSleepingState : NPCStateBase
         base.UpdateState();
         
         // 检查是否应该结束休息
-        if (!npc.ShouldRest())
+        if (!npc.IsRestTime() && !npc.ShouldRest())
         {
+            // 只有在不是休息时间且不应该休息时才结束休息状态
             if (showDebugInfo)
             {
                 Debug.Log($"[NPCSleepingState] {npc.data.npcName} 休息结束，准备开始新的一天");
