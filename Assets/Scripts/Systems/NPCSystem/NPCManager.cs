@@ -118,18 +118,21 @@ public class NPCManager : SingletonManager<NPCManager>
     private void SubscribeToEvents()
     {
         GameEvents.OnNPCInstantiated += OnNPCInstantiate;
-        GameEvents.OnNPCShouldStartSocialInteraction += HandleNPCShouldStartSocialInteraction;
-        GameEvents.OnNPCSocialInteractionEnded += HandleSocialInteractionEnded;
+        // 移除社交相关的事件订阅，因为现在由SocialSystem直接处理
+        // GameEvents.OnNPCShouldStartSocialInteraction += HandleNPCShouldStartSocialInteraction;
+        // GameEvents.OnNPCSocialInteractionEnded += HandleSocialInteractionEnded;
     }
     private void UnsubscribeFromEvents()
     {
         GameEvents.OnNPCInstantiated -= OnNPCInstantiate;
-        GameEvents.OnNPCShouldStartSocialInteraction -= HandleNPCShouldStartSocialInteraction;
-        GameEvents.OnNPCSocialInteractionEnded -= HandleSocialInteractionEnded;
+        // GameEvents.OnNPCShouldStartSocialInteraction -= HandleNPCShouldStartSocialInteraction;
+        // GameEvents.OnNPCSocialInteractionEnded -= HandleSocialInteractionEnded;
     }
     #endregion
 
     #region 事件处理
+    // 移除社交相关的事件处理方法，因为现在由SocialSystem直接处理
+    /*
     private void HandleNPCShouldStartSocialInteraction(NPCEventArgs args)
     {
         if (args.npc == null || args.otherNPC == null)
@@ -250,6 +253,7 @@ public class NPCManager : SingletonManager<NPCManager>
 
         // TODO：NPC的社交互动结束后的逻辑
     }
+    */
     #endregion
 
     #region NPC注册和可用判断
@@ -609,52 +613,7 @@ public class NPCManager : SingletonManager<NPCManager>
     }
     
 
-    /// <summary>
-    /// 计算两个NPC的社交位置
-    /// </summary>
-    private SocialPositions CalculateSocialPositions(NPC npc1, NPC npc2)
-    {
-        Vector3 npc1Pos = npc1.transform.position;
-        Vector3 npc2Pos = npc2.transform.position;
-        
-        // 计算中点作为社交中心
-        Vector3 socialCenter = (npc1Pos + npc2Pos) * 0.5f;
-        
-        // 计算两个NPC之间的方向
-        Vector3 direction = (npc2Pos - npc1Pos).normalized;
-        
-        // 确保社交位置在NavMesh上
-        socialCenter = FindNearestNavMeshPoint(socialCenter);
-        
-        // 计算两个NPC的最终位置（面对面，保持socialInteractionDistance的距离）
-        float halfDistance = socialSystem.socialInteractionDistance * 0.5f;
-        Vector3 npc1TargetPos = socialCenter - direction * halfDistance;
-        Vector3 npc2TargetPos = socialCenter + direction * halfDistance;
-        
-        // 确保目标位置在NavMesh上
-        npc1TargetPos = FindNearestNavMeshPoint(npc1TargetPos);
-        npc2TargetPos = FindNearestNavMeshPoint(npc2TargetPos);
-        
-        return new SocialPositions
-        {
-            npc1Position = npc1TargetPos,
-            npc2Position = npc2TargetPos,
-            socialCenter = socialCenter,
-            facingDirection = direction
-        };
-    }
-
-    /// <summary>
-    /// 找到最近的NavMesh点
-    /// </summary>
-    private Vector3 FindNearestNavMeshPoint(Vector3 position)
-    {
-        if (UnityEngine.AI.NavMesh.SamplePosition(position, out UnityEngine.AI.NavMeshHit hit, 5f, UnityEngine.AI.NavMesh.AllAreas))
-        {
-            return hit.position;
-        }
-        return position; // 如果找不到，返回原位置
-    }
+    // 社交位置计算相关方法已移动到SocialSystem中
 
     /// <summary>
     /// 安全地销毁NPC，确保从管理系统中正确移除
@@ -678,13 +637,4 @@ public class NPCManager : SingletonManager<NPCManager>
     }
 }
 
-/// <summary>
-/// 社交位置数据
-/// </summary>
-public struct SocialPositions
-{
-    public Vector3 npc1Position;
-    public Vector3 npc2Position;
-    public Vector3 socialCenter;
-    public Vector3 facingDirection;
-}
+// SocialPositions结构体已移动到SocialSystem中
