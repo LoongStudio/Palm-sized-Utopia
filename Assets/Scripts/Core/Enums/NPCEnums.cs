@@ -13,9 +13,7 @@ public enum NPCState
     Transporting,   // 运输阶段
     WorkComplete,   // 完成工作
     MovingHome,     // 回家阶段
-    ArrivedHome,    // 到家阶段
     Sleeping        // 休眠阶段
-
 }
 
 // NPC性格
@@ -39,5 +37,4 @@ public enum NPCTraitType
     CheapLabor,       // 工贼
     NightOwl,        // 夜猫子
     EarlyBird,       // 早起鸟
-
 } 

@@ -42,4 +42,19 @@ public class NPCWorkingState : NPCStateBase
             stateMachine.ChangeState(NPCState.Idle);
         }
     }
+
+    protected override void OnExitState()
+    {
+        base.OnExitState();
+        
+        // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
+        if (npc.AssignedBuilding != null)
+        {
+            if (showDebugInfo)
+            {
+                Debug.Log($"[NPCWorkingState] {npc.data.npcName} 离开工作状态，清除已分配建筑: {npc.AssignedBuilding.data.buildingName}");
+            }
+            npc.AssignedBuilding = null;
+        }
+    }
 } 

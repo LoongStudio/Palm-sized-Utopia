@@ -98,7 +98,6 @@ public class NPCStateMachine : MonoBehaviour
         
         // 回家相关状态
         states[NPCState.MovingHome] = new NPCMovingHomeState(NPCState.MovingHome, this, npc);
-        states[NPCState.ArrivedHome] = new NPCArrivedHomeState(NPCState.ArrivedHome, this, npc);
         states[NPCState.Sleeping] = new NPCSleepingState(NPCState.Sleeping, this, npc);
         
         if (showDebugLogs)

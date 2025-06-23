@@ -49,10 +49,14 @@ public class NPCMovingToWorkState : NPCStateBase
         // 检查是否到达工作地点 - 使用NPCMovement的isInPosition属性
         if (npc.isInPosition)
         {
-            // 如果这是待处理的工作，清除待处理标记并设置为已分配建筑
+            // 如果这是待处理的工作，设置为已分配建筑
             if (npc.PendingWorkBuilding != null)
             {
                 npc.AssignedBuilding = npc.PendingWorkBuilding;
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 已分配到建筑: {npc.AssignedBuilding.data.buildingName}");
+                }
                 npc.ClearPendingWork();
             }
             
