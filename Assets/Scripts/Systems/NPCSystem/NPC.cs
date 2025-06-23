@@ -198,10 +198,11 @@ public class NPC : MonoBehaviour, ISaveable
         return TimeManager.Instance.CurrentTime.hour >= data.workTimeStart && TimeManager.Instance.CurrentTime.hour <= data.workTimeEnd;
     }
     
-    public bool ShouldRest() 
+    public bool ShouldRest()
     {
         if(TimeManager.Instance == null) return false;
-        return TimeManager.Instance.CurrentTime.hour >= data.restTimeStart && TimeManager.Instance.CurrentTime.hour <= data.restTimeEnd;
+        // TODO: 后续考虑其他情况 才 Shouldrest
+        return IsRestTime();
     }
     
     public float GetWorkEfficiency() 
@@ -435,15 +436,21 @@ public class NPC : MonoBehaviour, ISaveable
 
     public bool IsRestTime()
     {
+        if(TimeManager.Instance == null) return false;
         var currentTime = TimeManager.Instance.CurrentTime;
         int restStartHour = data.restTimeStart;
         int restEndHour = data.restTimeEnd;
+        
+        // 跨天的情况（例如22:00-6:00）
         if (restStartHour > restEndHour)
         {
-            // 跨天的情况
             return currentTime.hour >= restStartHour || currentTime.hour < restEndHour;
         }
-        return currentTime.hour >= restStartHour && currentTime.hour < restEndHour;
+        // 同一天的情况（例如14:00-18:00）
+        else
+        {
+            return currentTime.hour >= restStartHour && currentTime.hour < restEndHour;
+        }
     }
 
     public void ResetIdleWeight()
