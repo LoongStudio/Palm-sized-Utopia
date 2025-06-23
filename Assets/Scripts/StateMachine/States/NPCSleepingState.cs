@@ -14,7 +14,37 @@ public class NPCSleepingState : NPCStateBase
         base.OnEnterState();
         if (showDebugInfo)
         {
-            Debug.Log($"[NPCSleepingState] {npc.data.npcName} 正在睡眠");
+            Debug.Log($"[NPCSleepingState] {npc.data.npcName} 开始休息");
+        }
+    }
+
+    public override void UpdateState()
+    {
+        base.UpdateState();
+        
+        // 检查是否应该结束休息
+        if (!npc.ShouldRest())
+        {
+            if (showDebugInfo)
+            {
+                Debug.Log($"[NPCSleepingState] {npc.data.npcName} 休息结束，准备开始新的一天");
+            }
+            stateMachine.ChangeState(NPCState.Idle);
+        }
+    }
+
+    protected override void OnExitState()
+    {
+        base.OnExitState();
+        
+        // 休息结束时清除AssignedBuilding
+        if (npc.AssignedBuilding != null)
+        {
+            if (showDebugInfo)
+            {
+                Debug.Log($"[NPCSleepingState] {npc.data.npcName} 休息结束，清除已分配建筑");
+            }
+            npc.AssignedBuilding = null;
         }
     }
 } 

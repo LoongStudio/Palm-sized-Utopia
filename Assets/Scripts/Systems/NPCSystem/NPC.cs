@@ -44,8 +44,6 @@ public class NPC : MonoBehaviour, ISaveable
 
     [Header("工作系统")]
     [SerializeField] private Building pendingWorkBuilding;       // 待处理的工作建筑
-    [SerializeField] private int restStartHour = 22;             // 晚上10点
-    [SerializeField] private int restEndHour = 6;                // 早上6点
     [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
 
@@ -438,6 +436,8 @@ public class NPC : MonoBehaviour, ISaveable
     public bool IsRestTime()
     {
         var currentTime = TimeManager.Instance.CurrentTime;
+        int restStartHour = data.restTimeStart;
+        int restEndHour = data.restTimeEnd;
         if (restStartHour > restEndHour)
         {
             // 跨天的情况
