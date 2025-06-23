@@ -71,8 +71,8 @@ public class NPC : MonoBehaviour, ISaveable
             movement = gameObject.AddComponent<NPCMovement>();
         }
         
-        // 由NPCManager订阅事件并分发，防止广播风暴
-        // SubscribeToEvents();
+
+        SubscribeToEvents();
     }
     
     private void Update()
@@ -80,8 +80,8 @@ public class NPC : MonoBehaviour, ISaveable
         UpdateMovement();
     }
     private void OnDestroy() {
-        // 由NPCManager取消订阅事件，防止广播风暴
-        // UnsubscribeFromEvents();
+
+        UnsubscribeFromEvents();
         
         // 确保从NPCManager中移除
         if (NPCManager.Instance != null)
@@ -153,11 +153,48 @@ public class NPC : MonoBehaviour, ISaveable
     private void SubscribeToEvents() {
         GameEvents.OnNPCSocialInteractionStarted += OnNPCSocialInteractionStarted;
         GameEvents.OnNPCSocialInteractionEnded += OnNPCSocialInteractionEnded;
+        GameEvents.OnNPCShouldStartSocialInteraction += OnNPCShouldStartSocialInteraction;
     }
     private void UnsubscribeFromEvents() {
         GameEvents.OnNPCSocialInteractionStarted -= OnNPCSocialInteractionStarted;
         GameEvents.OnNPCSocialInteractionEnded -= OnNPCSocialInteractionEnded;
+        GameEvents.OnNPCShouldStartSocialInteraction -= OnNPCShouldStartSocialInteraction;
     }
+    
+    /// <summary>
+    /// NPC应该开始社交互动
+    /// </summary>
+    /// <param name="args"></param>
+    private void OnNPCShouldStartSocialInteraction(NPCEventArgs args)
+    {
+        // 检查这个事件是否与当前NPC相关
+        if (args.npc != this && args.otherNPC != this)
+        {
+            return; // 不是针对当前NPC的事件，忽略
+        }
+        
+        // 确认当前NPC处于空闲状态
+        if (currentState != NPCState.Idle)
+        {
+            if(showDebugInfo)
+                Debug.LogWarning($"[NPC] {data.npcName} 收到社交事件但不在空闲状态，当前状态：{currentState}");
+            return;
+        }
+        
+        if(showDebugInfo)
+            Debug.Log($"[NPC] {data.npcName} 收到社交事件，准备开始社交");
+        
+        // 进入准备社交状态
+        ChangeState(NPCState.PrepareForSocial);
+        
+        // 如果是发起者，转向对方；如果是接收者，也转向对方
+        NPC otherNPC = (args.npc == this) ? args.otherNPC : args.npc;
+        if (otherNPC != null)
+        {
+            TurnToPosition(otherNPC.transform.position);
+        }
+    }
+    
     /// <summary>
     /// NPC开始社交互动
     /// </summary>

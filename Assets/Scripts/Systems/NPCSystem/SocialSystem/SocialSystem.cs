@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
+using UnityEngine.AI;
 
 public class SocialSystem
 {
@@ -31,6 +33,9 @@ public class SocialSystem
     public Dictionary<(NPC, NPC), float> interactionCooldowns{get; private set;}     // 互动冷却时间
     public Dictionary<NPC, int> dailyInteractionCounts{get; private set;}            // 每日互动计数
     public Dictionary<(NPC, NPC), SocialInteraction> activeInteractions{get; private set;} // 当前进行中的互动
+    
+    // 新增：协程管理
+    private Dictionary<(NPC, NPC), Coroutine> activeSocialCoroutines = new Dictionary<(NPC, NPC), Coroutine>();
     #endregion
     
     #region 初始化
@@ -40,6 +45,7 @@ public class SocialSystem
         interactionCooldowns = new Dictionary<(NPC, NPC), float>();
         dailyInteractionCounts = new Dictionary<NPC, int>();
         activeInteractions = new Dictionary<(NPC, NPC), SocialInteraction>();
+        activeSocialCoroutines = new Dictionary<(NPC, NPC), Coroutine>();
 
         config = socialConfig ?? Resources.Load<SocialSystemConfig>("SocialSystemConfig");
     
@@ -53,7 +59,6 @@ public class SocialSystem
 
         // 订阅游戏事件
         GameEvents.OnDayChanged += OnDayChanged;
-        GameEvents.OnNPCReadyForSocialInteraction += StartInteraction;
         
         if(NPCManager.Instance.showDebugInfo) 
             Debug.Log($"[SocialSystem] 初始化完成，管理 {npcs.Count} 个NPC的社交关系");
@@ -145,8 +150,6 @@ public class SocialSystem
         }
     }
 
-
-
     private bool CanInteract(NPC npc1, NPC npc2)
     {
         if(NPCManager.Instance.showDebugInfo) 
@@ -194,26 +197,111 @@ public class SocialSystem
             return false;
         }
         
+        // 检查是否已经有正在进行的社交协程
+        var socialKey = GetInteractionKey(npc1, npc2);
+        if (activeSocialCoroutines.ContainsKey(socialKey))
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC已经有正在进行的社交协程: {npc1.data.npcName} 和 {npc2.data.npcName}");
+            return false;
+        }
+        
         if(NPCManager.Instance.showDebugInfo) 
             Debug.Log($"[SocialSystem] 两个NPC可以互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
         return true;
     }
-    private static void PrepareForSocialInteraction(NPC npc1, NPC npc2)
+    
+    private void PrepareForSocialInteraction(NPC npc1, NPC npc2)
     {
-        // 触发事件让NPC开始向对方移动
-        var eventArgs = new NPCEventArgs
-        {
-            npc = npc1,
-            otherNPC = npc2,
-            timestamp = System.DateTime.Now
-        };
-        GameEvents.TriggerNPCShouldStartSocialInteraction(eventArgs);
+        // 开启社交协程
+        var socialKey = GetInteractionKey(npc1, npc2);
+        var coroutine = NPCManager.Instance.StartCoroutine(ExecuteSocialInteractionSequence(npc1, npc2));
+        activeSocialCoroutines[socialKey] = coroutine;
     }
 
-    private void StartInteraction(NPCEventArgs args)
+    /// <summary>
+    /// 执行完整的社交互动序列
+    /// </summary>
+    private IEnumerator ExecuteSocialInteractionSequence(NPC npc1, NPC npc2)
     {
-        var npc1 = args.npc;
-        var npc2 = args.otherNPC;
+        var socialKey = GetInteractionKey(npc1, npc2);
+        
+        try
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 开始社交互动序列: {npc1.data.npcName} 和 {npc2.data.npcName}");
+
+            // 阶段1: 广播社交事件，让NPC进入PrepareForSocial状态
+            var eventArgs = new NPCEventArgs
+            {
+                npc = npc1,
+                otherNPC = npc2,
+                timestamp = System.DateTime.Now
+            };
+            GameEvents.TriggerNPCShouldStartSocialInteraction(eventArgs);
+
+            // 阶段2: 等待两个NPC都进入MovingToSocial状态
+            float waitStartTime = Time.time;
+            while ((npc1.currentState != NPCState.MovingToSocial || npc2.currentState != NPCState.MovingToSocial) 
+                   && (Time.time - waitStartTime) < socialTimeout)
+            {
+                yield return new WaitForSeconds(0.3f);
+            }
+
+            // 检查是否超时或NPC状态异常
+            if (npc1.currentState != NPCState.MovingToSocial || npc2.currentState != NPCState.MovingToSocial)
+            {
+                Debug.LogWarning($"[SocialSystem] NPC未能进入MovingToSocial状态，取消社交互动: {npc1.data.npcName}, {npc2.data.npcName}");
+                yield break;
+            }
+
+            // 阶段3: 计算社交位置并让NPC移动
+            var socialPositions = CalculateSocialPositions(npc1, npc2);
+            
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 计算社交位置: {socialPositions.npc1Position} 和 {socialPositions.npc2Position}");
+
+            // 让两个NPC移动到社交位置
+            npc1.MoveToTarget(socialPositions.npc1Position);
+            npc2.MoveToTarget(socialPositions.npc2Position);
+
+            // 阶段4: 等待两个NPC到达社交位置
+            waitStartTime = Time.time;
+            while ((!npc1.isInPosition || !npc2.isInPosition) 
+                   && (Time.time - waitStartTime) < socialTimeout)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            // 检查是否成功到达
+            if (!npc1.isInPosition || !npc2.isInPosition)
+            {
+                Debug.LogWarning($"[SocialSystem] NPC未能到达社交位置，取消社交互动: {npc1.data.npcName}, {npc2.data.npcName}");
+                yield break;
+            }
+
+            // 阶段5: 让NPC面向对方
+            npc1.TurnToPosition(npc2.transform.position);
+            npc2.TurnToPosition(npc1.transform.position);
+
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC已就位，开始社交互动: {npc1.data.npcName}, {npc2.data.npcName}");
+
+            // 阶段6: 开始社交互动
+            StartInteraction(npc1, npc2);
+        }
+        finally
+        {
+            // 清理协程记录
+            if (activeSocialCoroutines.ContainsKey(socialKey))
+            {
+                activeSocialCoroutines.Remove(socialKey);
+            }
+        }
+    }
+
+    private void StartInteraction(NPC npc1, NPC npc2)
+    {
         if (npc1 == null || npc2 == null) {
             Debug.LogError("[SocialSystem] NPC为空，无法开始社交互动");
             return;
@@ -247,6 +335,53 @@ public class SocialSystem
         GameEvents.TriggerNPCSocialInteractionStarted(eventArgs);
     }
 
+    /// <summary>
+    /// 计算两个NPC的社交位置
+    /// </summary>
+    private SocialPositions CalculateSocialPositions(NPC npc1, NPC npc2)
+    {
+        Vector3 npc1Pos = npc1.transform.position;
+        Vector3 npc2Pos = npc2.transform.position;
+        
+        // 计算中点作为社交中心
+        Vector3 socialCenter = (npc1Pos + npc2Pos) * 0.5f;
+        
+        // 计算两个NPC之间的方向
+        Vector3 direction = (npc2Pos - npc1Pos).normalized;
+        
+        // 确保社交位置在NavMesh上
+        socialCenter = FindNearestNavMeshPoint(socialCenter);
+        
+        // 计算两个NPC的最终位置（面对面，保持socialInteractionDistance的距离）
+        float halfDistance = socialInteractionDistance * 0.5f;
+        Vector3 npc1TargetPos = socialCenter - direction * halfDistance;
+        Vector3 npc2TargetPos = socialCenter + direction * halfDistance;
+        
+        // 确保目标位置在NavMesh上
+        npc1TargetPos = FindNearestNavMeshPoint(npc1TargetPos);
+        npc2TargetPos = FindNearestNavMeshPoint(npc2TargetPos);
+        
+        return new SocialPositions
+        {
+            npc1Position = npc1TargetPos,
+            npc2Position = npc2TargetPos,
+            socialCenter = socialCenter,
+            facingDirection = direction
+        };
+    }
+
+    /// <summary>
+    /// 找到最近的NavMesh点
+    /// </summary>
+    private Vector3 FindNearestNavMeshPoint(Vector3 position)
+    {
+        if (UnityEngine.AI.NavMesh.SamplePosition(position, out UnityEngine.AI.NavMeshHit hit, 5f, UnityEngine.AI.NavMesh.AllAreas))
+        {
+            return hit.position;
+        }
+        return position; // 如果找不到，返回原位置
+    }
+
     private void CompleteInteraction(NPC npc1, NPC npc2, SocialInteraction interaction)
     {
         if(NPCManager.Instance.showDebugInfo) 
@@ -275,8 +410,6 @@ public class SocialSystem
         // 设置冷却时间
         var key = GetInteractionKey(npc1, npc2);
         interactionCooldowns[key] = interactionCooldown;
-        
-
         
         // 触发关系变化事件
         var eventArgs = new NPCEventArgs
@@ -625,3 +758,14 @@ public class SocialSystemStats
     public int dailyInteractionsTotal;
 }
 #endregion
+
+/// <summary>
+/// 社交位置数据
+/// </summary>
+public struct SocialPositions
+{
+    public Vector3 npc1Position;
+    public Vector3 npc2Position;
+    public Vector3 socialCenter;
+    public Vector3 facingDirection;
+}
