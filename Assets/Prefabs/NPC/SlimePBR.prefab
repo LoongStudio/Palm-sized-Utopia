@@ -185,6 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a9d110ea41a7fe419e3be180b5dbf73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
   data:
     npcName: 
     baseSalary: 0
@@ -199,19 +200,19 @@ MonoBehaviour:
   housing: {fileID: 0}
   stateMachine: {fileID: 6802671182719644152}
   inventory:
+    ownerType: 1
     currentSubResource: []
     maximumSubResource: []
     whiteList: []
     blackList: []
-  currentTarget: {fileID: 0}
+    acceptMode: 0
+    filterMode: 0
+    acceptList: []
+    rejectList: []
   navAgent: {fileID: 0}
   transferSpeed: 10
   movement: {fileID: 0}
-  stoppingDistance: 0.05
-  turnSpeed: 5
-  turnThreshold: 10
-  enableTurnBeforeMove: 1
-  assignedBuilding: {fileID: 0}
+  pendingWorkBuilding: {fileID: 0}
   restStartHour: 22
   restEndHour: 6
   idleTimeWeight: 0.1
@@ -234,6 +235,12 @@ MonoBehaviour:
   maxWaitTime: 2
   movementSpeed: 2
   stoppingDistance: 0.5
+  turnSpeed: 5
+  turnThreshold: 10
+  enableTurnBeforeMove: 1
+  isTurning: 0
+  targetDirection: {x: 0, y: 0, z: 0}
+  currentTarget: {fileID: 0}
   showDebugInfo: 1
   drawGizmos: 1
   pathColor: {r: 0, g: 1, b: 0, a: 1}
