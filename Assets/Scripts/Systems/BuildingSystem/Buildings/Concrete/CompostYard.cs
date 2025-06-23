@@ -35,6 +35,10 @@ public class CompostYard : ProductionBuilding
                 new SubResourceValue<int>(CropSubType.Corn, 10),
                 new SubResourceValue<int>(FeedSubType.Feed, 25),
             },
+            Inventory.InventoryAcceptMode.OnlyDefined,
+            Inventory.InventoryListFilterMode.AcceptList,
+            AcceptResources,
+            null,
             Inventory.InventoryOwnerType.Building
         );
     }

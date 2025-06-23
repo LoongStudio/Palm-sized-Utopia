@@ -9,6 +9,10 @@ public class WaterTower : BuffBuilding
         inventory = new Inventory(
             new List<SubResourceValue<int>> { },
             new List<SubResourceValue<int>>() { },
+            Inventory.InventoryAcceptMode.OnlyDefined,
+            Inventory.InventoryListFilterMode.AcceptList,
+            AcceptResources,
+            null,
             Inventory.InventoryOwnerType.Building
         );
     }
