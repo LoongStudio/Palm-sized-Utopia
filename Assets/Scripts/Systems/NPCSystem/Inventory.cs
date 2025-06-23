@@ -49,6 +49,7 @@ public class Inventory
         RejectList,     // 只拒绝黑名单
         Both            // 白名单和黑名单都启用（先黑名单后白名单）
     }
+    public int defaultMaxValue = 100; // 新增默认最大容量
     /// <summary>
     /// 推荐唯一构造函数，必须传入所有关键参数。
     /// </summary>
@@ -59,7 +60,8 @@ public class Inventory
         InventoryListFilterMode filterMode,
         List<SubResource> acceptList,
         List<SubResource> rejectList,
-        InventoryOwnerType ownerType = InventoryOwnerType.None)
+        InventoryOwnerType ownerType = InventoryOwnerType.None,
+        int defaultMaxValue = 100) // 新增参数
     {
         this.currentSubResource = currentSubResource ?? new List<SubResourceValue<int>>();
         this.maximumSubResource = maximumSubResource ?? new List<SubResourceValue<int>>();
@@ -68,6 +70,7 @@ public class Inventory
         this.acceptList = acceptList ?? new List<SubResource>();
         this.rejectList = rejectList ?? new List<SubResource>();
         this.ownerType = ownerType;
+        this.defaultMaxValue = defaultMaxValue;
         // 自动补全机制同原有逻辑
         var allTypes = new HashSet<SubResource>();
         foreach (var c in this.currentSubResource)
@@ -79,7 +82,7 @@ public class Inventory
             if (!this.currentSubResource.Exists(r => r.subResource.Equals(type)))
                 this.currentSubResource.Add(new SubResourceValue<int>(type, 0));
             if (!this.maximumSubResource.Exists(r => r.subResource.Equals(type)))
-                this.maximumSubResource.Add(new SubResourceValue<int>(type, 0));
+                this.maximumSubResource.Add(new SubResourceValue<int>(type, defaultMaxValue)); // 用默认值
         }
     }
 
@@ -90,11 +93,13 @@ public class Inventory
     public Inventory(
         List<SubResourceValue<int>> currentSubResource,
         List<SubResourceValue<int>> maximumSubResource,
-        InventoryOwnerType ownerType = InventoryOwnerType.None)
+        InventoryOwnerType ownerType = InventoryOwnerType.None,
+        int defaultMaxValue = 100)
     {
         this.ownerType = ownerType;
         this.currentSubResource = currentSubResource;
         this.maximumSubResource = maximumSubResource;
+        this.defaultMaxValue = defaultMaxValue;
         // 构建资源种类全集
         var allTypes = new HashSet<SubResource>();
         foreach (var c in this.currentSubResource)
@@ -109,7 +114,7 @@ public class Inventory
                 this.currentSubResource.Add(new SubResourceValue<int>(type, 0));
 
             if (!this.maximumSubResource.Exists(r => r.subResource.Equals(type)))
-                this.maximumSubResource.Add(new SubResourceValue<int>(type, 0));
+                this.maximumSubResource.Add(new SubResourceValue<int>(type, defaultMaxValue));
         }
     }
     // 获取匹配资源项（默认忽略 subType）
@@ -255,10 +260,14 @@ public class Inventory
     {
         if (!CanAddItem(new SubResource(type, amount), amount)) return false;
         var cur = GetCurrent(type);
-        cur.resourceValue += amount;
+        var max = GetMaximum(type);
+        int maxValue = max?.resourceValue ?? defaultMaxValue;
+        int canAdd = Math.Min(amount, maxValue - cur.resourceValue);
+        if (canAdd <= 0) return false;
+        cur.resourceValue += canAdd;
         if (ownerType == InventoryOwnerType.Building)
-            OnResourceChanged?.Invoke(type, cur.subResource.subType, amount);
-        return true;
+            OnResourceChanged?.Invoke(type, cur.subResource.subType, canAdd);
+        return canAdd > 0;
     }
 
     /// <summary>
