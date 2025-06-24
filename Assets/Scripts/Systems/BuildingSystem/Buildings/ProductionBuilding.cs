@@ -14,6 +14,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public float baseEfficiency = 50f;
     public float efficiency = 1f;
     private bool _canProduce = true; 
+    public bool randomProductionOrder = false; // 新增：是否随机生产顺序
     private new void Start()
     {
         base.Start();
@@ -40,6 +41,16 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public virtual void StopProduction() { _canProduce = false; }
     public virtual bool CanProduce() { return _canProduce; }
     
+    /// <summary>
+    /// 交换两个生产规则的位置
+    /// </summary>
+    public void SwitchProductionRuleOrder(int i, int j)
+    {
+        if (productionRules == null || i < 0 || j < 0 || i >= productionRules.Count || j >= productionRules.Count || i == j)
+            return;
+        (productionRules[i], productionRules[j]) = (productionRules[i], productionRules[j]);
+    }
+
     public virtual void ProduceResources()
     {
         UpdateCurrentEfficiency();
@@ -51,10 +62,23 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             return;
         }
 
-        // 遍历所有rule，找到第一个能生产的
-        for (int i = 0; i < productionRules.Count; i++)
+        // 新增：根据开关决定生产顺序
+        List<int> indices = new List<int>();
+        for (int i = 0; i < productionRules.Count; i++) indices.Add(i);
+        if (randomProductionOrder)
         {
-            var rule = productionRules[i];
+            // 洗牌算法
+            for (int i = indices.Count - 1; i > 0; i--)
+            {
+                int swap = UnityEngine.Random.Range(0, i + 1);
+                (indices[i], indices[swap]) = (indices[swap], indices[i]);
+            }
+        }
+
+        // 遍历所有rule，找到第一个能生产的
+        foreach (int idx in indices)
+        {
+            var rule = productionRules[idx];
             bool exchanged = inventory.SelfExchange(rule.inputs, rule.outputs);
             if (exchanged)
             {
