@@ -82,14 +82,19 @@ public abstract class ProductionBuilding : Building, IResourceProducer
                         inventory.RemoveItem(input.subResource.resourceType, input.resourceValue);
                     }
 
-                    // 增加输出资源
+                    // 统计产出前的数值
+                    int totalAdded = 0;
                     foreach (var output in rule.outputs)
                     {
-                        inventory.AddItem(output.subResource.resourceType, output.resourceValue);
+                        int before = inventory.GetItemCount(output.subResource.resourceType);
+                        bool added = inventory.AddItem(output.subResource.resourceType, output.resourceValue);
+                        int after = inventory.GetItemCount(output.subResource.resourceType);
+                        totalAdded += (after - before);
                     }
 
                     productionTimers[i] = 0f;
-                    break; // 每周期最多执行一个
+                    if (totalAdded != 0)
+                        break; // 只有实际产出有变化才break，否则继续遍历
                 }
             }
             else
