@@ -126,6 +126,10 @@ public class Inventory
         {
             var type = item.subResource;
 
+            // 新增：目标背包模式判断
+            if (!target.IsResourceAllowed(type))
+                continue;
+
             // 白名单优先
             if (target.whiteList != null && target.whiteList.Count > 0 && !target.whiteList.Contains(type))
                 continue;
@@ -227,17 +231,16 @@ public class Inventory
         return maxValue == 0 || currentValue + output.resourceValue <= maxValue;
     }
 
-    
-    private SubResourceValue<int> GetCurrent(ResourceType type)
+    // 新增：通过SubResource查找current/max条目
+    private SubResourceValue<int> GetCurrent(SubResource type)
     {
-        return currentSubResource.Find(r => r.subResource.resourceType == type);
+        return currentSubResource.FirstOrDefault(r => r.subResource.Equals(type));
+    }
+    private SubResourceValue<int> GetMaximum(SubResource type)
+    {
+        return maximumSubResource.FirstOrDefault(r => r.subResource.Equals(type));
     }
 
-    private SubResourceValue<int> GetMaximum(ResourceType type)
-    {
-        return maximumSubResource.Find(r => r.subResource.resourceType == type);
-    }
-    
     /// <summary>
     /// 判断能否添加物品，先按过滤模式处理，再按主接收模式处理
     /// </summary>
@@ -285,19 +288,24 @@ public class Inventory
     }
 
     /// <summary>
-    /// 添加物品，按输入策略处理
+    /// 添加物品，按输入策略处理（支持type+subType）
     /// </summary>
-    public bool AddItem(ResourceType type, int amount)
+    public bool AddItem(SubResource type, int amount)
     {
-        if (!CanAddItem(new SubResource(type, amount), amount)) return false;
+        if (!CanAddItem(type, amount)) return false;
         var cur = GetCurrent(type);
         var max = GetMaximum(type);
         int maxValue = max?.resourceValue ?? defaultMaxValue;
+        if (cur == null)
+        {
+            cur = new SubResourceValue<int>(type, 0);
+            currentSubResource.Add(cur);
+        }
         int canAdd = Math.Min(amount, maxValue - cur.resourceValue);
         if (canAdd <= 0) return false;
         cur.resourceValue += canAdd;
         if (ownerType == InventoryOwnerType.Building)
-            OnResourceChanged?.Invoke(type, cur.subResource.subType, canAdd);
+            OnResourceChanged?.Invoke(type.resourceType, type.subType, canAdd);
         return canAdd > 0;
     }
 
@@ -306,29 +314,28 @@ public class Inventory
     /// </summary>
     public bool CanRemoveItem(ResourceType type, int amount)
     {
-        var cur = GetCurrent(type);
+        var cur = GetCurrent(new SubResource(type, amount));
         return cur != null && cur.resourceValue >= amount;
     }
 
     /// <summary>
-    /// 移除物品，只判断数量
+    /// 移除物品，按type+subType
     /// </summary>
-    public bool RemoveItem(ResourceType type, int amount)
+    public bool RemoveItem(SubResource type, int amount)
     {
-        var subType = new SubResource(type, amount);
-        if (!IsResourceAllowed(subType)) return false;
         var cur = GetCurrent(type);
         if (cur == null || cur.resourceValue < amount) return false;
         cur.resourceValue -= amount;
         if (ownerType == InventoryOwnerType.Building)
-            OnResourceChanged?.Invoke(type, cur.subResource.subType, -amount);
+            OnResourceChanged?.Invoke(type.resourceType, type.subType, -amount);
         return true;
     }
 
-    public int GetItemCount(ResourceType type)
+    /// <summary>
+    /// 获取物品数量，按type+subType
+    /// </summary>
+    public int GetItemCount(SubResource type)
     {
-        var subType = new SubResource(type, 0);
-        if (!IsResourceAllowed(subType)) return 0;
         var cur = GetCurrent(type);
         return cur?.resourceValue ?? 0;
     }
@@ -384,6 +391,94 @@ public class Inventory
             cur.resourceValue = 0;
     }
 
-    
+    /// <summary>
+    /// 交换资源：你支付一组资源和数量，我支付另一组资源和数量，双方都满足条件才交换，成功返回true，否则不变返回false。
+    /// </summary>
+    /// <param name="other">对方背包</param>
+    /// <param name="myPay">我支付的资源及数量</param>
+    /// <param name="otherPay">对方支付的资源及数量</param>
+    /// <returns>交换成功返回true，否则false</returns>
+    public bool ExChange(Inventory other, List<SubResourceValue<int>> myPay, List<SubResourceValue<int>> otherPay)
+    {
+        foreach (var pay in myPay)
+        {
+            if (!this.HasEnough(pay) || !other.IsResourceAllowed(pay.subResource))
+                return false;
+        }
+        foreach (var pay in otherPay)
+        {
+            if (!other.HasEnough(pay) || !this.IsResourceAllowed(pay.subResource))
+                return false;
+        }
+        foreach (var pay in otherPay)
+        {
+            if (!this.CanReceive(pay))
+                return false;
+        }
+        foreach (var pay in myPay)
+        {
+            if (!other.CanReceive(pay))
+                return false;
+        }
+        foreach (var pay in myPay)
+        {
+            this.RemoveItem(pay.subResource, pay.resourceValue);
+        }
+        foreach (var pay in otherPay)
+        {
+            other.RemoveItem(pay.subResource, pay.resourceValue);
+        }
+        foreach (var pay in otherPay)
+        {
+            this.AddItem(pay.subResource, pay.resourceValue);
+        }
+        foreach (var pay in myPay)
+        {
+            other.AddItem(pay.subResource, pay.resourceValue);
+        }
+        return true;
+    }
 
+    /// <summary>
+    /// 自身置换：消耗一组资源，增加另一组资源，成功返回true，否则资源不变返回false。
+    /// </summary>
+    /// <param name="consume">要消耗的资源及数量</param>
+    /// <param name="produce">要增加的资源及数量</param>
+    /// <returns>置换成功返回true，否则false</returns>
+    public bool SelfExchange(List<SubResourceValue<int>> consume, List<SubResourceValue<int>> produce)
+    {
+        foreach (var c in consume)
+        {
+            if (!this.HasEnough(c))
+                return false;
+        }
+        foreach (var p in produce)
+        {
+            if (!this.CanReceive(p))
+                return false;
+        }
+        foreach (var c in consume)
+        {
+            this.RemoveItem(c.subResource, c.resourceValue);
+        }
+        foreach (var p in produce)
+        {
+            this.AddItem(p.subResource, p.resourceValue);
+        }
+        return true;
+    }
+
+    // 兼容旧接口（ResourceType+int）
+    public bool AddItem(ResourceType type, int subType, int amount)
+    {
+        return AddItem(new SubResource(type, subType), amount);
+    }
+    public bool RemoveItem(ResourceType type, int subType, int amount)
+    {
+        return RemoveItem(new SubResource(type, subType), amount);
+    }
+    public int GetItemCount(ResourceType type, int subType)
+    {
+        return GetItemCount(new SubResource(type, subType));
+    }
 }

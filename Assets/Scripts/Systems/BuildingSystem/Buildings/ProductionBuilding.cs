@@ -9,6 +9,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public List<ConversionRule> productionRules;
     public List<float> productionTimers;
     public float productionCooldown = 5f;
+    public float productionTimer = 0f; // 全局cd
     public float conversionTime = 5f;
     public float baseEfficiency = 50f;
     public float efficiency = 1f;
@@ -38,68 +39,27 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public virtual void StartProduction() { _canProduce = true; }
     public virtual void StopProduction() { _canProduce = false; }
     public virtual bool CanProduce() { return _canProduce; }
+    
     public virtual void ProduceResources()
     {
         UpdateCurrentEfficiency();
 
+        // 冷却未结束，直接返回
+        if (productionTimer < productionCooldown / efficiency)
+        {
+            productionTimer += Time.deltaTime;
+            return;
+        }
+
+        // 遍历所有rule，找到第一个能生产的
         for (int i = 0; i < productionRules.Count; i++)
         {
             var rule = productionRules[i];
-            bool canProduce = true;
-
-            // 检查输入资源是否足够
-            foreach (var input in rule.inputs)
+            bool exchanged = inventory.SelfExchange(rule.inputs, rule.outputs);
+            if (exchanged)
             {
-                if (!inventory.HasEnough(input))
-                {
-                    canProduce = false;
-                    break;
-                }
-            }
-
-            // 检查输出资源是否有足够空间
-            if (canProduce)
-            {
-                foreach (var output in rule.outputs)
-                {
-                    if (!inventory.CanReceive(output))
-                    {
-                        canProduce = false;
-                        break;
-                    }
-                }
-            }
-
-            if (canProduce)
-            {
-                productionTimers[i] += Time.deltaTime;
-
-                if (productionTimers[i] >= conversionTime / efficiency)
-                {
-                    // 消耗输入资源
-                    foreach (var input in rule.inputs)
-                    {
-                        inventory.RemoveItem(input.subResource.resourceType, input.resourceValue);
-                    }
-
-                    // 统计产出前的数值
-                    int totalAdded = 0;
-                    foreach (var output in rule.outputs)
-                    {
-                        int before = inventory.GetItemCount(output.subResource.resourceType);
-                        bool added = inventory.AddItem(output.subResource.resourceType, output.resourceValue);
-                        int after = inventory.GetItemCount(output.subResource.resourceType);
-                        totalAdded += (after - before);
-                    }
-
-                    productionTimers[i] = 0f;
-                    if (totalAdded != 0)
-                        break; // 只有实际产出有变化才break，否则继续遍历
-                }
-            }
-            else
-            {
-                productionTimers[i] = 0f;
+                productionTimer = 0f; // 重置全局cd
+                break;
             }
         }
     }
