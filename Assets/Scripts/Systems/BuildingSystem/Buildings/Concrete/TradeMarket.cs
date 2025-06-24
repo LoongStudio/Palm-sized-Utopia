@@ -5,7 +5,10 @@ public class TradeMarket : ProductionBuilding
 {
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<SubResource>() { SubResource.CreateFromEnum(CoinSubType.Gold) };
+        AcceptResources = new List<ResourceConfig>()
+        {
+            ResourceManager.Instance.GetConfig(ResourceType.Coin, (int)CoinSubType.Gold)
+        };
         inventory = new Inventory(
             new List<ResourceStack>(),
             Inventory.InventoryAcceptMode.AllowAll,

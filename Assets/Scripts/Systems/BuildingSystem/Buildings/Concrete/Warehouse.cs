@@ -6,7 +6,7 @@ public class Warehouse : FunctionalBuilding
 
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<SubResource>() { };
+        AcceptResources = new List<ResourceConfig>() { };
         inventory = new Inventory(
             new List<ResourceStack>()
             {

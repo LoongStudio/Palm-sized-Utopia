@@ -15,19 +15,19 @@ public class Inventory
     }
 
     public InventoryOwnerType ownerType = InventoryOwnerType.NPC;
-    public event Action<ResourceType, int, int> OnResourceChanged; // type, subType, value变化量
+    public event Action<ResourceConfig, int> OnResourceChanged; // type, subType, value变化量
     // 新版：资源堆栈结构
     public List<ResourceStack> currentStacks;
     // 只保留ResourceStack相关字段
     
-    // 旧版：已过期，待移除
-    [System.Obsolete("请使用currentStacks替代")] public List<SubResourceValue<int>> currentSubResource;
-    [System.Obsolete("已废弃，limit由ResourceStack维护")] public List<SubResourceValue<int>> maximumSubResource;
-    [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> whiteList;
-    [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> blackList;
+    // // 旧版：已过期，待移除
+    // [System.Obsolete("请使用currentStacks替代")] public List<SubResourceValue<int>> currentSubResource;
+    // [System.Obsolete("已废弃，limit由ResourceStack维护")] public List<SubResourceValue<int>> maximumSubResource;
+    // [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> whiteList;
+    // [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> blackList;
     // 资源过滤列表
-    public List<SubResource> acceptList = new();
-    public List<SubResource> rejectList = new();
+    public List<ResourceConfig> acceptList = new();
+    public List<ResourceConfig> rejectList = new();
     // 策略选项
     public InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined;
     public InventoryListFilterMode filterMode = InventoryListFilterMode.None;
@@ -58,30 +58,33 @@ public class Inventory
         List<ResourceStack> currentStacks, 
         InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined, 
         InventoryListFilterMode filterMode = InventoryListFilterMode.None,
-        List<SubResource> acceptList = null,
-        List<SubResource> rejectList = null,
+        List<ResourceConfig> acceptList = null,
+        List<ResourceConfig> rejectList = null,
         InventoryOwnerType ownerType = InventoryOwnerType.None, 
         int defaultMaxValue = 100)
     {
         this.currentStacks = currentStacks ?? new List<ResourceStack>();
         this.acceptMode = acceptMode;
         this.filterMode = filterMode;
-        this.acceptList = acceptList ?? new List<SubResource>();
-        this.rejectList = rejectList ?? new List<SubResource>();
+        this.acceptList = acceptList ?? new List<ResourceConfig>();
+        this.rejectList = rejectList ?? new List<ResourceConfig>();
         this.ownerType = ownerType;
         this.defaultMaxValue = defaultMaxValue;
     }
 
     // 通过ResourceStack查找
-    private ResourceStack GetCurrent(ResourceStack type)
+    private ResourceStack GetCurrent(ResourceConfig config)
     {
-        return currentStacks.FirstOrDefault(r => r.Equals(type));
+        foreach (var resourceStack in currentStacks)
+            if (resourceStack.resourceConfig.Equals(config))
+                return resourceStack;
+        return null;
     }
 
     /// <summary>
     /// 检查资源是否通过过滤规则
     /// </summary>
-    private bool PassesFilter(ResourceStack resource)
+    private bool PassesFilter(ResourceConfig config)
     {
         if (filterMode == InventoryListFilterMode.None)
             return true;
@@ -92,7 +95,7 @@ public class Inventory
         {
             foreach (var reject in rejectList)
             {
-                if (reject.resourceType == resource.type && reject.subType == resource.subType)
+                if (reject.Equals(config))
                     return false;
             }
         }
@@ -104,7 +107,7 @@ public class Inventory
             bool found = false;
             foreach (var accept in acceptList)
             {
-                if (accept.resourceType == resource.type && accept.subType == resource.subType)
+                if (accept.Equals(config))
                 {
                     found = true;
                     break;
@@ -119,70 +122,49 @@ public class Inventory
     /// <summary>
     /// 判断能否添加物品，直接委托给ResourceStack的CanAdd
     /// </summary>
-    public bool CanAddItem(ResourceStack type, int amount)
+    private bool CanAddItem(ResourceConfig config, int amount)
     {
         // 先检查过滤规则
-        if (!PassesFilter(type))
+        if (!PassesFilter(config))
             return false;
 
-        var cur = GetCurrent(type);
+        var cur = GetCurrent(config);
         if (cur == null)
         {
             // AllowAll模式下可自动补全
             if (acceptMode == InventoryAcceptMode.AllowAll)
-                return amount <= type.storageLimit;
+            {
+                currentStacks.Add(new ResourceStack(config, 0));
+                return true;
+            }
             return false;
         }
         return cur.CanAdd(amount);
     }
 
     /// <summary>
-    /// 添加物品，按输入策略处理（支持type+subType+limit）
+    /// 添加物品，按输入策略处理
     /// </summary>
-    public bool AddItem(ResourceStack type, int amount)
+    public bool AddItem(ResourceConfig config, int amount)
     {
         // 先检查过滤规则
-        if (!PassesFilter(type))
+        if (!CanAddItem(config, amount))
             return false;
-
-        var cur = GetCurrent(type);
-        if (cur == null)
-        {
-            if (acceptMode == InventoryAcceptMode.AllowAll)
-            {
-                cur = type.Clone();
-                cur.amount = Mathf.Min(amount, cur.storageLimit);
-                currentStacks.Add(cur);
-                if (ownerType == InventoryOwnerType.Building)
-                    OnResourceChanged?.Invoke(type.type, type.subType, cur.amount);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        if (!cur.CanAdd(amount)) return false;
-        cur.amount += amount;
-        if (ownerType == InventoryOwnerType.Building)
-            OnResourceChanged?.Invoke(type.type, type.subType, amount);
+        
+        var cur = GetCurrent(config);
+        cur.AddAmount(amount);
+        
         return true;
     }
 
-    public bool RemoveItem(ResourceStack type, int amount)
+    public bool RemoveItem(ResourceConfig config, int amount)
     {
-        var cur = GetCurrent(type);
+        var cur = GetCurrent(config);
         if (cur == null || cur.amount < amount) return false;
         cur.amount -= amount;
         if (ownerType == InventoryOwnerType.Building)
-            OnResourceChanged?.Invoke(type.type, type.subType, -amount);
+            OnResourceChanged?.Invoke(config, -amount);
         return true;
-    }
-
-    public int GetItemCount(ResourceStack type)
-    {
-        var cur = GetCurrent(type);
-        return cur?.amount ?? 0;
     }
 
     public bool IsFull()
@@ -236,15 +218,14 @@ public class Inventory
         int transferredTotal = 0;
         foreach (var item in currentStacks)
         {
-            var type = item;
             if (item.amount <= 0)
                 continue;
-            var targetCurrent = target.GetCurrent(type);
+            var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
-                    targetCurrent = new ResourceStack(type.type, type.subType, type.storageLimit);
+                    targetCurrent = new ResourceStack(item.type, item.subType, item.storageLimit);
                     targetCurrent.amount = 0;
                     target.currentStacks.Add(targetCurrent);
                 }
@@ -280,7 +261,7 @@ public class Inventory
     public bool CanReceive(ResourceStack type)
     {
         // 先检查过滤规则
-        if (!PassesFilter(type))
+        if (!PassesFilter(type.resourceConfig))
             return false;
 
         // 如果是AllowAll模式，总是可以接收
@@ -288,7 +269,7 @@ public class Inventory
             return true;
 
         // OnlyDefined模式下，必须已经定义了这个资源
-        return GetCurrent(type) != null;
+        return GetCurrent(type.resourceConfig) != null;
     }
 
     /// <summary>
@@ -298,10 +279,10 @@ public class Inventory
     {
         // 检查所有资源是否都能通过过滤
         foreach (var pay in myPay)
-            if (!PassesFilter(pay))
+            if (!PassesFilter(pay.resourceConfig))
                 return false;
         foreach (var pay in otherPay)
-            if (!other.PassesFilter(pay))
+            if (!other.PassesFilter(pay.resourceConfig))
                 return false;
 
         // 检查双方是否有足够的资源
@@ -314,22 +295,22 @@ public class Inventory
 
         // 检查双方是否有足够的空间
         foreach (var pay in otherPay)
-            if (!CanAddItem(pay, pay.amount))
+            if (!CanAddItem(pay.resourceConfig, pay.amount))
                 return false;
         foreach (var pay in myPay)
-            if (!other.CanAddItem(pay, pay.amount))
+            if (!other.CanAddItem(pay.resourceConfig, pay.amount))
                 return false;
 
         // 执行交换
         foreach (var pay in myPay)
         {
-            RemoveItem(pay, pay.amount);
-            other.AddItem(pay, pay.amount);
+            RemoveItem(pay.resourceConfig, pay.amount);
+            other.AddItem(pay.resourceConfig, pay.amount);
         }
         foreach (var pay in otherPay)
         {
-            other.RemoveItem(pay, pay.amount);
-            AddItem(pay, pay.amount);
+            other.RemoveItem(pay.resourceConfig, pay.amount);
+            AddItem(pay.resourceConfig, pay.amount);
         }
 
         return true;
@@ -342,7 +323,7 @@ public class Inventory
     {
         // 检查所有资源是否都能通过过滤
         foreach (var item in consume.Concat(produce))
-            if (!PassesFilter(item))
+            if (!PassesFilter(item.resourceConfig))
                 return false;
 
         // 检查是否有足够的消耗资源
@@ -352,14 +333,14 @@ public class Inventory
 
         // 检查是否有足够的空间存放产出
         foreach (var item in produce)
-            if (!CanAddItem(item, item.amount))
+            if (!CanAddItem(item.resourceConfig, item.amount))
                 return false;
 
         // 执行交换
         foreach (var item in consume)
-            RemoveItem(item, item.amount);
+            RemoveItem(item.resourceConfig, item.amount);
         foreach (var item in produce)
-            AddItem(item, item.amount);
+            AddItem(item.resourceConfig, item.amount);
 
         return true;
     }
