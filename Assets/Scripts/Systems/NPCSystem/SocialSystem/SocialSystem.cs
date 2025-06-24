@@ -205,6 +205,14 @@ public class SocialSystem
                 Debug.Log($"[SocialSystem] 两个NPC已经有正在进行的社交协程: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
         }
+
+        // 检测两个NPC是否并未处在各自的休息时间段
+        if(npc1.IsRestTime() || npc2.IsRestTime())
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC处在各自的休息时间段: {npc1.data.npcName} 和 {npc2.data.npcName}");
+            return false;
+        }
         
         if(NPCManager.Instance.showDebugInfo) 
             Debug.Log($"[SocialSystem] 两个NPC可以互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
