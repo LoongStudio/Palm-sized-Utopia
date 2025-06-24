@@ -33,6 +33,10 @@ public class TimeManager : SingletonManager<TimeManager>
     public float TimeScale => currentTimeScale;
     public TimeSettings Settings => settings;
     
+    // 新增：UI时间变动事件
+    public delegate void TimeChangedDelegate(GameTime currentTime, GameTime previousTime);
+    public event TimeChangedDelegate OnTimeChanged;
+    
     #endregion
     
     #region Unity生命周期 (Unity Lifecycle)
@@ -128,6 +132,8 @@ public class TimeManager : SingletonManager<TimeManager>
         
         // 触发基础时间变化事件
         GameEvents.TriggerTimeChanged(currentTime, previousTime);
+        // 新增：通知UI
+        OnTimeChanged?.Invoke(currentTime, previousTime);
     }
     
     #endregion
@@ -226,6 +232,8 @@ public class TimeManager : SingletonManager<TimeManager>
         CheckAndTriggerEvents();
         GameEvents.TriggerTimeChanged(currentTime, previousTime, "手动设置");
         Debug.Log($"[TimeManager] 时间设置为: {currentTime.ToLongString()}");
+        // 新增：通知UI
+        OnTimeChanged?.Invoke(currentTime, previousTime);
     }
     
     #endregion
