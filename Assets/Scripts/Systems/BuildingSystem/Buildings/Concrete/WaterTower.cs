@@ -7,8 +7,7 @@ public class WaterTower : BuffBuilding
     {
         AcceptResources = new List<SubResource>() { };
         inventory = new Inventory(
-            new List<SubResourceValue<int>> { },
-            new List<SubResourceValue<int>>() { },
+            new List<ResourceStack>(),
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,
             AcceptResources,

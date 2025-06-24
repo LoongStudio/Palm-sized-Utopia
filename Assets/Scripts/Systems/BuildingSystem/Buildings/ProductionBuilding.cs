@@ -9,10 +9,12 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public List<ConversionRule> productionRules;
     public List<float> productionTimers;
     public float productionCooldown = 5f;
+    public float productionTimer = 0f; // 全局cd
     public float conversionTime = 5f;
     public float baseEfficiency = 50f;
     public float efficiency = 1f;
     private bool _canProduce = true; 
+    public bool randomProductionOrder = false; // 新增：是否随机生产顺序
     private new void Start()
     {
         base.Start();
@@ -38,68 +40,50 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public virtual void StartProduction() { _canProduce = true; }
     public virtual void StopProduction() { _canProduce = false; }
     public virtual bool CanProduce() { return _canProduce; }
+    
+    /// <summary>
+    /// 交换两个生产规则的位置
+    /// </summary>
+    public void SwitchProductionRuleOrder(int i, int j)
+    {
+        if (productionRules == null || i < 0 || j < 0 || i >= productionRules.Count || j >= productionRules.Count || i == j)
+            return;
+        (productionRules[i], productionRules[j]) = (productionRules[i], productionRules[j]);
+    }
+
     public virtual void ProduceResources()
     {
         UpdateCurrentEfficiency();
 
-        for (int i = 0; i < productionRules.Count; i++)
+        // 冷却未结束，直接返回
+        if (productionTimer < productionCooldown / efficiency)
         {
-            var rule = productionRules[i];
-            bool canProduce = true;
+            productionTimer += Time.deltaTime;
+            return;
+        }
 
-            // 检查输入资源是否足够
-            foreach (var input in rule.inputs)
+        // 新增：根据开关决定生产顺序
+        List<int> indices = new List<int>();
+        for (int i = 0; i < productionRules.Count; i++) indices.Add(i);
+        if (randomProductionOrder)
+        {
+            // 洗牌算法
+            for (int i = indices.Count - 1; i > 0; i--)
             {
-                if (!inventory.HasEnough(input))
-                {
-                    canProduce = false;
-                    break;
-                }
+                int swap = UnityEngine.Random.Range(0, i + 1);
+                (indices[i], indices[swap]) = (indices[swap], indices[i]);
             }
+        }
 
-            // 检查输出资源是否有足够空间
-            if (canProduce)
+        // 遍历所有rule，找到第一个能生产的
+        foreach (int idx in indices)
+        {
+            var rule = productionRules[idx];
+            bool exchanged = inventory.SelfExchange(rule.inputs, rule.outputs);
+            if (exchanged)
             {
-                foreach (var output in rule.outputs)
-                {
-                    if (!inventory.CanReceive(output))
-                    {
-                        canProduce = false;
-                        break;
-                    }
-                }
-            }
-
-            if (canProduce)
-            {
-                productionTimers[i] += Time.deltaTime;
-
-                if (productionTimers[i] >= conversionTime / efficiency)
-                {
-                    // 消耗输入资源
-                    foreach (var input in rule.inputs)
-                    {
-                        inventory.RemoveItem(input.subResource.resourceType, input.resourceValue);
-                    }
-
-                    // 统计产出前的数值
-                    int totalAdded = 0;
-                    foreach (var output in rule.outputs)
-                    {
-                        int before = inventory.GetItemCount(output.subResource.resourceType);
-                        bool added = inventory.AddItem(output.subResource.resourceType, output.resourceValue);
-                        int after = inventory.GetItemCount(output.subResource.resourceType);
-                        totalAdded += (after - before);
-                    }
-
-                    productionTimers[i] = 0f;
-                    if (totalAdded != 0)
-                        break; // 只有实际产出有变化才break，否则继续遍历
-                }
-            }
-            else
-            {
-                productionTimers[i] = 0f;
+                productionTimer = 0f; // 重置全局cd
+                break;
             }
         }
     }
