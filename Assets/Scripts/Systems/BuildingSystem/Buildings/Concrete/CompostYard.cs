@@ -23,17 +23,11 @@ public class CompostYard : ProductionBuilding
             SubResource.CreateFromEnum(CropSubType.Corn)
         };
         inventory = new Inventory(
-            new List<SubResourceValue<int>>()
+            new List<ResourceStack>()
             {
-                new SubResourceValue<int>(CropSubType.Wheat, 0),
-                new SubResourceValue<int>(CropSubType.Corn, 0),
-                new SubResourceValue<int>(FeedSubType.Feed, 0),
-            },
-            new List<SubResourceValue<int>>()
-            {
-                new SubResourceValue<int>(CropSubType.Wheat, 10),
-                new SubResourceValue<int>(CropSubType.Corn, 10),
-                new SubResourceValue<int>(FeedSubType.Feed, 25),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
             },
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,
@@ -50,13 +44,13 @@ public class CompostYard : ProductionBuilding
         {
             new ConversionRule
             {
-                inputs = new List<SubResourceValue<int>>
+                inputs = new List<ResourceStack>
                 {
-                    new SubResourceValue<int>(CropSubType.Wheat, 2) // 使用作物制作堆肥
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 2)
                 },
-                outputs = new List<SubResourceValue<int>>
+                outputs = new List<ResourceStack>
                 {
-                    new SubResourceValue<int>(FeedSubType.Feed, 3) // 产出高质量饲料
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 3)
                 }
             }
         };

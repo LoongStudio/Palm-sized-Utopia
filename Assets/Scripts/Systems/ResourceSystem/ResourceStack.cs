@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
-public class Resource
+public class ResourceStack
 {
     [Header("资源数据")]
-    public ResourceData resourceData;
+    public ResourceConfig resourceConfig;
     
     [Header("动态数据")]
     public int amount = 0;
@@ -13,67 +14,72 @@ public class Resource
     public int sellPrice;
     
     // 构造函数 - 使用ResourceData
-    public Resource(ResourceData resourceData, int amount)
+    public ResourceStack(ResourceConfig resourceConfig, int amount)
     {
-        this.resourceData = resourceData;
+        this.resourceConfig = resourceConfig;
         this.amount = amount;
         
-        if (resourceData == null)
+        if (resourceConfig == null)
         {
             throw new System.ArgumentNullException("resourceData cannot be null");
         }
         
         // 验证子类型是否匹配
-        if (!resourceData.IsValidSubType())
+        if (!resourceConfig.IsValidSubType())
         {
-            throw new System.ArgumentException($"SubType {resourceData.subType} is not valid for ResourceType {resourceData.type}");
+            throw new System.ArgumentException($"SubType {resourceConfig.subType} is not valid for ResourceType {resourceConfig.type}");
         }
     }
     
     // 构造函数 - 类型安全版本（需要先创建ResourceData）
-    public Resource(ResourceType type, System.Enum subTypeEnum, int amount)
+    public ResourceStack(ResourceType type, System.Enum subTypeEnum, int amount)
     {
         // 这个构造函数现在需要ResourceData，建议使用上面的构造函数
         throw new System.NotSupportedException("Please use Resource(ResourceData, int) constructor instead. Create ResourceData asset first.");
     }
     
     // 构造函数 - int版本（需要先创建ResourceData）
-    public Resource(ResourceType type, int subType, int amount) 
+    public ResourceStack(ResourceType type, int subType, int amount) 
     { 
         // 这个构造函数现在需要ResourceData，建议使用上面的构造函数
         throw new System.NotSupportedException("Please use Resource(ResourceData, int) constructor instead. Create ResourceData asset first.");
     }
 
     // 属性访问器，用于向后兼容
-    public ResourceType type => resourceData?.type ?? ResourceType.Coin;
-    public int subType => resourceData?.subType ?? 0;
-    public string displayName => resourceData?.displayName ?? "Unknown";
-    public string description => resourceData?.description ?? "Unknown";
-    public bool canBePurchased => resourceData?.canBePurchased ?? false;
-    public bool canBeSold => resourceData?.canBeSold ?? false;
-    public Sprite icon => resourceData?.icon;
+    public ResourceType type => resourceConfig?.type ?? ResourceType.Coin;
+    public int subType => resourceConfig?.subType ?? 0;
+    public string displayName => resourceConfig?.displayName ?? "Unknown";
+    public string description => resourceConfig?.description ?? "Unknown";
+    public bool canBePurchased => resourceConfig?.canBePurchased ?? false;
+    public bool canBeSold => resourceConfig?.canBeSold ?? false;
+    public Sprite icon => resourceConfig?.icon;
 
     // 获取类型安全的子类型
     public T GetSubType<T>() where T : System.Enum
     {
-        return resourceData != null ? resourceData.GetSubType<T>() : default(T);
+        return resourceConfig != null ? resourceConfig.GetSubType<T>() : default(T);
     }
     
     // 获取子类型的显示名称
     public string GetSubTypeName()
     {
-        return resourceData != null ? resourceData.GetSubTypeName() : "Unknown";
+        return resourceConfig != null ? resourceConfig.GetSubTypeName() : "Unknown";
     }
     
-    public bool CanStackWith(Resource other) 
+    public bool CanStackWith(ResourceStack other) 
     {
         return other != null && 
-               other.resourceData != null &&
-               this.resourceData != null &&
-               other.resourceData.type == this.resourceData.type && 
-               other.resourceData.subType == this.resourceData.subType;
+               other.resourceConfig != null &&
+               this.resourceConfig != null &&
+               other.resourceConfig.type == this.resourceConfig.type && 
+               other.resourceConfig.subType == this.resourceConfig.subType;
     }
-    
+
+    public bool CanAdd(int amount)
+    {
+        int tempAmount = amount + this.amount;
+        return tempAmount <= this.storageLimit && tempAmount >= 0;
+    }
     // 添加资源数量
     public void AddAmount(int amount) 
     {
@@ -103,54 +109,63 @@ public class Resource
         return this.storageLimit;
     }
 
+    public bool IsFull()
+    {
+        return amount >= this.storageLimit;
+    }
+    public ResourceStack Clone()
+    {
+        return new ResourceStack(this.resourceConfig, this.amount);
+    }
+
     #region 便捷的创建方法 - 现在需要ResourceData资产
     // 注意：这些静态方法现在需要预先创建的ResourceData资产
     // 建议在项目中为每种资源类型创建对应的ResourceData ScriptableObject资产
     
-    public static Resource CreateFromData(ResourceData resourceData, int amount)
+    public static ResourceStack CreateFromData(ResourceConfig resourceConfig, int amount)
     {
-        return new Resource(resourceData, amount);
+        return new ResourceStack(resourceConfig, amount);
     }
     
     // 这些方法现在已弃用，需要使用ResourceData资产
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateSeed(SeedSubType seedType, int amount)
+    public static ResourceStack CreateSeed(SeedSubType seedType, int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for seeds and use CreateFromData instead");
     }
     
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateCrop(CropSubType cropType, int amount)
+    public static ResourceStack CreateCrop(CropSubType cropType, int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for crops and use CreateFromData instead");
     }
     
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateBreedingStock(BreedingStockSubType breedingStockType, int amount)
+    public static ResourceStack CreateBreedingStock(BreedingStockSubType breedingStockType, int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for breeding stock and use CreateFromData instead");
     }
 
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateLivestock(LivestockSubType livestockType, int amount)
+    public static ResourceStack CreateLivestock(LivestockSubType livestockType, int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for livestock and use CreateFromData instead");
     }
     
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateFeed(FeedSubType feedType, int amount)
+    public static ResourceStack CreateFeed(FeedSubType feedType, int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for feed and use CreateFromData instead");
     }
     
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateCoin(int amount)
+    public static ResourceStack CreateCoin(int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for coins and use CreateFromData instead");
     }
     
     [System.Obsolete("Use CreateFromData with ResourceData asset instead")]
-    public static Resource CreateTicket(int amount)
+    public static ResourceStack CreateTicket(int amount)
     {
         throw new System.NotSupportedException("Create ResourceData asset for tickets and use CreateFromData instead");
     }
