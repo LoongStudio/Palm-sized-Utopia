@@ -170,9 +170,39 @@ public class Inventory
         return transferredTotal > 0;
     }
 
+    // 新增：统一资源允许性判断
+    private bool IsResourceAllowed(SubResource type)
+    {
+        // 先处理filterMode
+        switch (filterMode)
+        {
+            case InventoryListFilterMode.AcceptList:
+                if (!acceptList.Contains(type)) return false;
+                break;
+            case InventoryListFilterMode.RejectList:
+                if (rejectList.Contains(type)) return false;
+                break;
+            case InventoryListFilterMode.Both:
+                if (rejectList.Contains(type)) return false;
+                if (!acceptList.Contains(type)) return false;
+                break;
+            case InventoryListFilterMode.None:
+            default:
+                break;
+        }
+        // 再处理acceptMode
+        if (acceptMode == InventoryAcceptMode.OnlyDefined)
+        {
+            bool currHas = currentSubResource.Exists(r => r.subResource.Equals(type));
+            bool maxHas = maximumSubResource.Exists(r => r.subResource.Equals(type));
+            if (!currHas && !maxHas) return false;
+        }
+        return true;
+    }
 
     public bool HasEnough(SubResourceValue<int> required)
     {
+        if (!IsResourceAllowed(required.subResource)) return false;
         var current = currentSubResource.FirstOrDefault(r =>
             r.subResource.resourceType == required.subResource.resourceType &&
             r.subResource.subType == required.subResource.subType);
@@ -181,6 +211,7 @@ public class Inventory
 
     public bool CanReceive(SubResourceValue<int> output)
     {
+        if (!IsResourceAllowed(output.subResource)) return false;
         if (whiteList != null && !whiteList.Contains(output.subResource)) return false;
         if (blackList != null && blackList.Contains(output.subResource)) return false;
         var current = currentSubResource.FirstOrDefault(r =>
@@ -284,6 +315,8 @@ public class Inventory
     /// </summary>
     public bool RemoveItem(ResourceType type, int amount)
     {
+        var subType = new SubResource(type, amount);
+        if (!IsResourceAllowed(subType)) return false;
         var cur = GetCurrent(type);
         if (cur == null || cur.resourceValue < amount) return false;
         cur.resourceValue -= amount;
@@ -294,6 +327,8 @@ public class Inventory
 
     public int GetItemCount(ResourceType type)
     {
+        var subType = new SubResource(type, 0);
+        if (!IsResourceAllowed(subType)) return 0;
         var cur = GetCurrent(type);
         return cur?.resourceValue ?? 0;
     }
