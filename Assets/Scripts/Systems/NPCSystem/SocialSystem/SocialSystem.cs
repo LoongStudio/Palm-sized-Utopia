@@ -26,6 +26,15 @@ public class SocialSystem
     [SerializeField] private int fightRelationshipPenalty;   // 争吵好感度惩罚
     [SerializeField] private int workTogetherBonus;            // 共同工作好感度奖励
     [SerializeField] private int relationshipDecayDaily;      // 每日好感度衰减
+
+    [Header("邀请系统配置")]
+    [SerializeField] private float invitationTimeout = 5f;
+    [SerializeField] private int maxPendingInvitations = 3;     // 最大待处理邀请数
+
+    // 邀请管理
+    private Dictionary<int, SocialInvitation> activeInvitations = new Dictionary<int, SocialInvitation>();
+    private Queue<SocialInvitationResponse> pendingResponses = new Queue<SocialInvitationResponse>();
+    private int nextInvitationId = 1;
     #endregion
 
     #region 私有字段
@@ -93,18 +102,21 @@ public class SocialSystem
                     
         // 更新冷却时间
         UpdateInteractionCooldowns();
-        
-        // 检查新的潜在互动和其他操作 - 受时间间隔限制
-        if (Time.time - lastCheckTime >= interactionCheckInterval)
-        {
-            if(NPCManager.Instance.showDebugInfo) 
-                Debug.Log($"[SocialSystem] 社交系统定期更新");
-            
-            // 检查新的潜在互动
-            CheckForPotentialInteractions();
 
-            lastCheckTime = Time.time;
-        }
+        // 更新邀请系统
+        UpdateInvitationSystem();
+        
+        // // 检查新的潜在互动和其他操作 - 受时间间隔限制
+        // if (Time.time - lastCheckTime >= interactionCheckInterval)
+        // {
+        //     if(NPCManager.Instance.showDebugInfo) 
+        //         Debug.Log($"[SocialSystem] 社交系统定期更新");
+            
+        //     // 检查新的潜在互动
+        //     CheckForPotentialInteractions();
+
+        //     lastCheckTime = Time.time;
+        // }
     }
     
     private void UpdateActiveInteractions()
@@ -159,7 +171,9 @@ public class SocialSystem
         if(NPCManager.Instance.showDebugInfo) 
             Debug.Log($"[SocialSystem] 检查两个NPC是否可以互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
         // 检查基本条件，仅有Idle状态的NPC才能进行社交互动
-        if (npc1 == npc2 || npc1.currentState != NPCState.Idle || npc2.currentState != NPCState.Idle)
+        if (npc1 == npc2 || 
+        (npc1.currentState != NPCState.Idle && npc1.currentState != NPCState.PrepareForSocial) || 
+        (npc2.currentState != NPCState.Idle && npc2.currentState != NPCState.PrepareForSocial))
         {
             if(NPCManager.Instance.showDebugInfo) 
                 Debug.Log($"[SocialSystem] 两个NPC不能互动: {npc1.data.npcName} 和 {npc2.data.npcName}");
@@ -363,7 +377,7 @@ public class SocialSystem
     /// <summary>
     /// 计算两个NPC的社交位置
     /// </summary>
-    private SocialPositions CalculateSocialPositions(NPC npc1, NPC npc2)
+    public SocialPositions CalculateSocialPositions(NPC npc1, NPC npc2)
     {
         Vector3 npc1Pos = npc1.transform.position;
         Vector3 npc2Pos = npc2.transform.position;
@@ -628,7 +642,184 @@ public class SocialSystem
             Debug.Log("[SocialSystem] 处理每日好感度衰减完成");
     }
     #endregion
+    
+    #region 邀请发送和接收
+    /// <summary>
+    /// 发送社交邀请
+    /// </summary>
+    public bool SendSocialInvitation(NPC sender, NPC receiver)
+    {
+        // 1. 验证发送条件
+        if (!CanSendInvitation(sender, receiver))
+        {
+            return false;
+        }
+        
+        // 2. 创建邀请
+        var invitation = new SocialInvitation
+        {
+            invitationId = nextInvitationId++,
+            sender = sender,
+            receiver = receiver,
+            suggestedSocialLocaiton = CalculateSocialPositions(sender, receiver),
+            sendTime = Time.time,
+            expireTime = Time.time + invitationTimeout,
+            status = SocialInvitationStatus.Pending
+        };
+        
+        // 3. 注册邀请
+        activeInvitations[invitation.invitationId] = invitation;
+        
+        // 4. 通知接收者（通过状态机）
+        NotifyInvitationReceived(receiver, invitation);
+        
+        if (NPCManager.Instance.showDebugInfo)
+            Debug.Log($"[SocialSystem] {sender.data.npcName} 向 {receiver.data.npcName} 发送社交邀请 (ID: {invitation.invitationId})");
+        
+        return true;
+    }
 
+    /// <summary>
+    /// 响应社交邀请
+    /// </summary>
+    public void RespondToInvitation(int invitationId, NPC responder, bool accepted, string reason = "")
+    {
+        if (!activeInvitations.TryGetValue(invitationId, out var invitation))
+        {
+            Debug.LogWarning($"[SocialSystem] 邀请 {invitationId} 不存在或已处理");
+            return;
+        }
+        
+        if (invitation.receiver != responder)
+        {
+            Debug.LogError($"[SocialSystem] 响应者 {responder.data.npcName} 不是邀请 {invitationId} 的接收者");
+            return;
+        }
+        
+        if (!invitation.IsValid)
+        {
+            Debug.LogWarning($"[SocialSystem] 邀请 {invitationId} 已过期或无效");
+            return;
+        }
+        
+        // 更新邀请状态
+        invitation.status = accepted ? SocialInvitationStatus.Accepted : SocialInvitationStatus.Declined;
+        
+        // 创建响应
+        var response = new SocialInvitationResponse
+        {
+            invitationId = invitationId,
+            responder = responder,
+            accepted = accepted,
+            reason = reason
+        };
+        
+        // 加入待处理响应队列
+        pendingResponses.Enqueue(response);
+        
+        if (NPCManager.Instance.showDebugInfo)
+            Debug.Log($"[SocialSystem] {responder.data.npcName} {(accepted ? "接受" : "拒绝")}了邀请 {invitationId} {reason}");
+    }
+    
+    #endregion
+
+    #region 状态机查询接口
+    
+    /// <summary>
+    /// 获取NPC的待处理邀请
+    /// </summary>
+    public SocialInvitation GetPendingInvitation(NPC npc)
+    {
+        return activeInvitations.Values
+            .Where(inv => inv.receiver == npc && inv.IsValid)
+            .OrderBy(inv => inv.sendTime)
+            .FirstOrDefault();
+    }
+    
+    /// <summary>
+    /// 获取并消费邀请响应（给发送者状态机使用）
+    /// </summary>
+    public SocialInvitationResponse GetInvitationResponse(NPC sender)
+    {
+        // 查找属于该发送者的响应
+        var responses = pendingResponses.ToArray();
+        pendingResponses.Clear();
+        
+        foreach (var response in responses)
+        {
+            if (activeInvitations.TryGetValue(response.invitationId, out var invitation) && 
+                invitation.sender == sender)
+            {
+                // 找到属于该发送者的响应，其他响应放回队列
+                foreach (var otherResponse in responses)
+                {
+                    if (otherResponse != response)
+                        pendingResponses.Enqueue(otherResponse);
+                }
+                return response;
+            }
+        }
+        
+        // 没找到，所有响应放回队列
+        foreach (var response in responses)
+        {
+            pendingResponses.Enqueue(response);
+        }
+        
+        return null;
+    }
+    
+    /// <summary>
+    /// 检查是否可以发送邀请
+    /// </summary>
+    private bool CanSendInvitation(NPC sender, NPC receiver)
+    {
+        // 1. 基本验证
+        if (sender == null || receiver == null || sender == receiver)
+            return false;
+        
+        // 2. 检查接收者状态
+        if (receiver.currentState != NPCState.Idle)
+        {
+            if (NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] {receiver.data.npcName} 不在空闲状态，无法接收邀请");
+            return false;
+        }
+        
+        // 3. 检查是否已有待处理邀请
+        bool hasExistingInvitation = activeInvitations.Values.Any(inv => 
+            (inv.sender == sender && inv.receiver == receiver || 
+             inv.sender == receiver && inv.receiver == sender) && 
+            inv.IsValid);
+        
+        if (hasExistingInvitation)
+        {
+            if (NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] {sender.data.npcName} 和 {receiver.data.npcName} 之间已有待处理邀请");
+            return false;
+        }
+        
+        // 4. 检查社交条件（距离、冷却时间等）
+        if (!CanInteract(sender, receiver))
+        {
+            return false;
+        }
+        
+        // 5. 检查接收者待处理邀请数量
+        int receiverPendingCount = activeInvitations.Values.Count(inv => 
+            inv.receiver == receiver && inv.IsValid);
+        
+        if (receiverPendingCount >= maxPendingInvitations)
+        {
+            if (NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] {receiver.data.npcName} 待处理邀请已满");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    #endregion
     #region 辅助方法
     // 计算NavMesh中的实际距离
     private float CalculateNavMeshDistance(Vector3 startPos, Vector3 endPos)
@@ -709,6 +900,68 @@ public class SocialSystem
     {
         return activeInteractions.Any(kvp => kvp.Key.Item1 == npc || kvp.Key.Item2 == npc);
     }
+    /// <summary>
+    /// 为指定NPC找到潜在的社交伙伴
+    /// </summary>
+    /// <param name="npc"></param>
+    /// <returns></returns>
+    public List<NPC> FindPotentialSocialPartners(NPC npc){
+        List<NPC> potentialPartners = new List<NPC>();
+        foreach (var otherNPC in npcs)
+        {
+            if (otherNPC == npc) continue;
+            if (CanInteract(npc, otherNPC))
+            {
+                potentialPartners.Add(otherNPC);
+            }
+        }
+        return potentialPartners;
+    }
+
+    /// <summary>
+    /// 为指定NPC找到最近的潜在社交伙伴
+    /// </summary>
+    /// <param name="npc"></param>
+    /// <returns></returns>
+    public NPC FindNearestSocialPartner(NPC npc){
+        List<NPC> potentialPartners = FindPotentialSocialPartners(npc);
+        if (potentialPartners.Count == 0) return null;
+        return potentialPartners.OrderBy(p => Vector3.Distance(npc.transform.position, p.transform.position)).First();
+    }
+    
+    /// <summary>
+    /// 通知NPC收到邀请（通过状态机的Update检查）
+    /// </summary>
+    private void NotifyInvitationReceived(NPC receiver, SocialInvitation invitation)
+    {
+        // 不直接修改NPC状态，让状态机在Update中主动检查
+        // 这样保持了状态机的主导地位
+    }
+    
+    /// <summary>
+    /// 清理过期邀请
+    /// </summary>
+    private void CleanupExpiredInvitations()
+    {
+        var expiredIds = activeInvitations.Values
+            .Where(inv => inv.IsExpired)
+            .Select(inv => inv.invitationId)
+            .ToList();
+        
+        foreach (var id in expiredIds)
+        {
+            activeInvitations.Remove(id);
+        }
+    }
+    
+
+    public void UpdateInvitationSystem()
+    {
+        CleanupExpiredInvitations();
+        
+        // 这里不再主动扫描和发送邀请
+        // 所有邀请都由NPC状态机主动发起
+    }
     #endregion
 
     #region 统计和调试
@@ -784,6 +1037,8 @@ public class SocialInteraction
         return false;
     }
 }
+
+
 #endregion
 
 #region 数据结构
@@ -796,6 +1051,44 @@ public class SocialSystemStats
     public float averageRelationship;
     public int dailyInteractionsTotal;
 }
+
+#region 社交邀请
+public class SocialInvitation{
+    public int invitationId;
+    public NPC sender;
+    public NPC receiver;
+    public SocialPositions suggestedSocialLocaiton;
+    public float sendTime;
+    public float expireTime;
+    public SocialInvitationStatus status;
+
+    public bool IsExpired => Time.time > expireTime;
+    public bool IsValid => status == SocialInvitationStatus.Pending && !IsExpired;
+
+}
+
+public enum SocialInvitationStatus
+{
+    Pending,    // 等待响应
+    Accepted,   // 已接受
+    Declined,   // 已拒绝
+    Expired     // 已过期
+}
+
+public class SocialInvitationResponse
+{
+    public int invitationId;
+    public NPC responder;
+    public bool accepted;
+    public string reason; // 拒绝原因（调试用）
+}
+public enum InvitationPriority
+{
+    Low = 0,        // 一般邀请
+    Normal = 1,     // 正常邀请
+    High = 2        // 高优先级邀请（如关系很好的NPC发出的）
+}
+#endregion
 #endregion
 
 /// <summary>

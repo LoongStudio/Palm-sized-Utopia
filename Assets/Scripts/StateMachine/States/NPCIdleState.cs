@@ -29,6 +29,9 @@ public class NPCIdleState : NPCStateBase
     {
         base.UpdateState();
         npc.IncreaseIdleWeight();
+        
+        // 检查是否收到社交邀请
+        CheckForSocialInvitations();
 
         // 如果累积的权重足够高，考虑状态转换
         if (npc.CurrentIdleWeight >= 1f)
@@ -104,10 +107,14 @@ public class NPCIdleState : NPCStateBase
         }
         else if (randomValue < restTimeWeight + pendingWorkWeight + socialWeight)
         {
-            // 社交 这里由社交系统全部接管，不进行状态切换
             if (showDebugInfo)
             {
                 Debug.Log($"[NPCIdleState] {npc.data.npcName} 决定进行社交活动");
+            }
+            // 查询潜在社交伙伴
+            var partners = NPCManager.Instance.socialSystem.FindPotentialSocialPartners(npc);
+            if (partners.Count > 0){
+                npc.ChangeState(NPCState.PrepareForSocial);
             }
         }
         else
@@ -145,4 +152,63 @@ public class NPCIdleState : NPCStateBase
     {
         base.OnFixedUpdateState();
     }
+
+    #region 社交邀请处理
+    private void CheckForSocialInvitations()
+    {
+        var socialSystem = NPCManager.Instance.socialSystem;
+        var invitation = socialSystem.GetPendingInvitation(npc);
+        
+        if (invitation != null)
+        {
+            // 决定是否接受邀请
+            bool shouldAccept = ShouldAcceptInvitation(invitation);
+            string reason = "";
+            
+            if (!shouldAccept)
+            {
+                reason = DetermineDeclineReason(invitation);
+            }
+            
+            // 响应邀请
+            socialSystem.RespondToInvitation(invitation.invitationId, npc, shouldAccept, reason);
+            
+            if (shouldAccept)
+            {
+                // 接受邀请，设置接收者的社交位置
+                npc.socialPosition = invitation.suggestedSocialLocaiton.npc2Position;
+                
+                // 接受邀请，进入社交移动状态
+                if (showDebugInfo)
+                    Debug.Log($"[NPCIdleState] {npc.data.npcName} 接受了 {invitation.sender.data.npcName} 的社交邀请，设置社交位置为 {npc.socialPosition}");
+                npc.ChangeState(NPCState.MovingToSocial);
+            }
+            else
+            {
+                if (showDebugInfo)
+                    Debug.Log($"[NPCIdleState] {npc.data.npcName} 拒绝了 {invitation.sender.data.npcName} 的社交邀请: {reason}");
+            }
+        }
+    }
+    
+    private bool ShouldAcceptInvitation(SocialInvitation invitation)
+    {
+        // 1. 检查基本条件
+        if (npc.IsRestTime())
+        {
+            return false; // 休息时间不社交
+        }
+        
+        // TODO: 其它可能的接受条件
+        return true;
+    }
+    
+    private string DetermineDeclineReason(SocialInvitation invitation)
+    {
+        if (npc.IsRestTime())
+            return "休息时间";
+        
+        return "其它原因";
+    }
+    #endregion
 }

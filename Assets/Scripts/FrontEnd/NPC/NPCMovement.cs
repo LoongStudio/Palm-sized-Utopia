@@ -496,45 +496,6 @@ public class NPCMovement : MonoBehaviour
     //     }
     // }
     
-    /// <summary>
-    /// 移动到指定位置（重载方法）
-    /// </summary>
-    /// <param name="targetPosition">目标位置</param>
-    public void MoveToPosition(Vector3 targetPosition)
-    {
-        if(navAgent == null) return;
-        
-        if (enableTurnBeforeMove)
-        {
-            // 先转向目标，转向完成后再开始移动
-            Vector3 direction = (targetPosition - transform.position).normalized;
-            direction.y = 0; // 忽略Y轴，只在水平面转向
-            
-            // 检查是否需要转向
-            float angle = Vector3.Angle(transform.forward, direction);
-            if (angle > turnThreshold)
-            {
-                if (showDebugInfo)
-                    Debug.Log($"[NPCMovement] {name} 需要转向 {angle:F1}度，开始转向到位置 {targetPosition}");
-                // 临时存储目标位置
-                currentTarget = new GameObject("TempTarget").transform;
-                currentTarget.position = targetPosition;
-                TurnToDirection(direction);
-            }
-            else
-            {
-                // 角度差很小，直接移动
-                if (showDebugInfo)
-                    Debug.Log($"[NPCMovement] {name} 角度差较小({angle:F1}度)，直接移动到位置 {targetPosition}");
-                navAgent.SetDestination(targetPosition);
-            }
-        }
-        else
-        {
-            // 直接移动，不转向
-            navAgent.SetDestination(targetPosition);
-        }
-    }
     
     /// <summary>
     /// 移动到社交位置的协程方法

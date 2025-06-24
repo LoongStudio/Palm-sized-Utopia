@@ -33,6 +33,8 @@ public abstract class NPCStateBase
     /// </summary>
     public virtual void EnterState()
     {
+        if (showDebugInfo)
+            Debug.Log($"[NPCStateBase] {npc.data.npcName} 进入状态: {npcState}");
         OnEnterState();
     }
     
