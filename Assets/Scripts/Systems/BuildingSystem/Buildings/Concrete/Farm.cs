@@ -10,23 +10,16 @@ public class Farm : ProductionBuilding
     {
         AcceptResources = new List<SubResource>()
         {
-            SubResource.CreateFromEnum(SeedSubType.Wheat), 
+            SubResource.CreateFromEnum(SeedSubType.Wheat),
             SubResource.CreateFromEnum(SeedSubType.Corn)
         };
         inventory = new Inventory(
-            new List<SubResourceValue<int>>
+            new List<ResourceStack>
             {
-                new SubResourceValue<int>(SeedSubType.Wheat, 10),
-                new SubResourceValue<int>(SeedSubType.Corn, 0),
-                new SubResourceValue<int>(CropSubType.Wheat, 0),
-                new SubResourceValue<int>(CropSubType.Corn, 0),
-            },
-            new List<SubResourceValue<int>>()
-            {
-                new SubResourceValue<int>(SeedSubType.Wheat, 30),
-                new SubResourceValue<int>(SeedSubType.Corn, 30),
-                new SubResourceValue<int>(CropSubType.Wheat, 30),
-                new SubResourceValue<int>(CropSubType.Corn, 30),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 10),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
             },
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,
@@ -42,24 +35,24 @@ public class Farm : ProductionBuilding
         {
             new ConversionRule()
             {
-                inputs = new List<SubResourceValue<int>> 
-                { 
-                    new SubResourceValue<int>(SeedSubType.Wheat, 1),
+                inputs = new List<ResourceStack>
+                {
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 1),
                 },
-                outputs = new List<SubResourceValue<int>> 
-                { 
-                    new SubResourceValue<int>(CropSubType.Wheat, 2)
+                outputs = new List<ResourceStack>
+                {
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 2)
                 }
             },
             new ConversionRule()
             {
-                inputs = new List<SubResourceValue<int>> 
-                { 
-                    new SubResourceValue<int>(SeedSubType.Corn, 1),
+                inputs = new List<ResourceStack>
+                {
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn), 1),
                 },
-                outputs = new List<SubResourceValue<int>> 
-                { 
-                    new SubResourceValue<int>(CropSubType.Corn, 2)
+                outputs = new List<ResourceStack>
+                {
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn), 2)
                 }
             },
         };

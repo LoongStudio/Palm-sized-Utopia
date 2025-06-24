@@ -8,7 +8,9 @@ public class ResourceManager : SingletonManager<ResourceManager>
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
     
-    [SerializeField] public List<Resource> resourcesData;      // 当前资源信息, 以类的形式存储
+    [SerializeField] public List<ResourceStack> resourcesData;      // 当前资源信息, 以类的形式存储
+    [SerializeField] private List<ResourceConfig> resourceConfigs;  // 资源配置列表
+    private Dictionary<(ResourceType, int), ResourceConfig> configCache; // 配置缓存
     private Dictionary<ResourceType, Dictionary<int, int>> resources;      // 当前资源数量
     private Dictionary<ResourceType, int> storageLimit;                   // 存储上限, 同类资源共用一个存储上限
 
@@ -17,7 +19,11 @@ public class ResourceManager : SingletonManager<ResourceManager>
     protected override void Awake()
     {
         base.Awake();
-        
+        configCache = new Dictionary<(ResourceType, int), ResourceConfig>();
+        foreach (var config in resourceConfigs)
+        {
+            configCache[(config.type, config.subType)] = config;
+        }
     }
     // 初始化
     public void Initialize()
@@ -228,4 +234,17 @@ public class ResourceManager : SingletonManager<ResourceManager>
         return storageLimit;
     }
     #endregion
+
+    /// <summary>
+    /// 获取资源配置
+    /// </summary>
+    public ResourceConfig GetConfig(ResourceType type, int subType)
+    {
+        if (configCache.TryGetValue((type, subType), out var config))
+        {
+            return config;
+        }
+        Debug.LogError($"[ResourceManager] 找不到资源配置：type={type}, subType={subType}");
+        return null;
+    }
 }

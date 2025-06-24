@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(ResourceData))]
+[CustomEditor(typeof(ResourceConfig))]
 public class ResourceDataEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         // 获取目标对象
-        var data = (ResourceData)target;
+        var data = (ResourceConfig)target;
 
         // ResourceType 下拉菜单
         data.type = (ResourceType)EditorGUILayout.EnumPopup("Resource Type", data.type);

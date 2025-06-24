@@ -7,10 +7,7 @@ public class TradeMarket : ProductionBuilding
     {
         AcceptResources = new List<SubResource>() { SubResource.CreateFromEnum(CoinSubType.Gold) };
         inventory = new Inventory(
-            new List<SubResourceValue<int>>(),
-            new List<SubResourceValue<int>>()
-            {
-            },
+            new List<ResourceStack>(),
             Inventory.InventoryAcceptMode.AllowAll,
             Inventory.InventoryListFilterMode.None,
             AcceptResources,
@@ -26,18 +23,18 @@ public class TradeMarket : ProductionBuilding
         {
             new ConversionRule()
             {
-                inputs = new List<SubResourceValue<int>> { },
-                outputs = new List<SubResourceValue<int>> 
-                { 
-                    new SubResourceValue<int>(SeedSubType.Wheat, 1)
+                inputs = new List<ResourceStack>(),
+                outputs = new List<ResourceStack>
+                {
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 1)
                 }
             },
             new ConversionRule()
             {
-                inputs = new List<SubResourceValue<int>> { },
-                outputs = new List<SubResourceValue<int>> 
+                inputs = new List<ResourceStack>(),
+                outputs = new List<ResourceStack>
                 {
-                    new SubResourceValue<int>(SeedSubType.Corn, 1)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn), 1)
                 }
             },
         };

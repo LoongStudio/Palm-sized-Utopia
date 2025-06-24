@@ -8,8 +8,7 @@ public class Apartment : HousingBuilding
 	public override void InitialSelfStorage()
 	{
 		inventory = new Inventory(
-			new List<SubResourceValue<int>>(),
-			new List<SubResourceValue<int>>(),
+			new List<ResourceStack>(),
 			Inventory.InventoryAcceptMode.OnlyDefined,
 			Inventory.InventoryListFilterMode.None,
 			null,

@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Resource Data", menuName = "Utopia/Resource Data")]
-public class ResourceData : ScriptableObject
+[CreateAssetMenu(fileName = "New Resource Config", menuName = "Utopia/Resource Config")]
+public class ResourceConfig : ScriptableObject
 {
     [Header("基础信息")]
     public ResourceType type;
