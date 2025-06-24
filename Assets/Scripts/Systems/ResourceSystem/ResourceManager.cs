@@ -247,4 +247,13 @@ public class ResourceManager : SingletonManager<ResourceManager>
         Debug.LogError($"[ResourceManager] 找不到资源配置：type={type}, subType={subType}");
         return null;
     }
+
+    /// <summary>
+    /// 通过ResourceType和Enum子类型查找ResourceConfig
+    /// </summary>
+    public ResourceConfig GetConfigByEnum<T>(ResourceType type, T subTypeEnum) where T : System.Enum
+    {
+        int subTypeInt = ResourceSubTypeHelper.ToInt(subTypeEnum);
+        return GetConfig(type, subTypeInt);
+    }
 }

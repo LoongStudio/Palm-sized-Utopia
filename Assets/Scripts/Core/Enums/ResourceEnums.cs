@@ -1,4 +1,8 @@
 // 基础资源类型
+
+using System;
+using System.Collections.Generic;
+
 public enum ResourceType
 {
     Seed,      // 种子
@@ -55,9 +59,32 @@ public enum TicketSubType
 }
 
 
+
 // 资源子类型工具类
 public static class ResourceSubTypeHelper
 {
+    public static readonly Dictionary<ResourceType, Type> MappingMainSubType =
+        new Dictionary<ResourceType, Type>()
+        {
+            { ResourceType.Seed, typeof(SeedSubType) },
+            { ResourceType.Crop, typeof(CropSubType) },
+            { ResourceType.Feed, typeof(FeedSubType) },
+            { ResourceType.BreedingStock, typeof(BreedingStockSubType) },
+            { ResourceType.Livestock, typeof(LivestockSubType) },
+            { ResourceType.Coin, typeof(CoinSubType) },
+            { ResourceType.Ticket, typeof(TicketSubType) },
+        };
+    public static readonly Dictionary<Type, ResourceType> MappingSubTypeMain =
+        new Dictionary<Type, ResourceType>()
+        {
+            { typeof(SeedSubType), ResourceType.Seed },
+            { typeof(CropSubType), ResourceType.Crop },
+            { typeof(FeedSubType), ResourceType.Feed },
+            { typeof(BreedingStockSubType), ResourceType.BreedingStock },
+            { typeof(LivestockSubType), ResourceType.Livestock },
+            { typeof(CoinSubType), ResourceType.Coin },
+            { typeof(TicketSubType), ResourceType.Ticket },
+        };
     // 将枚举转换为int
     public static int ToInt<T>(T enumValue) where T : System.Enum
     {

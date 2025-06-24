@@ -17,11 +17,11 @@ public class Ranch : ProductionBuilding
 
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<SubResource>()
+        AcceptResources = new List<ResourceConfig>()
         {
-            SubResource.CreateFromEnum(FeedSubType.Feed),
-            SubResource.CreateFromEnum(BreedingStockSubType.Cattle),
-            SubResource.CreateFromEnum(BreedingStockSubType.Sheep),
+            ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed),
+            ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle),
+            ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep),
         };
         inventory = new Inventory(
             new List<ResourceStack>()

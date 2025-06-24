@@ -13,7 +13,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
     // 历史资源变化记录（可用于曲线绘制）
-    private Dictionary<(ResourceType, Enum), List<int>> resourceHistory = new();
+    private Dictionary<DateTime, List<ResourceStack>> resourceHistory = new();
     // 事件
     public static event System.Action<Building> OnBuildingBuilt;
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
@@ -63,72 +63,47 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// </summary>
     private void RecordResourceSnapshot()
     {
-        var total = GetTotalResource();
-
-        foreach (var kvp in total)
-        {
-            if (!resourceHistory.ContainsKey(kvp.Key))
-                resourceHistory[kvp.Key] = new List<int>();
-
-            resourceHistory[kvp.Key].Add(kvp.Value);
-        }
+        resourceHistory[DateTime.Now] = GetTotalResource();
     }
 
     /// <summary>
     /// 汇总所有建筑的当前资源
     /// </summary>
-    public Dictionary<(ResourceType, Enum), int> GetTotalResource()
+    public List<ResourceStack> GetTotalResource()
     {
-        Dictionary<(ResourceType, Enum), int> result = new();
-
+        Dictionary<ResourceConfig, ResourceStack> resourceStacks = new();
         foreach (var building in _buildings)
         {
-            foreach (var res in building.inventory.currentSubResource)
+            foreach (var stack in building.inventory.currentStacks)
             {
-                // 通过 ResourceType 拿到对应的 Enum 类型
-                if (!SubResource.MappingMainSubType.TryGetValue(
-                    res.subResource.resourceType, out var enumType))
-                    continue;
-
-                // 将 int subType 转换为 Enum 实例
-                Enum subTypeEnum = (Enum)Enum.ToObject(enumType, res.subResource.subType);
-
-                var key = (res.subResource.resourceType, subTypeEnum);
-                if (!result.ContainsKey(key))
-                    result[key] = 0;
-
-                result[key] += res.resourceValue;
+                if (resourceStacks.ContainsKey(stack.resourceConfig)) 
+                    resourceStacks[stack.resourceConfig].AddAmount(stack.amount);
+                else
+                    resourceStacks[stack.resourceConfig] = stack.Clone();
             }
         }
-
-
+        List<ResourceStack> result = resourceStacks.Values.ToList();
         return result;
     }
 
     /// <summary>
     /// 找出等待输入资源的建筑（AcceptResources中资源未达到最大值）
     /// </summary>
-    public List<(Building, SubResource)> GetBuildingsWaitingForResources()
+    public List<(Building, ResourceConfig)> GetBuildingsWaitingForResources()
     {
-        List<(Building, SubResource)> result = new();
+        List<(Building, ResourceConfig)> result = new();
 
         foreach (var building in _buildings)
         {
             foreach (var res in building.AcceptResources)
             {
-                int targetSubType = Convert.ToInt32(res);
+                var stack = building.inventory.currentStacks
+                    .FirstOrDefault(r => r.resourceConfig.Equals(res));
 
-                var current = building.inventory.currentSubResource
-                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
-
-                var max = building.inventory.maximumSubResource
-                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
-
-                if (current < max)
+                if (stack == null || stack.amount < stack.storageLimit)
                     result.Add((building, res));
             }
         }
-
         return result;
     }
 
@@ -136,24 +111,18 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <summary>
     /// 找出拥有富余资源的建筑（资源未被限制且有剩余）
     /// </summary>
-    public List<(Building, SubResourceValue<int>)> GetBuildingsWithExcessResources()
+    public List<(Building, ResourceStack)> GetBuildingsWithExcessResources()
     {
-        List<(Building, SubResourceValue<int>)> result = new();
+        List<(Building, ResourceStack)> result = new();
 
         foreach (var building in _buildings)
         {
-            foreach (var res in building.inventory.currentSubResource)
+            foreach (var stack in building.inventory.currentStacks)
             {
-                var maxEntry = building.inventory.maximumSubResource.FirstOrDefault(r =>
-                    r.subResource.resourceType == res.subResource.resourceType &&
-                    r.subResource.subType == res.subResource.subType);
-
-                int max = maxEntry?.resourceValue ?? 0;
-
-                // 富余条件：超过最大值的80%，或者最大值为0视为无上限
-                if (max == 0 || res.resourceValue > 0.8f * max)
+                // 富余条件：超过最大值的60%，或者最大值为0视为无上限
+                if (stack.storageLimit == 0 || stack.storageLimit > 0.6f * stack.storageLimit)
                 {
-                    result.Add((building, res));
+                    result.Add((building, stack.Clone()));
                 }
             }
         }
@@ -165,27 +134,16 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <summary>
     /// 获取资源增长曲线（某个资源）
     /// </summary>
-    public List<int> GetResourceHistory(ResourceType type, Enum subType)
+    public List<int> GetResourceHistory(ResourceConfig type)
     {
-        var key = (type, subType);
-        return resourceHistory.TryGetValue(key, out var list) ? list : new List<int>();
+        List<int> output = new List<int>();
+        foreach (var stack in resourceHistory.Values)
+        {
+            ResourceStack resourceStack = stack.FirstOrDefault(r => r.resourceConfig.Equals(type));
+            if (resourceStack != null) output.Add(resourceStack.amount);
+        }
+        return output;
     }
-
-    /// <summary>
-    /// 获取指定资源的总量
-    /// </summary>
-    public int GetResourceAmount(ResourceType type, Enum subType)
-    {
-        int targetSubType = Convert.ToInt32(subType);
-
-        return _buildings
-            .SelectMany(b => b.inventory.currentSubResource)
-            .Where(r =>
-                r.subResource.resourceType == type &&
-                r.subResource.subType == targetSubType)
-            .Sum(r => r.resourceValue);
-    }
-
 
     public void HandleBuffBuildingBuilt(BuffBuilding building)
     {
@@ -285,13 +243,10 @@ public class BuildingManager : SingletonManager<BuildingManager>
             // 检查是否需要输入资源
             foreach (var res in building.AcceptResources)
             {
-                int targetSubType = Convert.ToInt32(res);
-                var current = building.inventory.currentSubResource
-                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
-                var max = building.inventory.maximumSubResource
-                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
+                var stack = building.inventory.currentStacks
+                    .FirstOrDefault(r => r.resourceConfig.Equals(res));
 
-                if (current < max)
+                if (stack == null || stack.amount < stack.storageLimit)
                 {
                     result.Add(building);
                     break;
@@ -299,16 +254,10 @@ public class BuildingManager : SingletonManager<BuildingManager>
             }
 
             // 检查是否需要转移资源
-            foreach (var res in building.inventory.currentSubResource)
+            foreach (var stack in building.inventory.currentStacks)
             {
-                var maxEntry = building.inventory.maximumSubResource.FirstOrDefault(r =>
-                    r.subResource.resourceType == res.subResource.resourceType &&
-                    r.subResource.subType == res.subResource.subType);
-
-                int max = maxEntry?.resourceValue ?? 0;
-
-                // 如果资源超过最大值的80%，需要转移
-                if (max > 0 && res.resourceValue > 0.8f * max)
+                // 如果资源超过最大值的60%，需要转移
+                if (stack.storageLimit > 0 && stack.amount > 0.6f * stack.storageLimit)
                 {
                     result.Add(building);
                     break;
@@ -349,14 +298,11 @@ public class BuildingManager : SingletonManager<BuildingManager>
             float resourceSum = 0f;
             foreach (var res in building.AcceptResources)
             {
-                int targetSubType = res.subType;
-                var current = building.inventory.currentSubResource
-                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
-                var max = building.inventory.maximumSubResource
-                    .FirstOrDefault(r => r.subResource.subType == targetSubType)?.resourceValue ?? 0;
-                if (max > 0)
+                var cur = building.inventory.currentStacks
+                    .FirstOrDefault(r => r.resourceConfig.Equals(res));
+                if (cur != null)
                 {
-                    resourceSum += 1f - (float)current / max;
+                    resourceSum += 1f - (float)cur.amount / cur.storageLimit;
                     resourceCount++;
                 }
             }
@@ -375,11 +321,11 @@ public class BuildingManager : SingletonManager<BuildingManager>
     }
 
     // 资源变动事件处理
-    public void OnBuildingResourceChanged(ResourceType type, int subType, int value)
+    public void OnBuildingResourceChanged(ResourceConfig config, int value)
     {
         // TODO: 这里可以根据value正负判断是产出还是消耗，动态维护resourceNeeds/resourceOutputs表
         // 这里只做Debug输出，后续可完善
         if (showDebugInfo)
-            Debug.Log($"[BuildingManager] 资源变动: {type}-{subType} 变化量: {value}");
+            Debug.Log($"[BuildingManager] 资源变动: {config.type}-{config.subType} 变化量: {value}");
     }
 }

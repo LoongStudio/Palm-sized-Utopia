@@ -8,10 +8,10 @@ public class Farm : ProductionBuilding
     
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<SubResource>()
+        AcceptResources = new List<ResourceConfig>()
         {
-            SubResource.CreateFromEnum(SeedSubType.Wheat),
-            SubResource.CreateFromEnum(SeedSubType.Corn)
+            ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat),
+            ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn),
         };
         inventory = new Inventory(
             new List<ResourceStack>

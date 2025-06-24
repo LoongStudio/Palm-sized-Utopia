@@ -11,7 +11,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
-    public List<SubResource> AcceptResources;
+    public List<ResourceConfig> AcceptResources;
     [Header("槽位管理")] 
     public int maxSlotAmount = 3;
     public List<NPC> assignedNPCs;
