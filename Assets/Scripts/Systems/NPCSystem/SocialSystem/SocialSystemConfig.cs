@@ -7,7 +7,8 @@ public class SocialSystemConfig : ScriptableObject
     public float interactionCheckInterval = 2f;
     public float interactionRadius = 3f;
     public float interactionDuration = 3f;
-    public float interactionCooldown = 10f;
+    public float interactionCooldown = 30f;    // NPC对的社交互动冷却时间，即两个NPC在交互冷却时间内不能进行社交互动
+    public float personalSocialCooldown = 10f;    // 个人社交冷却时间，即同一NPC在个人社交冷却时间内不能进行社交互动
     public int maxDailyInteractions = 5;
     public float socialInteractionDistance = 2f;
     public float socialMoveSpeed = 0.5f;
