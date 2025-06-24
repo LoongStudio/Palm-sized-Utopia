@@ -15,6 +15,7 @@ public class SocialSystem
     [SerializeField] private float interactionRadius;         // 社交互动检测半径
     [SerializeField] private float interactionDuration;       // 社交互动持续时间
     [SerializeField] public float interactionCooldown{get; private set;}       // 社交互动冷却时间
+    [SerializeField] public float personalSocialCooldown{get; private set;}    // 个人社交冷却时间
     [SerializeField] private int maxDailyInteractions;         // 每日最大互动次数
     [SerializeField] public float socialInteractionDistance{get; private set;} = 2f;     // 社交距离
     [SerializeField] public float socialMoveSpeed{get; private set;} = 0.5f;               // 社交移动速度
@@ -31,6 +32,7 @@ public class SocialSystem
     private List<NPC> npcs;
     private float lastCheckTime;
     public Dictionary<(NPC, NPC), float> interactionCooldowns{get; private set;}     // 互动冷却时间
+    public Dictionary<NPC, float> personalSocialCooldowns{get; private set;}    // 个人社交冷却时间
     public Dictionary<NPC, int> dailyInteractionCounts{get; private set;}            // 每日互动计数
     public Dictionary<(NPC, NPC), SocialInteraction> activeInteractions{get; private set;} // 当前进行中的互动
     
@@ -43,6 +45,7 @@ public class SocialSystem
     { 
         npcs = npcList ?? new List<NPC>();
         interactionCooldowns = new Dictionary<(NPC, NPC), float>();
+        personalSocialCooldowns = new Dictionary<NPC, float>();
         dailyInteractionCounts = new Dictionary<NPC, int>();
         activeInteractions = new Dictionary<(NPC, NPC), SocialInteraction>();
         activeSocialCoroutines = new Dictionary<(NPC, NPC), Coroutine>();
@@ -70,6 +73,7 @@ public class SocialSystem
         interactionRadius = config.interactionRadius;
         interactionDuration = config.interactionDuration;
         interactionCooldown = config.interactionCooldown;
+        personalSocialCooldown = config.personalSocialCooldown;
         maxDailyInteractions = config.maxDailyInteractions;
         baseRelationshipChange = config.baseRelationshipChange;
         fightRelationshipPenalty = config.fightRelationshipPenalty;
@@ -171,12 +175,21 @@ public class SocialSystem
             return false;
         }
         
-        // 检查冷却时间
+        // 检查NPC对的交互冷却时间
         var key = GetInteractionKey(npc1, npc2);
         if (interactionCooldowns.ContainsKey(key) && interactionCooldowns[key] > 0)
         {
             if(NPCManager.Instance.showDebugInfo) 
                 Debug.Log($"[SocialSystem] 两个NPC冷却时间未到: {npc1.data.npcName} 和 {npc2.data.npcName}");
+            return false;
+        }
+        
+        // 检查NPC的个人社交冷却时间
+        if ((personalSocialCooldowns.ContainsKey(npc1) && personalSocialCooldowns[npc1] > 0) ||
+            (personalSocialCooldowns.ContainsKey(npc2) && personalSocialCooldowns[npc2] > 0))
+        {
+            if(NPCManager.Instance.showDebugInfo) 
+                Debug.Log($"[SocialSystem] 两个NPC个人社交冷却时间未到: {npc1.data.npcName} 和 {npc2.data.npcName}");
             return false;
         }
         
@@ -260,6 +273,8 @@ public class SocialSystem
             if (npc1.currentState != NPCState.MovingToSocial || npc2.currentState != NPCState.MovingToSocial)
             {
                 Debug.LogWarning($"[SocialSystem] NPC未能进入MovingToSocial状态，取消社交互动: {npc1.data.npcName}, {npc2.data.npcName}");
+                npc1.ChangeState(NPCState.Idle);
+                npc2.ChangeState(NPCState.Idle);
                 yield break;
             }
 
@@ -285,6 +300,8 @@ public class SocialSystem
             if (!npc1.isInPosition || !npc2.isInPosition)
             {
                 Debug.LogWarning($"[SocialSystem] NPC未能到达社交位置，取消社交互动: {npc1.data.npcName}, {npc2.data.npcName}");
+                npc1.ChangeState(NPCState.Idle);
+                npc2.ChangeState(NPCState.Idle);
                 yield break;
             }
 
@@ -418,6 +435,8 @@ public class SocialSystem
         // 设置冷却时间
         var key = GetInteractionKey(npc1, npc2);
         interactionCooldowns[key] = interactionCooldown;
+        personalSocialCooldowns[npc1] = personalSocialCooldown;
+        personalSocialCooldowns[npc2] = personalSocialCooldown;
         
         // 触发关系变化事件
         var eventArgs = new NPCEventArgs
@@ -648,6 +667,7 @@ public class SocialSystem
     
     private void UpdateInteractionCooldowns()
     {
+        // 更新NPC对的交互冷却时间
         if (interactionCooldowns == null) return;
         var keys = interactionCooldowns.Keys.ToList();
         foreach (var key in keys)
@@ -656,6 +676,17 @@ public class SocialSystem
             if (interactionCooldowns[key] <= 0)
             {
                 interactionCooldowns.Remove(key);
+            }
+        }
+        // 更新个人社交冷却时间
+        if (personalSocialCooldowns == null) return;
+        var personalKeys = personalSocialCooldowns.Keys.ToList();
+        foreach (var key in personalKeys)
+        {
+            personalSocialCooldowns[key] -= Time.deltaTime;
+            if (personalSocialCooldowns[key] <= 0)
+            {
+                personalSocialCooldowns.Remove(key);
             }
         }
     }
