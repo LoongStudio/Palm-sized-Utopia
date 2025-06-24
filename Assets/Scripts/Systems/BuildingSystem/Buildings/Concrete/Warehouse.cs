@@ -8,16 +8,15 @@ public class Warehouse : FunctionalBuilding
     {
         AcceptResources = new List<SubResource>() { };
         inventory = new Inventory(
-            new List<SubResourceValue<int>> { },
-            new List<SubResourceValue<int>>()
+            new List<ResourceStack>()
             {
-                new SubResourceValue<int>(SeedSubType.Wheat, 30),
-                new SubResourceValue<int>(SeedSubType.Corn, 30),
-                new SubResourceValue<int>(CropSubType.Wheat, 30),
-                new SubResourceValue<int>(CropSubType.Corn, 30),
-                new SubResourceValue<int>(FeedSubType.Feed, 30),
-                new SubResourceValue<int>(CoinSubType.Gold, 30),
-                new SubResourceValue<int>(TicketSubType.Ticket, 30),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Coin, (int)CoinSubType.Gold), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Ticket, (int)TicketSubType.Ticket), 0),
             },
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,

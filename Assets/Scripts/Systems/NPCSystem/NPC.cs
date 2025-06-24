@@ -115,13 +115,11 @@ public class NPC : MonoBehaviour, ISaveable
         // 清空背包
         if (inventory == null) {
             inventory = new Inventory(
-                new List<SubResourceValue<int>>(),
-                new List<SubResourceValue<int>>(),
-                Inventory.InventoryAcceptMode.AllowAll,
+                new List<ResourceStack>(),
+                Inventory.InventoryAcceptMode.OnlyDefined,
                 Inventory.InventoryListFilterMode.None,
-                null,
-                null,
-                Inventory.InventoryOwnerType.NPC
+                null, null,
+                Inventory.InventoryOwnerType.Building
             );
         } else {
             inventory.ownerType = Inventory.InventoryOwnerType.NPC;
