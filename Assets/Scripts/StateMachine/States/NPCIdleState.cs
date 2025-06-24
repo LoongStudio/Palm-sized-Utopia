@@ -33,7 +33,7 @@ public class NPCIdleState : NPCStateBase
         // 如果累积的权重足够高，考虑状态转换
         if (npc.CurrentIdleWeight >= 1f)
         {
-            // DetermineNextState();
+            DetermineNextState();
         }
     }
 
