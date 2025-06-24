@@ -16,6 +16,7 @@ public class NPC : MonoBehaviour, ISaveable
     
     [Header("社交系统")]
     public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
+    public Vector3 socialPosition; // 社交位置
 
     [Header("社交配置")]
     // TODO: 处理这些配置的使用，用SocialSystem代替
@@ -389,18 +390,6 @@ public class NPC : MonoBehaviour, ISaveable
         if (movement != null)
         {
             movement.MoveToTarget(target);
-        }
-    }
-    
-    /// <summary>
-    /// 移动到指定位置（重载方法）
-    /// </summary>
-    /// <param name="targetPosition">目标位置</param>
-    public void MoveToPosition(Vector3 targetPosition)
-    {
-        if (movement != null)
-        {
-            movement.MoveToPosition(targetPosition);
         }
     }
     

@@ -13,6 +13,9 @@ public class NPCManager : SingletonManager<NPCManager>
     [SerializeField] private SocialSystemConfig defaultSocialSystemConfig;
 
     [SerializeField] private NPCGenerationConfig defaultNPCGenerationConfig;
+    [Header("工作系统")]
+    [SerializeField] private bool enableWorkSystem = true;
+
     private List<NPC> allNPCs;
     private List<NPC> availableNPCs;
     public SocialSystem socialSystem;
