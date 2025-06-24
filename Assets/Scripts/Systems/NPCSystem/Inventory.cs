@@ -236,7 +236,7 @@ public class Inventory
                 if (!currentSubResource.Exists(r => r.subResource.Equals(type)))
                     currentSubResource.Add(new SubResourceValue<int>(type, 0));
                 if (!maximumSubResource.Exists(r => r.subResource.Equals(type)))
-                    maximumSubResource.Add(new SubResourceValue<int>(type, 0));
+                    maximumSubResource.Add(new SubResourceValue<int>(type, defaultMaxValue));
                 return true;
             case InventoryAcceptMode.OnlyDefined:
                 bool currHas = currentSubResource.Exists(r => r.subResource.Equals(type));
