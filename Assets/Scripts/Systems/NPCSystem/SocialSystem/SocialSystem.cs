@@ -32,7 +32,7 @@ public class SocialSystem
     [SerializeField] private int maxPendingInvitations = 3;     // 最大待处理邀请数
 
     // 邀请管理
-    private Dictionary<int, SocialInvitation> activeInvitations = new Dictionary<int, SocialInvitation>();
+    public Dictionary<int, SocialInvitation> activeInvitations = new Dictionary<int, SocialInvitation>();
     private Queue<SocialInvitationResponse> pendingResponses = new Queue<SocialInvitationResponse>();
     private int nextInvitationId = 1;
     #endregion
@@ -656,27 +656,101 @@ public class SocialSystem
         }
         
         // 2. 创建邀请
-        var invitation = new SocialInvitation
-        {
-            invitationId = nextInvitationId++,
-            sender = sender,
-            receiver = receiver,
-            suggestedSocialLocaiton = CalculateSocialPositions(sender, receiver),
-            sendTime = Time.time,
-            expireTime = Time.time + invitationTimeout,
-            status = SocialInvitationStatus.Pending
-        };
+        var invitation = new SocialInvitation(nextInvitationId++, sender, receiver, CalculateSocialPositions(sender, receiver),
+         Time.time, Time.time + invitationTimeout, SocialInvitationStatus.Pending);
         
-        // 3. 注册邀请
+        // 3. 处理邀请冲突（如果接收者也在PrepareForSocial状态）
+        HandleInvitationConflict(invitation);
+        
+        // 4. 注册邀请
         activeInvitations[invitation.invitationId] = invitation;
         
-        // 4. 通知接收者（通过状态机）
+        // 5. 通知接收者（通过状态机）
         NotifyInvitationReceived(receiver, invitation);
         
         if (NPCManager.Instance.showDebugInfo)
             Debug.Log($"[SocialSystem] {sender.data.npcName} 向 {receiver.data.npcName} 发送社交邀请 (ID: {invitation.invitationId})");
         
         return true;
+    }
+
+    /// <summary>
+    /// 处理邀请冲突（当接收者也在准备社交时）
+    /// </summary>
+    private void HandleInvitationConflict(SocialInvitation newInvitation)
+    {
+        var receiver = newInvitation.receiver;
+        
+        // 如果接收者在PrepareForSocial状态，检查是否有更好的选择
+        if (receiver.currentState == NPCState.PrepareForSocial)
+        {
+            // 查找接收者当前发出的邀请
+            var receiverSentInvitation = activeInvitations.Values
+                .FirstOrDefault(inv => inv.sender == receiver && inv.IsValid);
+            
+            if (receiverSentInvitation != null)
+            {
+                // 比较优先级：新邀请 vs 接收者已发出的邀请
+                bool shouldAcceptNewInvitation = ShouldPreferNewInvitation(newInvitation, receiverSentInvitation);
+                
+                if (shouldAcceptNewInvitation)
+                {
+                    // 取消接收者之前发出的邀请
+                    CancelInvitation(receiverSentInvitation.invitationId, "收到更优先的邀请");
+                    
+                    if (NPCManager.Instance.showDebugInfo)
+                        Debug.Log($"[SocialSystem] {receiver.data.npcName} 收到优先级更高的邀请，" +
+                                 $"取消了对 {receiverSentInvitation.receiver.data.npcName} 的邀请");
+                }
+            }
+        }
+    }/// <summary>
+    /// 判断是否应该优先选择新邀请
+    /// </summary>
+    private bool ShouldPreferNewInvitation(SocialInvitation newInvitation, SocialInvitation existingInvitation)
+    {
+        // 1. 优先级比较
+        if (newInvitation.priority > existingInvitation.priority)
+            return true;
+        if (newInvitation.priority < existingInvitation.priority)
+            return false;
+        
+        // 2. 相同优先级时，比较关系值
+        float newRelationship = newInvitation.senderRelationship;
+        float existingRelationship = existingInvitation.receiver.GetRelationshipWith(existingInvitation.sender);
+        
+        if (Mathf.Abs(newRelationship - existingRelationship) > 10f)
+        {
+            return newRelationship > existingRelationship;
+        }
+        
+        // 3. 关系值相近时，比较时间（谁先发邀请）
+        return newInvitation.sendTime < existingInvitation.sendTime;
+    }
+    
+    /// <summary>
+    /// 取消邀请
+    /// </summary>
+    public void CancelInvitation(int invitationId, string reason)
+    {
+        if (activeInvitations.TryGetValue(invitationId, out var invitation))
+        {
+            invitation.status = SocialInvitationStatus.Declined;
+            
+            // 创建自动拒绝响应
+            var response = new SocialInvitationResponse
+            {
+                invitationId = invitationId,
+                responder = invitation.receiver,
+                accepted = false,
+                reason = $"邀请被系统取消: {reason}"
+            };
+            
+            pendingResponses.Enqueue(response);
+            
+            if (NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] 邀请 {invitationId} 被取消: {reason}");
+        }
     }
 
     /// <summary>
@@ -779,10 +853,10 @@ public class SocialSystem
             return false;
         
         // 2. 检查接收者状态
-        if (receiver.currentState != NPCState.Idle)
+        if (receiver.currentState != NPCState.Idle && receiver.currentState != NPCState.PrepareForSocial)
         {
             if (NPCManager.Instance.showDebugInfo)
-                Debug.Log($"[SocialSystem] {receiver.data.npcName} 不在空闲状态，无法接收邀请");
+                Debug.Log($"[SocialSystem] {receiver.data.npcName} 不在空闲或社交准备状态，无法接收邀请");
             return false;
         }
         
@@ -816,7 +890,25 @@ public class SocialSystem
             return false;
         }
         
+        // 6. 检查是否有冲突的邀请
+        if (HasConflictingInvitation(sender, receiver))
+        {
+            if (NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] {sender.data.npcName} 和 {receiver.data.npcName} 之间已有冲突的邀请");
+            return false;
+        }
+
         return true;
+    }
+
+        /// <summary>
+    /// 检查是否有冲突的邀请
+    /// </summary>
+    private bool HasConflictingInvitation(NPC sender, NPC receiver)
+    {
+        // 检查是否已有相同方向的邀请
+        return activeInvitations.Values.Any(inv => 
+            inv.sender == sender && inv.receiver == receiver && inv.IsValid);
     }
     
     #endregion
@@ -1061,9 +1153,28 @@ public class SocialInvitation{
     public float sendTime;
     public float expireTime;
     public SocialInvitationStatus status;
+    public InvitationPriority priority;
+    public float senderRelationship; // 发送者与接收者的关系值，用于优先级判断
 
     public bool IsExpired => Time.time > expireTime;
     public bool IsValid => status == SocialInvitationStatus.Pending && !IsExpired;
+    public SocialInvitation(int id, NPC sender, NPC receiver, SocialPositions suggestedSocialLocaiton, float sendTime, float expireTime, SocialInvitationStatus status){
+        this.invitationId = id;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.suggestedSocialLocaiton = suggestedSocialLocaiton;
+        this.sendTime = sendTime;
+        this.expireTime = expireTime;
+        this.status = status;
+        this.priority = CalculatePriority(sender.GetRelationshipWith(receiver));
+        this.senderRelationship = sender.GetRelationshipWith(receiver);
+    }
+    private InvitationPriority CalculatePriority(float relationship)
+    {
+        if (relationship >= 80) return InvitationPriority.High;
+        if (relationship >= 50) return InvitationPriority.Normal;
+        return InvitationPriority.Low;
+    }
 
 }
 
