@@ -137,12 +137,18 @@ public class NPCMovement : MonoBehaviour
         navAgent.obstacleAvoidanceType = ObstacleAvoidanceType.MedQualityObstacleAvoidance;
         // navAgent.isStopped = true; // 默认停止移动
 
-        // 顺便设置移动属性
+        // 设置移动属性
         stoppingDistance = npcMovementConfig.stoppingDistance;
         moveRadius = npcMovementConfig.moveRadius;
         minWaitTime = npcMovementConfig.minWaitTime;
         maxWaitTime = npcMovementConfig.maxWaitTime;
         movementSpeed = npcMovementConfig.moveSpeed;
+
+        // 设置转向属性
+        turnSpeed = npcMovementConfig.turnSpeed;
+        turnThreshold = npcMovementConfig.turnThreshold;
+        enableTurnBeforeMove = npcMovementConfig.enableTurnBeforeMove;
+
         
         if (showDebugInfo)
             Debug.Log($"[NPCMovement] {name} NavMeshAgent配置完成");

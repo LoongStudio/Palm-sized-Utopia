@@ -7,6 +7,7 @@ public class NPCEventArgs
     public NPCState newState;
     public Building relatedBuilding;
     public NPC otherNPC; // 用于社交事件
+    public NPCState shouldChangeStateTo;
     public int relationshipChange;
     public System.DateTime timestamp;
     
