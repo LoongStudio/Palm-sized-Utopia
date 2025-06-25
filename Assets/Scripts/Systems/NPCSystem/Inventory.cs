@@ -429,6 +429,7 @@ public class Inventory
                 totalLimit += stack.storageLimit;
             }
         }
+        if (totalLimit == 0) return 0f;
         return count / (float)totalLimit;
     }
     
@@ -444,21 +445,22 @@ public class Inventory
                 totalLimit += stack.storageLimit;
             }
         }
+        if (totalLimit == 0) return 0f;
         return count / (float)totalLimit;
     }
     
     public (float involving, float against) GetResourceRatioLimitInvolvingAgainstList(HashSet<ResourceConfig> resourceConfigs)
     {
-        int countInvovling = 0;
-        int totalInvovlingLimit = 0;
+        int countInvolving = 0;
+        int totalInvolvingLimit = 0;
         int countAgainst = 0;
         int totalAgainstLimit = 0;
         foreach (var stack in currentStacks)
         {
             if (resourceConfigs.Contains(stack.resourceConfig))
             {
-                countInvovling += stack.amount;
-                totalInvovlingLimit += stack.storageLimit;
+                countInvolving += stack.amount;
+                totalInvolvingLimit += stack.storageLimit;
             }
             else
             {
@@ -466,7 +468,9 @@ public class Inventory
                 totalAgainstLimit += stack.storageLimit;
             }
         }
-        return (countInvovling / (float)totalInvovlingLimit, countAgainst / (float)totalAgainstLimit);
+        float involving = totalInvolvingLimit == 0 ? 0f : countInvolving / (float)totalInvolvingLimit;
+        float against = totalAgainstLimit == 0 ? 0f : countAgainst / (float)totalAgainstLimit;
+        return (involving, against);
     }
 
     // 兼容旧接口（ResourceType+int）
