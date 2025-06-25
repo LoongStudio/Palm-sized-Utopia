@@ -195,27 +195,29 @@ MonoBehaviour:
     workTimeEnd: 0
     baseWorkAbility: 0
     itemCapacity: 0
+    itemTakeEachTimeCapacity: 0
     personality: 0
     traits: 
   housing: {fileID: 0}
+  socialPosition: {x: 0, y: 0, z: 0}
   stateMachine: {fileID: 6802671182719644152}
   inventory:
     ownerType: 1
-    currentSubResource: []
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
+    currentStacks: []
     acceptMode: 0
     filterMode: 0
-    acceptList: []
-    rejectList: []
     defaultMaxValue: 0
   navAgent: {fileID: 0}
   transferSpeed: 10
   movement: {fileID: 0}
-  pendingWorkBuilding: {fileID: 0}
+  pendingTask:
+    building: {fileID: 0}
+    taskType: 0
   idleTimeWeight: 0.1
   currentIdleWeight: 0
+  assignedTask:
+    building: {fileID: 0}
+    taskType: 0
 --- !u!114 &6222079410607490007
 MonoBehaviour:
   m_ObjectHideFlags: 0
