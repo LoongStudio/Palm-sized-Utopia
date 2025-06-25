@@ -90,6 +90,9 @@ public class NPCSocialPreparaionState : NPCStateBase
         
         if (shouldAccept)
         {
+            // 接受邀请时添加社交伙伴对
+            NPCManager.Instance.socialSystem.AddSocialPair(npc, invitation.sender);
+            
             if (showDebugInfo)
                 Debug.Log($"[NPCSocialPrepareState] {npc.data.npcName} 在准备社交时接受了 {invitation.sender.data.npcName} 的邀请");
             npc.ChangeState(NPCState.MovingToSocial);
@@ -207,13 +210,15 @@ public class NPCSocialPreparaionState : NPCStateBase
         var response = socialSystem.GetInvitationResponse(npc);
         if (response != null)
         {
-            if (response.accepted)
-            {
-                // 邀请被接受，进入移动状态
-                if (showDebugInfo)
-                    Debug.Log($"[NPCSocialPrepareState] {npc.data.npcName} 的邀请被 {response.responder.data.npcName} 接受");
-                npc.ChangeState(NPCState.MovingToSocial);
-            }
+                    if (response.accepted)
+        {
+            // 邀请被接受，添加社交伙伴对
+            socialSystem.AddSocialPair(npc, response.responder);
+            
+            if (showDebugInfo)
+                Debug.Log($"[NPCSocialPrepareState] {npc.data.npcName} 的邀请被 {response.responder.data.npcName} 接受");
+            npc.ChangeState(NPCState.MovingToSocial);
+        }
             else
             {
                 // 邀请被拒绝，回到空闲状态

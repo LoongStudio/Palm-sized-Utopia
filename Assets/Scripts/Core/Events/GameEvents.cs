@@ -27,6 +27,7 @@ public static class GameEvents
     public static event System.Action<NPCEventArgs> OnNPCStateChanged;
     public static event System.Action<NPCEventArgs> OnNPCRelationshipChanged;
     public static event System.Action<NPCEventArgs> OnNPCShouldStartSocialInteraction;
+    public static event System.Action<NPCEventArgs> OnNPCInSocialPosition;
     public static event System.Action<NPCEventArgs> OnNPCReadyForSocialInteraction;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteractionStarted;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteractionEnded;
@@ -101,6 +102,11 @@ public static class GameEvents
     public static void TriggerNPCShouldStartSocialInteraction(NPCEventArgs args)
     {
         OnNPCShouldStartSocialInteraction?.Invoke(args);
+    }
+
+    public static void TriggerNPCInSocialPosition(NPCEventArgs args)
+    {
+        OnNPCInSocialPosition?.Invoke(args);
     }
 
     public static void TriggerNPCReadyForSocialInteraction(NPCEventArgs args)

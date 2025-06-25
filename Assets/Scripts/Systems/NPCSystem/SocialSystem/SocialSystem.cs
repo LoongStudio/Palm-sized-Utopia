@@ -43,6 +43,7 @@ public class SocialSystem
     public Dictionary<(NPC, NPC), float> interactionCooldowns{get; private set;}     // 互动冷却时间
     public Dictionary<NPC, float> personalSocialCooldowns{get; private set;}    // 个人社交冷却时间
     public Dictionary<NPC, int> dailyInteractionCounts{get; private set;}            // 每日互动计数
+    private HashSet<(NPC, NPC)> socialPairs = new HashSet<(NPC, NPC)>(); // 社交伙伴对
     public Dictionary<(NPC, NPC), SocialInteraction> activeInteractions{get; private set;} // 当前进行中的互动
     
     // 新增：协程管理
@@ -56,6 +57,7 @@ public class SocialSystem
         interactionCooldowns = new Dictionary<(NPC, NPC), float>();
         personalSocialCooldowns = new Dictionary<NPC, float>();
         dailyInteractionCounts = new Dictionary<NPC, int>();
+        socialPairs = new HashSet<(NPC, NPC)>();
         activeInteractions = new Dictionary<(NPC, NPC), SocialInteraction>();
         activeSocialCoroutines = new Dictionary<(NPC, NPC), Coroutine>();
 
@@ -71,6 +73,7 @@ public class SocialSystem
 
         // 订阅游戏事件
         GameEvents.OnDayChanged += OnDayChanged;
+        GameEvents.OnNPCSocialInteractionStarted += HandleSocialInteractionStarted;
         
         if(NPCManager.Instance.showDebugInfo) 
             Debug.Log($"[SocialSystem] 初始化完成，管理 {npcs.Count} 个NPC的社交关系");
@@ -346,32 +349,23 @@ public class SocialSystem
             return;
         }
         
-        var interaction = new SocialInteraction(npc1, npc2, interactionDuration);
+        // 检查activeInteractions中是否存在该互动
+        // 如果不存在，则添加该互动
         var key = GetInteractionKey(npc1, npc2);
-        
-        activeInteractions[key] = interaction;
-        
-        // 设置NPC状态为社交
-        npc1.ChangeState(NPCState.Social);
-        npc2.ChangeState(NPCState.Social);
+        if(!activeInteractions.ContainsKey(key)){
+            // 如果不存在，则添加该互动
+            activeInteractions[key] = new SocialInteraction(npc1, npc2, interactionDuration);
+        }
         
         // 增加每日互动计数
         IncrementDailyInteractionCount(npc1);
         IncrementDailyInteractionCount(npc2);
         
+        // 调试信息
         if(NPCManager.Instance.showDebugInfo) 
             Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 开始社交互动");
         DebugDrawSocialInteraction(npc1, npc2);
         
-        // 触发事件
-        var eventArgs = new NPCEventArgs
-        {
-            npc = npc1,
-            eventType = NPCEventArgs.NPCEventType.SocialInteraction,
-            otherNPC = npc2,
-            timestamp = System.DateTime.Now
-        };
-        GameEvents.TriggerNPCSocialInteractionStarted(eventArgs);
     }
 
     /// <summary>
@@ -429,28 +423,27 @@ public class SocialSystem
         bool isFight = WillNPCsFight(npc1, npc2);
         int relationshipChange;
         
+        NPCState shouldChangeStateTo;
         if (isFight)
         {
             relationshipChange = ProcessFight(npc1, npc2);
             if(NPCManager.Instance.showDebugInfo) 
                 Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 发生了争吵！互相之间好感度下降了 {relationshipChange}");
-            npc1.ChangeState(NPCState.SocialEndFight);
-            npc2.ChangeState(NPCState.SocialEndFight);
+            shouldChangeStateTo = NPCState.SocialEndFight;
         }
         else
         {
             relationshipChange = ProcessFriendlyChat(npc1, npc2);
             if(NPCManager.Instance.showDebugInfo) 
                 Debug.Log($"[SocialSystem] {npc1.data.npcName} 和 {npc2.data.npcName} 愉快地聊天了！互相之间好感度上升了 {relationshipChange}");
-            npc1.ChangeState(NPCState.SocialEndHappy);
-            npc2.ChangeState(NPCState.SocialEndHappy);
+            shouldChangeStateTo = NPCState.SocialEndHappy;
         }
         
         // 设置冷却时间
         var key = GetInteractionKey(npc1, npc2);
-        interactionCooldowns[key] = interactionCooldown;
-        personalSocialCooldowns[npc1] = personalSocialCooldown;
-        personalSocialCooldowns[npc2] = personalSocialCooldown;
+        interactionCooldowns[key] = interactionCooldown; // 设置npc1和npc2的相互互动冷却时间
+        personalSocialCooldowns[npc1] = personalSocialCooldown; // 设置npc1个人社交冷却时间
+        personalSocialCooldowns[npc2] = personalSocialCooldown; // 设置npc2个人社交冷却时间
         
         // 触发关系变化事件
         var eventArgs = new NPCEventArgs
@@ -459,10 +452,18 @@ public class SocialSystem
             eventType = NPCEventArgs.NPCEventType.RelationshipChanged,
             otherNPC = npc2,
             relationshipChange = relationshipChange,
+            shouldChangeStateTo = shouldChangeStateTo,
             timestamp = System.DateTime.Now
         };
         GameEvents.TriggerNPCRelationshipChanged(eventArgs);
         GameEvents.TriggerNPCSocialInteractionEnded(eventArgs);
+
+        // 删除NPC对
+        RemoveSocialPair(npc1, npc2);
+    }
+
+    private void HandleSocialInteractionStarted(NPCEventArgs args){
+        StartInteraction(args.npc, args.otherNPC);
     }
     #endregion
 
@@ -912,6 +913,7 @@ public class SocialSystem
     }
     
     #endregion
+    
     #region 辅助方法
     // 计算NavMesh中的实际距离
     private float CalculateNavMeshDistance(Vector3 startPos, Vector3 endPos)
@@ -1053,6 +1055,70 @@ public class SocialSystem
         
         // 这里不再主动扫描和发送邀请
         // 所有邀请都由NPC状态机主动发起
+    }
+    
+    /// <summary>
+    /// 获取指定NPC的社交伙伴
+    /// </summary>
+    public NPC GetSocialPartner(NPC npc)
+    {
+        if (npc == null) return null;
+        
+        foreach (var pair in socialPairs)
+        {
+            if (pair.Item1 == npc) return pair.Item2;
+            if (pair.Item2 == npc) return pair.Item1;
+        }
+        
+        return null;
+    }
+
+    /// <summary>
+    /// 添加社交伙伴对
+    /// </summary>
+    public void AddSocialPair(NPC npc1, NPC npc2)
+    {
+        if (npc1 == null || npc2 == null || npc1 == npc2) return;
+        
+        var pair = GetStandardizedPair(npc1, npc2);
+        socialPairs.Add(pair);
+        
+        if (NPCManager.Instance.showDebugInfo)
+            Debug.Log($"[SocialSystem] 添加社交伙伴对: {npc1.data.npcName} <-> {npc2.data.npcName}");
+    }
+
+    /// <summary>
+    /// 移除社交伙伴对
+    /// </summary>
+    public void RemoveSocialPair(NPC npc1, NPC npc2)
+    {
+        if (npc1 == null || npc2 == null) return;
+        
+        var pair = GetStandardizedPair(npc1, npc2);
+        if (socialPairs.Remove(pair))
+        {
+            if (NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] 移除社交伙伴对: {npc1.data.npcName} <-> {npc2.data.npcName}");
+        }
+    }
+
+    /// <summary>
+    /// 检查两个NPC是否是社交伙伴
+    /// </summary>
+    public bool AreSocialPartners(NPC npc1, NPC npc2)
+    {
+        if (npc1 == null || npc2 == null || npc1 == npc2) return false;
+        
+        var pair = GetStandardizedPair(npc1, npc2);
+        return socialPairs.Contains(pair);
+    }
+
+    /// <summary>
+    /// 获取标准化的NPC对（确保顺序一致性）
+    /// </summary>
+    private (NPC, NPC) GetStandardizedPair(NPC npc1, NPC npc2)
+    {
+        return npc1.GetInstanceID() < npc2.GetInstanceID() ? (npc1, npc2) : (npc2, npc1);
     }
     #endregion
 
