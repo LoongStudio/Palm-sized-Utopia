@@ -85,7 +85,7 @@ public class NPCStateMachine : MonoBehaviour
         // TODO: 获取或创建各种状态
         states[NPCState.Generated] = new NPCGeneratedState(NPCState.Generated, this, npc);
         states[NPCState.Idle] = new NPCIdleState(NPCState.Idle, this, npc);
-        states[NPCState.PrepareForSocial] = new NPCSocialPreparaionState(NPCState.PrepareForSocial, this, npc);
+        states[NPCState.PrepareForSocial] = new NPCSocialPreparationState(NPCState.PrepareForSocial, this, npc);
         states[NPCState.MovingToSocial] = new NPCMovingToSocialState(NPCState.MovingToSocial, this, npc);
         states[NPCState.Social] = new NPCSocialState(NPCState.Social, this, npc);
         states[NPCState.SocialEndHappy] = new NPCSocialEndHappyState(NPCState.SocialEndHappy, this, npc);
