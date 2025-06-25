@@ -248,6 +248,78 @@ public class Inventory
         }
         return transferredTotal > 0;
     }
+    
+    public bool TransferToWithFilter(Inventory target, int maxTransferAmount, HashSet<ResourceConfig> filters)
+    {
+        int transferredTotal = 0;
+        foreach (var item in currentStacks)
+        {
+            if (item.amount <= 0 || !filters.Contains(item.resourceConfig))
+                continue;
+            var targetCurrent = target.GetCurrent(item.resourceConfig);
+            if (targetCurrent == null)
+            {
+                if (target.acceptMode == InventoryAcceptMode.AllowAll)
+                {
+                    targetCurrent = new ResourceStack(item.resourceConfig, 0, defaultMaxValue);
+                    targetCurrent.amount = 0;
+                    target.currentStacks.Add(targetCurrent);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            int spaceLeft = targetCurrent.storageLimit - targetCurrent.amount;
+            if (spaceLeft <= 0)
+                continue;
+            int transferable = Math.Min(item.amount, Math.Min(spaceLeft, maxTransferAmount - transferredTotal));
+            if (transferable <= 0)
+                break;
+            item.amount -= transferable;
+            targetCurrent.amount += transferable;
+            transferredTotal += transferable;
+            if (transferredTotal >= maxTransferAmount)
+                break;
+        }
+        return transferredTotal > 0;
+    }
+    
+    public bool TransferToWithIgnore(Inventory target, int maxTransferAmount, HashSet<ResourceConfig> ignores)
+    {
+        int transferredTotal = 0;
+        foreach (var item in currentStacks)
+        {
+            if (item.amount <= 0 || ignores.Contains(item.resourceConfig))
+                continue;
+            var targetCurrent = target.GetCurrent(item.resourceConfig);
+            if (targetCurrent == null)
+            {
+                if (target.acceptMode == InventoryAcceptMode.AllowAll)
+                {
+                    targetCurrent = new ResourceStack(item.resourceConfig, 0, defaultMaxValue);
+                    targetCurrent.amount = 0;
+                    target.currentStacks.Add(targetCurrent);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            int spaceLeft = targetCurrent.storageLimit - targetCurrent.amount;
+            if (spaceLeft <= 0)
+                continue;
+            int transferable = Math.Min(item.amount, Math.Min(spaceLeft, maxTransferAmount - transferredTotal));
+            if (transferable <= 0)
+                break;
+            item.amount -= transferable;
+            targetCurrent.amount += transferable;
+            transferredTotal += transferable;
+            if (transferredTotal >= maxTransferAmount)
+                break;
+        }
+        return transferredTotal > 0;
+    }
 
     public bool HasEnough(ResourceStack required)
     {

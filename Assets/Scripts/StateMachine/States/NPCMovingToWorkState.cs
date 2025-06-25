@@ -16,12 +16,12 @@ public class NPCMovingToWorkState : NPCStateBase
         // 如果没有待处理的工作，寻找新的工作
         if (!npc.HasPendingWork())
         {
-            (Building targetBuilding, TaskType workType) = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
-            if (targetBuilding != null)
+            var nextWork = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
+            if (nextWork.building != null)
             {
                 // 使用NPCMovement的MoveToTarget方法，而不是直接设置currentTarget
-                npc.MoveToTarget(targetBuilding.transform.position);
-                npc.SetPendingWork(new PendingTaskInfo(targetBuilding, workType));
+                npc.MoveToTarget(nextWork.building.transform.position);
+                npc.assignedTask = nextWork;
             }
             else
             {
@@ -32,8 +32,8 @@ public class NPCMovingToWorkState : NPCStateBase
         }
         else
         {
-            // 有待处理的工作，直接移动到目标位置
-            npc.MoveToTarget(npc.GetPendingWork().building.transform.position);
+            // 有待处理的工作，直接移动到目标位置 正常来说在上一个状态应该已经设置了 Assigned
+            npc.MoveToTarget(npc.assignedTask.building.transform.position);
         }
 
         if (showDebugInfo)
@@ -52,10 +52,12 @@ public class NPCMovingToWorkState : NPCStateBase
             // 如果这是待处理的工作，设置为已分配建筑
             if (npc.HasPendingWork())
             {
-                npc.AssignedTask = (npc.GetPendingWork()?.building, npc.GetPendingWork()?.taskType ?? TaskType.None);
+                npc.assignedTask = new TaskInfo(
+                    npc.GetPendingWork()?.building, 
+                    npc.GetPendingWork()?.taskType ?? TaskType.None);
                 if (showDebugInfo)
                 {
-                    Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 已分配到建筑: {npc.AssignedTask.building.data.subType}");
+                    Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 已分配到建筑: {npc.assignedTask.building.data.subType}");
                 }
                 npc.ClearPendingWork();
             }

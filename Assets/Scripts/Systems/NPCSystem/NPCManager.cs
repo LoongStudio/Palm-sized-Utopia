@@ -378,6 +378,7 @@ public class NPCManager : SingletonManager<NPCManager>
         npcData.baseSalary = GenerateRandomValue(activeConfig.SalaryRange);
         npcData.baseWorkAbility = GenerateRandomValue(activeConfig.BaseWorkAbilityRange);
         npcData.itemCapacity = GenerateRandomValue(activeConfig.ItemCapacityRange);
+        npcData.itemTakeEachTimeCapacity = GenerateRandomValue(activeConfig.ItemTakeEachTimeCapacityRange);
         
         // 生成时间属性 - 确保时间逻辑合理
         npcData.restTimeStart = GenerateRandomValue(activeConfig.RestStartHourRange);
