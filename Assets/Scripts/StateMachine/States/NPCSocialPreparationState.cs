@@ -1,14 +1,14 @@
 using System.Linq;
 using UnityEngine;
 
-public class NPCSocialPreparaionState : NPCStateBase
+public class NPCSocialPreparationState : NPCStateBase
 {
     private bool invitationSent = false;
     private int sentInvitationId = -1;
     private float waitStartTime;
     private const float MAX_WAIT_TIME = 5f; // 最大等待响应时间
     private SocialSystem socialSystem;
-    public NPCSocialPreparaionState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(NPCState.PrepareForSocial, stateMachine, npc)
+    public NPCSocialPreparationState(NPCState state, NPCStateMachine stateMachine, NPC npc) : base(NPCState.PrepareForSocial, stateMachine, npc)
     {
     }
     protected override void OnEnterState()

@@ -56,7 +56,7 @@ public class NPCIdleState : NPCStateBase
             workWeight = 1.0f;
             pendingWorkWeight = npc.HasPendingWork() ? 1.2f : 0f;
             restTimeWeight = 0f; // 工作时间不考虑回家
-            socialWeight = 0.2f;
+            socialWeight = 0.0f; // TODO: 临时从 0.2 改到 0.0
         }
         else if (isRestTime)
         {
