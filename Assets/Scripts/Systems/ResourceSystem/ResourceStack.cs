@@ -31,20 +31,24 @@ public class ResourceStack
         }
     }
     
-    // 构造函数 - 类型安全版本（需要先创建ResourceData）
-    public ResourceStack(ResourceType type, System.Enum subTypeEnum, int amount)
+    public ResourceStack(ResourceConfig resourceConfig, int amount, int limit)
     {
-        // 这个构造函数现在需要ResourceData，建议使用上面的构造函数
-        throw new System.NotSupportedException("Please use Resource(ResourceData, int) constructor instead. Create ResourceData asset first.");
+        this.resourceConfig = resourceConfig;
+        this.amount = amount;
+        this.storageLimit = limit;
+        
+        if (resourceConfig == null)
+        {
+            throw new System.ArgumentNullException("resourceData cannot be null");
+        }
+        
+        // 验证子类型是否匹配
+        if (!resourceConfig.IsValidSubType())
+        {
+            throw new System.ArgumentException($"SubType {resourceConfig.subType} is not valid for ResourceType {resourceConfig.type}");
+        }
     }
     
-    // 构造函数 - int版本（需要先创建ResourceData）
-    public ResourceStack(ResourceType type, int subType, int amount) 
-    { 
-        // 这个构造函数现在需要ResourceData，建议使用上面的构造函数
-        throw new System.NotSupportedException("Please use Resource(ResourceData, int) constructor instead. Create ResourceData asset first.");
-    }
-
     // 属性访问器，用于向后兼容
     public ResourceType type => resourceConfig?.type ?? ResourceType.Coin;
     public int subType => resourceConfig?.subType ?? 0;

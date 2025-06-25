@@ -277,14 +277,14 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <summary>
     /// 获取最适合NPC工作的建筑
     /// </summary>
-    public Building GetBestWorkBuildingForNPC(NPC npc)
+    public (Building targetBuilding, TaskType workType) GetBestWorkBuildingWorkForNPC(NPC npc)
     {
         var buildings = GetBuildingsNeedingWork();
-        if (buildings.Count == 0) return null;
+        if (buildings.Count == 0) return (null, TaskType.None);
 
         float weightSlot = 0.5f;
-        float weightResource = 0.5f;
-        List<(Building building, float score)> scored = new();
+        float weightResourceAgainst = 0.5f;
+        List<(Building building, float score, TaskType workType)> scored = new();
         foreach (var building in buildings)
         {
             // 缺人程度
@@ -292,29 +292,17 @@ public class BuildingManager : SingletonManager<BuildingManager>
             if (building.maxSlotAmount > 0)
                 slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs.Count) / building.maxSlotAmount;
 
-            // 缺资源程度（对所有AcceptResources取平均）
-            float resourceRatio = 0f;
-            int resourceCount = 0;
-            float resourceSum = 0f;
-            foreach (var res in building.AcceptResources)
-            {
-                var cur = building.inventory.currentStacks
-                    .FirstOrDefault(r => r.resourceConfig.Equals(res));
-                if (cur != null)
-                {
-                    resourceSum += 1f - (float)cur.amount / cur.storageLimit;
-                    resourceCount++;
-                }
-            }
-            if (resourceCount > 0)
-                resourceRatio = resourceSum / resourceCount;
-
-            float score = slotRatio * weightSlot + resourceRatio * weightResource;
-            scored.Add((building, score));
+            float resourceAgainstScore = building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
+            float resourceRatioAgainst = resourceAgainstScore * weightResourceAgainst;
+            float score = slotRatio * weightSlot + resourceRatioAgainst;
+            if (resourceRatioAgainst > slotRatio)
+                scored.Add((building, score, TaskType.Handling));
+            else
+                scored.Add((building, score, TaskType.Production));
         }
-        if (scored.Count == 0) return null;
+        if (scored.Count == 0) return (null, TaskType.None);
         float maxScore = scored.Max(x => x.score);
-        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f).Select(x => x.building).ToList();
+        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f).Select(x => (x.building, x.workType)).ToList();
         if (bestBuildings.Count == 1) return bestBuildings[0];
         // 多个得分相同，随机分配
         return bestBuildings[UnityEngine.Random.Range(0, bestBuildings.Count)];

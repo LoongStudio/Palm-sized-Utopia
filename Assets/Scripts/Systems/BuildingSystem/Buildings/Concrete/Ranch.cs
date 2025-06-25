@@ -17,7 +17,7 @@ public class Ranch : ProductionBuilding
 
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<ResourceConfig>()
+        AcceptResources = new HashSet<ResourceConfig>()
         {
             ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed),
             ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle),

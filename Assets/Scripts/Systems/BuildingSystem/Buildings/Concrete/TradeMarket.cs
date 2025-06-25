@@ -5,7 +5,7 @@ public class TradeMarket : ProductionBuilding
 {
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<ResourceConfig>()
+        AcceptResources = new HashSet<ResourceConfig>()
         {
             ResourceManager.Instance.GetConfig(ResourceType.Coin, (int)CoinSubType.Gold)
         };

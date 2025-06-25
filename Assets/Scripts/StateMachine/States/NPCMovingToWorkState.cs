@@ -14,14 +14,14 @@ public class NPCMovingToWorkState : NPCStateBase
         base.OnEnterState();
         
         // 如果没有待处理的工作，寻找新的工作
-        if (npc.PendingWorkBuilding == null)
+        if (!npc.HasPendingWork())
         {
-            var targetBuilding = BuildingManager.Instance.GetBestWorkBuildingForNPC(npc);
+            (Building targetBuilding, TaskType workType) = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
             if (targetBuilding != null)
             {
                 // 使用NPCMovement的MoveToTarget方法，而不是直接设置currentTarget
                 npc.MoveToTarget(targetBuilding.transform.position);
-                npc.SetPendingWork(targetBuilding);
+                npc.SetPendingWork(new PendingTaskInfo(targetBuilding, workType));
             }
             else
             {
@@ -33,12 +33,12 @@ public class NPCMovingToWorkState : NPCStateBase
         else
         {
             // 有待处理的工作，直接移动到目标位置
-            npc.MoveToTarget(npc.PendingWorkBuilding.transform.position);
+            npc.MoveToTarget(npc.GetPendingWork().building.transform.position);
         }
 
         if (showDebugInfo)
         {
-            Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 正在前往工作地点: {npc.PendingWorkBuilding?.data.buildingName ?? "未知"}");
+            Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 正在前往工作地点: {npc.GetPendingWork()?.building?.data.buildingName ?? "未知"}");
         }
     }
 
@@ -50,12 +50,12 @@ public class NPCMovingToWorkState : NPCStateBase
         if (npc.isInPosition)
         {
             // 如果这是待处理的工作，设置为已分配建筑
-            if (npc.PendingWorkBuilding != null)
+            if (npc.HasPendingWork())
             {
-                npc.AssignedBuilding = npc.PendingWorkBuilding;
+                npc.AssignedTask = (npc.GetPendingWork()?.building, npc.GetPendingWork()?.taskType ?? TaskType.None);
                 if (showDebugInfo)
                 {
-                    Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 已分配到建筑: {npc.AssignedBuilding.data.buildingName}");
+                    Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 已分配到建筑: {npc.AssignedTask.building.data.subType}");
                 }
                 npc.ClearPendingWork();
             }
