@@ -297,7 +297,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
             float resourceRatioAgainst = resourceAgainstScore * weightResourceAgainst;
             float score = slotRatio * weightSlot + resourceRatioAgainst;
             // 如果需求分数没有达到阈值就跳过
-            if (score < 0.1f) continue;
+            if (score < 0.1f || !MathUtility.IsValid(score)) continue;
             Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
             if (resourceRatioAgainst > slotRatio)
                 scored.Add((building, score, TaskType.HandlingAccept));
