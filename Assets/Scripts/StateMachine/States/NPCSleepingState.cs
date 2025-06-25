@@ -43,6 +43,6 @@ public class NPCSleepingState : NPCStateBase
         {
             Debug.Log($"[NPCSleepingState] {npc.data.npcName} 休息结束，清除已分配建筑");
         }
-        npc.AssignedTask = (null, TaskType.None);
+        npc.assignedTask = TaskInfo.GetNone();
     }
 } 

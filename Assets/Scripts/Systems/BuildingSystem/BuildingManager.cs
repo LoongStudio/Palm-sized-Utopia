@@ -277,10 +277,11 @@ public class BuildingManager : SingletonManager<BuildingManager>
     /// <summary>
     /// 获取最适合NPC工作的建筑
     /// </summary>
-    public (Building targetBuilding, TaskType workType) GetBestWorkBuildingWorkForNPC(NPC npc)
+    public TaskInfo GetBestWorkBuildingWorkForNPC(NPC npc)
     {
+        Debug.Log("[Work] 开始查找最适合NPC的建筑物");
         var buildings = GetBuildingsNeedingWork();
-        if (buildings.Count == 0) return (null, TaskType.None);
+        if (buildings.Count == 0) return TaskInfo.GetNone();
 
         float weightSlot = 0.5f;
         float weightResourceAgainst = 0.5f;
@@ -295,14 +296,17 @@ public class BuildingManager : SingletonManager<BuildingManager>
             float resourceAgainstScore = building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
             float resourceRatioAgainst = resourceAgainstScore * weightResourceAgainst;
             float score = slotRatio * weightSlot + resourceRatioAgainst;
+            // 如果需求分数没有达到阈值就跳过
+            if (score < 0.1f) continue;
+            Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
             if (resourceRatioAgainst > slotRatio)
-                scored.Add((building, score, TaskType.Handling));
+                scored.Add((building, score, TaskType.HandlingAccept));
             else
                 scored.Add((building, score, TaskType.Production));
         }
-        if (scored.Count == 0) return (null, TaskType.None);
+        if (scored.Count == 0) return TaskInfo.GetNone();
         float maxScore = scored.Max(x => x.score);
-        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f).Select(x => (x.building, x.workType)).ToList();
+        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f).Select(x => new TaskInfo(x.building, x.workType)).ToList();
         if (bestBuildings.Count == 1) return bestBuildings[0];
         // 多个得分相同，随机分配
         return bestBuildings[UnityEngine.Random.Range(0, bestBuildings.Count)];

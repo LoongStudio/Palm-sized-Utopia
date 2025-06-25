@@ -41,23 +41,27 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual bool CanUpgrade() { return false; }
     public virtual bool Upgrade() { return false; }
     public virtual int GetUpgradePrice() { return 0; }
-    public virtual void TryAssignNPC(NPC npc)
+    public virtual bool TryAssignNPC(NPC npc)
     {
         // 如果NPC不在已有槽位中且目标就是这个建筑
         if (!assignedNPCs.Contains(npc) 
-            && npc.AssignedTask.building == this
-            && (npc.currentState == NPCState.Working 
-                || npc.currentState == NPCState.Transporting))
+            && npc.assignedTask.building == this
+            && npc.currentState == NPCState.Working 
+            && npc.assignedTask.taskType == TaskType.Production
+            && assignedNPCs.Count < maxSlotAmount)
         {
             assignedNPCs.Add(npc);
+            return true;
         }
         if (!tempAssignedNPCs.Contains(npc)
-            && npc.AssignedTask.building == this
-            && npc.currentState == NPCState.Transporting)
+            && npc.assignedTask.building == this
+            && npc.currentState == NPCState.Working
+            && npc.assignedTask.taskType == TaskType.HandlingAccept)
         {
             tempAssignedNPCs.Add(npc);
-            StartCoroutine(npc.StartDelivering(this));
+            return true;
         }
+        return false;
     }
     public virtual void TryRemoveNPC(NPC npc)
     {
@@ -91,30 +95,5 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     {
         return $"[{data.buildingName} - {data.buildingType}/{data.subType}] Pos: {string.Join(" ", positions)}";
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log($"进来一个畜生 {other.name}");
-        assignedNPCs ??= new List<NPC>();
-        // 如果遇到的是NPC且槽位有空余
-        if (other.CompareTag("NPC") && assignedNPCs.Count < maxSlotAmount)
-        {
-            // 一般来说必定存在
-            if (other.transform.TryGetComponent<NPC>(out NPC npc))
-            {
-                TryAssignNPC(npc);
-            }
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("NPC"))
-        {
-            if (other.transform.TryGetComponent<NPC>(out NPC npc))
-            {
-                TryRemoveNPC(npc);
-            }
-        }
-    }
+    
 }

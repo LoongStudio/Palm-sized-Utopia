@@ -12,6 +12,7 @@ public class NPCData
     public int workTimeEnd;
     public int baseWorkAbility;
     public int itemCapacity;
+    public int itemTakeEachTimeCapacity;
     public NPCPersonalityType personality;
     public List<NPCTraitType> traits;
 
