@@ -31,13 +31,10 @@ public class NPCWorkingState : NPCStateBase
                 Debug.Log($"[NPCWorkingState] {npc.data.npcName} 工作时间结束，准备下班");
             }
             // 将当前AssignedBuilding设为PendingWork，方便下次继续
-            if (npc.AssignedBuilding != null)
+            npc.SetPendingWork(new PendingTaskInfo(npc.AssignedTask.building, npc.AssignedTask.taskType));
+            if (showDebugInfo)
             {
-                npc.SetPendingWork(npc.AssignedBuilding);
-                if (showDebugInfo)
-                {
-                    Debug.Log($"[NPCWorkingState] {npc.data.npcName} 将当前工作建筑设为PendingWork: {npc.AssignedBuilding.data.buildingName}");
-                }
+                Debug.Log($"[NPCWorkingState] {npc.data.npcName} 将当前工作建筑设为PendingWork: {npc.AssignedTask.building.data.buildingName}");
             }
             stateMachine.ChangeState(NPCState.Idle);
         }
@@ -48,13 +45,10 @@ public class NPCWorkingState : NPCStateBase
         base.OnExitState();
         
         // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
-        if (npc.AssignedBuilding != null)
+        if (showDebugInfo)
         {
-            if (showDebugInfo)
-            {
-                Debug.Log($"[NPCWorkingState] {npc.data.npcName} 离开工作状态，清除已分配建筑: {npc.AssignedBuilding.data.buildingName}");
-            }
-            npc.AssignedBuilding = null;
+            Debug.Log($"[NPCWorkingState] {npc.data.npcName} 离开工作状态，清除已分配建筑: {npc.AssignedTask.building.data.buildingName}");
         }
+        npc.AssignedTask = (null, TaskType.None);
     }
 } 

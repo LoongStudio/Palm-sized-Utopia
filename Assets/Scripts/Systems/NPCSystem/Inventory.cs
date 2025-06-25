@@ -26,8 +26,8 @@ public class Inventory
     // [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> whiteList;
     // [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> blackList;
     // 资源过滤列表
-    public List<ResourceConfig> acceptList = new();
-    public List<ResourceConfig> rejectList = new();
+    public HashSet<ResourceConfig> acceptList = new();
+    public HashSet<ResourceConfig> rejectList = new();
     // 策略选项
     public InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined;
     public InventoryListFilterMode filterMode = InventoryListFilterMode.None;
@@ -58,16 +58,16 @@ public class Inventory
         List<ResourceStack> currentStacks, 
         InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined, 
         InventoryListFilterMode filterMode = InventoryListFilterMode.None,
-        List<ResourceConfig> acceptList = null,
-        List<ResourceConfig> rejectList = null,
+        HashSet<ResourceConfig> acceptList = null,
+        HashSet<ResourceConfig> rejectList = null,
         InventoryOwnerType ownerType = InventoryOwnerType.None, 
         int defaultMaxValue = 100)
     {
         this.currentStacks = currentStacks ?? new List<ResourceStack>();
         this.acceptMode = acceptMode;
         this.filterMode = filterMode;
-        this.acceptList = acceptList ?? new List<ResourceConfig>();
-        this.rejectList = rejectList ?? new List<ResourceConfig>();
+        this.acceptList = acceptList ?? new HashSet<ResourceConfig>();
+        this.rejectList = rejectList ?? new HashSet<ResourceConfig>();
         this.ownerType = ownerType;
         this.defaultMaxValue = defaultMaxValue;
     }
@@ -134,7 +134,7 @@ public class Inventory
             // AllowAll模式下可自动补全
             if (acceptMode == InventoryAcceptMode.AllowAll)
             {
-                currentStacks.Add(new ResourceStack(config, 0));
+                currentStacks.Add(new ResourceStack(config, 0, defaultMaxValue));
                 return true;
             }
             return false;
@@ -225,7 +225,7 @@ public class Inventory
             {
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
-                    targetCurrent = new ResourceStack(item.type, item.subType, item.storageLimit);
+                    targetCurrent = new ResourceStack(item.resourceConfig, 0, defaultMaxValue);
                     targetCurrent.amount = 0;
                     target.currentStacks.Add(targetCurrent);
                 }
@@ -343,6 +343,58 @@ public class Inventory
             AddItem(item.resourceConfig, item.amount);
 
         return true;
+    }
+
+    public float GetResourceRatioLimitInvolvingList(HashSet<ResourceConfig> resourceConfigs)
+    {
+        int count = 0;
+        int totalLimit = 0;
+        foreach (var stack in currentStacks)
+        {
+            if (resourceConfigs.Contains(stack.resourceConfig))
+            {
+                count += stack.amount;
+                totalLimit += stack.storageLimit;
+            }
+        }
+        return count / (float)totalLimit;
+    }
+    
+    public float GetResourceRatioLimitAgainstList(HashSet<ResourceConfig> resourceConfigs)
+    {
+        int count = 0;
+        int totalLimit = 0;
+        foreach (var stack in currentStacks)
+        {
+            if (!resourceConfigs.Contains(stack.resourceConfig))
+            {
+                count += stack.amount;
+                totalLimit += stack.storageLimit;
+            }
+        }
+        return count / (float)totalLimit;
+    }
+    
+    public (float involving, float against) GetResourceRatioLimitInvolvingAgainstList(HashSet<ResourceConfig> resourceConfigs)
+    {
+        int countInvovling = 0;
+        int totalInvovlingLimit = 0;
+        int countAgainst = 0;
+        int totalAgainstLimit = 0;
+        foreach (var stack in currentStacks)
+        {
+            if (resourceConfigs.Contains(stack.resourceConfig))
+            {
+                countInvovling += stack.amount;
+                totalInvovlingLimit += stack.storageLimit;
+            }
+            else
+            {
+                countAgainst += stack.amount;
+                totalAgainstLimit += stack.storageLimit;
+            }
+        }
+        return (countInvovling / (float)totalInvovlingLimit, countAgainst / (float)totalAgainstLimit);
     }
 
     // 兼容旧接口（ResourceType+int）

@@ -17,7 +17,7 @@ public class CompostYard : ProductionBuilding
     
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<ResourceConfig>()
+        AcceptResources = new HashSet<ResourceConfig>()
         {
             ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat),
             ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn),

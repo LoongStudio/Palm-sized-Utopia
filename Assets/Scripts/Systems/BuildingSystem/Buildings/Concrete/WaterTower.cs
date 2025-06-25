@@ -5,7 +5,7 @@ public class WaterTower : BuffBuilding
 {
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<ResourceConfig>() { };
+        AcceptResources = new HashSet<ResourceConfig>() { };
         inventory = new Inventory(
             new List<ResourceStack>(),
             Inventory.InventoryAcceptMode.OnlyDefined,

@@ -11,7 +11,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
-    public List<ResourceConfig> AcceptResources;
+    public HashSet<ResourceConfig> AcceptResources;
     [Header("槽位管理")] 
     public int maxSlotAmount = 3;
     public List<NPC> assignedNPCs;
@@ -45,14 +45,14 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     {
         // 如果NPC不在已有槽位中且目标就是这个建筑
         if (!assignedNPCs.Contains(npc) 
-            && npc.AssignedBuilding == this
+            && npc.AssignedTask.building == this
             && (npc.currentState == NPCState.Working 
                 || npc.currentState == NPCState.Transporting))
         {
             assignedNPCs.Add(npc);
         }
         if (!tempAssignedNPCs.Contains(npc)
-            && npc.AssignedBuilding == this
+            && npc.AssignedTask.building == this
             && npc.currentState == NPCState.Transporting)
         {
             tempAssignedNPCs.Add(npc);

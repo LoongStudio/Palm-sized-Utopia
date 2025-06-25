@@ -8,7 +8,7 @@ public class Farm : ProductionBuilding
     
     public override void InitialSelfStorage()
     {
-        AcceptResources = new List<ResourceConfig>()
+        AcceptResources = new HashSet<ResourceConfig>()
         {
             ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat),
             ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn),

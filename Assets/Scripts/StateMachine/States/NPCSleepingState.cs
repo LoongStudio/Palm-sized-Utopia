@@ -39,13 +39,10 @@ public class NPCSleepingState : NPCStateBase
         base.OnExitState();
         
         // 休息结束时清除AssignedBuilding
-        if (npc.AssignedBuilding != null)
+        if (showDebugInfo)
         {
-            if (showDebugInfo)
-            {
-                Debug.Log($"[NPCSleepingState] {npc.data.npcName} 休息结束，清除已分配建筑");
-            }
-            npc.AssignedBuilding = null;
+            Debug.Log($"[NPCSleepingState] {npc.data.npcName} 休息结束，清除已分配建筑");
         }
+        npc.AssignedTask = (null, TaskType.None);
     }
 } 

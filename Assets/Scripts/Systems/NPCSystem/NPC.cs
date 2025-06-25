@@ -4,6 +4,7 @@ using UnityEngine.AI;
 using System.Collections;
 using UnityEditor;
 using System;
+using UnityEngine.Serialization;
 
 public class NPC : MonoBehaviour, ISaveable
 {
@@ -43,14 +44,14 @@ public class NPC : MonoBehaviour, ISaveable
     public bool isLanded => movement?.isLanded ?? false;
     public bool isInPosition => movement?.isInPosition ?? false;
 
-    [Header("工作系统")]
-    [SerializeField] private Building pendingWorkBuilding;       // 待处理的工作建筑
+    [FormerlySerializedAs("PendingWork"),Header("工作系统")]
+    [SerializeField] public PendingTaskInfo pendingTask;       // 待处理的工作建筑
     [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
 
-    public Building PendingWorkBuilding => pendingWorkBuilding;
-    public Vector3? PendingWorkTarget => pendingWorkBuilding?.transform.position;
-    public Building AssignedBuilding { get; set; }               // 分配的建筑
+    // public Building PendingWork => pendingWork;
+    public Vector3? PendingWorkTarget => pendingTask?.building?.transform.position;
+    public (Building building, TaskType taskType) AssignedTask { get; set; }               // 分配的建筑
     public float CurrentIdleWeight => currentIdleWeight;
     #endregion
     
@@ -140,7 +141,7 @@ public class NPC : MonoBehaviour, ISaveable
     /// <param name="other"></param>
     public void CopyFrom(NPC other){
         data = other.data;
-        AssignedBuilding = other.AssignedBuilding;
+        AssignedTask = other.AssignedTask;
         relationships = other.relationships;
         stateMachine = other.stateMachine;
         inventory = other.inventory;
@@ -270,11 +271,11 @@ public class NPC : MonoBehaviour, ISaveable
             switch (trait)
             {
                 case NPCTraitType.FarmExpert:
-                    if (AssignedBuilding?.data.subType == BuildingSubType.Farm)
+                    if (AssignedTask.building?.data.subType == BuildingSubType.Farm)
                         multiplier *= 1.5f; // 50%加成
                     break;
                 case NPCTraitType.LivestockExpert:
-                    if (AssignedBuilding?.data.subType == BuildingSubType.Ranch)
+                    if (AssignedTask.building?.data.subType == BuildingSubType.Ranch)
                         multiplier *= 1.5f;
                     break;
                 case NPCTraitType.CheapLabor:
@@ -296,14 +297,14 @@ public class NPC : MonoBehaviour, ISaveable
             yield return new WaitForSeconds(1f);
         }
         ChangeState(NPCState.Idle);
-        AssignedBuilding = null;
+        AssignedTask = (null, TaskType.None);
     }
 
     public void StopDelivering()
     {
         StopCoroutine(_deliveryRoutine);
         ChangeState(NPCState.Idle);
-        AssignedBuilding = null;
+        AssignedTask = (null, TaskType.None);
     }
     #endregion
     
@@ -448,14 +449,23 @@ public class NPC : MonoBehaviour, ISaveable
     }
     #endregion
 
-    public void SetPendingWork(Building building)
+    public PendingTaskInfo GetPendingWork()
     {
-        pendingWorkBuilding = building;
+        return pendingTask;
+    }
+    public bool HasPendingWork()
+    {
+        if (pendingTask == null || pendingTask.building == null || pendingTask.taskType == TaskType.None) return false;
+        return true;
     }
 
+    public void SetPendingWork(PendingTaskInfo pendingTask)
+    {
+        this.pendingTask = pendingTask;
+    }
     public void ClearPendingWork()
     {
-        pendingWorkBuilding = null;
+        pendingTask = PendingTaskInfo.GetNone();
     }
 
     public bool IsRestTime()
