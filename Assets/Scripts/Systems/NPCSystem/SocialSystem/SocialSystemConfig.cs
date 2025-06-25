@@ -34,4 +34,8 @@ public class SocialSystemConfig : ScriptableObject
     public float friendWorkBonus = 0.1f;
     public float neutralWorkBonus = 0.05f;
     public float enemyWorkPenalty = -0.1f;
+    
+    [Header("邀请系统设置")]
+    public float invitationTimeout = 5f;
+    public int maxPendingInvitations = 3;
 }
