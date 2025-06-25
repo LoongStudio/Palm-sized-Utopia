@@ -291,13 +291,14 @@ public class BuildingManager : SingletonManager<BuildingManager>
             // 缺人程度
             float slotRatio = 0f;
             if (building.maxSlotAmount > 0)
-                slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs.Count) / building.maxSlotAmount;
+                slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs?.Count ?? 0) / building.maxSlotAmount;
 
             float resourceAgainstScore = building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
             float resourceRatioAgainst = resourceAgainstScore * weightResourceAgainst;
             float score = slotRatio * weightSlot + resourceRatioAgainst;
+            Debug.Log($"{resourceAgainstScore} {resourceRatioAgainst}");
             // 如果需求分数没有达到阈值就跳过
-            if (score < 0.1f) continue;
+            if (score < 0.1f || !MathUtility.IsValid(score)) continue;
             Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
             if (resourceRatioAgainst > slotRatio)
                 scored.Add((building, score, TaskType.HandlingAccept));
