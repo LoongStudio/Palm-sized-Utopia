@@ -111,11 +111,13 @@ GameObject:
   - component: {fileID: 893983246051486831}
   - component: {fileID: -4941050625622135936}
   - component: {fileID: -3640491458511613307}
-  - component: {fileID: 6222079410607490007}
-  - component: {fileID: -3895718881952932244}
   - component: {fileID: 6802671182719644152}
+  - component: {fileID: 6589047494811396492}
+  - component: {fileID: 4019619448719368366}
+  - component: {fileID: 8773873203722646503}
+  - component: {fileID: 3421454513183349137}
   m_Layer: 11
-  m_Name: SlimePBR
+  m_Name: PhysicSlimePBR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -218,58 +220,6 @@ MonoBehaviour:
   assignedTask:
     building: {fileID: 0}
     taskType: 0
---- !u!114 &6222079410607490007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4704072471082765480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee3921e6d291297458907dfe8a9a33b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  npcMovementConfig: {fileID: 11400000, guid: f149d6c08bc9fa44f8ad5470f95bea6f, type: 2}
-  showDebugInfo: 0
-  drawGizmos: 1
-  pathColor: {r: 0, g: 1, b: 0, a: 1}
-  isRandomMovementEnabled: 1
-  moveRadius: 3
-  minWaitTime: 1
-  maxWaitTime: 2
-  movementSpeed: 2
-  stoppingDistance: 0.5
-  turnSpeed: 5
-  turnThreshold: 10
-  enableTurnBeforeMove: 1
-  isTurning: 0
-  targetDirection: {x: 0, y: 0, z: 0}
-  currentTarget: {fileID: 0}
-  isLanded: 0
-  isInPosition: 0
---- !u!195 &-3895718881952932244
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4704072471082765480}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.44
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 1.09
-  m_BaseOffset: 0
-  m_WalkableMask: 1
-  m_ObstacleAvoidanceType: 1
 --- !u!114 &6802671182719644152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,6 +236,96 @@ MonoBehaviour:
   showDebugLogs: 1
   initialState: 0
   stateTimer: 0
+--- !u!136 &6589047494811396492
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.45, z: 0}
+--- !u!54 &4019619448719368366
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 2
+--- !u!114 &8773873203722646503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6414add74666ac458662d84b2771c88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  separationRadius: 1.5
+  alignmentRadius: 2.5
+  cohesionRadius: 2.5
+  separationWeight: 2
+  alignmentWeight: 1
+  cohesionWeight: 1
+  npcLayer:
+    serializedVersion: 2
+    m_Bits: 0
+--- !u!114 &3421454513183349137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e92255a02584ca48b1d63553fb75574, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveRadius: 3
+  minWaitTime: 1
+  maxWaitTime: 2
+  movementSpeed: 2
+  stoppingDistance: 0.5
+  showDebugInfo: 0
+  isLanded: 1
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0

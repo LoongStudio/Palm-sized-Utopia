@@ -36,8 +36,8 @@ public class NPC : MonoBehaviour, ISaveable
     public NavMeshAgent navAgent;           // 导航组件
     public int transferSpeed = 10;          // 转移物体的数量
     [Header("移动配置")]
-    public NPCMovement movement;
-    // 移动相关字段已转移到NPCMovement中
+    public NPCPhysicsMovement movement;
+    // 移动相关字段已转移到NPCPhysicsMovement中
     
     // 属性访问器，用于向后兼容
     public Transform currentTarget => movement?.CurrentTarget;
@@ -68,9 +68,9 @@ public class NPC : MonoBehaviour, ISaveable
             navAgent = GetComponent<NavMeshAgent>();
         }
 
-        movement = GetComponent<NPCMovement>();
+        movement = GetComponent<NPCPhysicsMovement>();
         if(movement == null){
-            movement = gameObject.AddComponent<NPCMovement>();
+            movement = gameObject.AddComponent<NPCPhysicsMovement>();
         }
         
 
@@ -347,7 +347,7 @@ public class NPC : MonoBehaviour, ISaveable
     #region 移动和任务
     private void UpdateMovement() 
     { 
-        // 移动逻辑已转移到NPCMovement中
+        // 移动逻辑已转移到NPCPhysicsMovement中
     }
     
     /// <summary>

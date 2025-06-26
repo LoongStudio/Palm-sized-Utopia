@@ -6,6 +6,7 @@ using System.Collections;
 /// NPC随机移动控制器 - 用于测试社交系统
 /// 让NPC在NavMesh区域内随机移动，并在到达目标后暂停一段时间
 /// </summary>
+[RequireComponent(typeof(NavMeshAgent), typeof(Animator), typeof(NPC))]
 public class NPCMovement : MonoBehaviour
 {
     [Header("NPC移动配置")]
