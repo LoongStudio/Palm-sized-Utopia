@@ -19,6 +19,15 @@ public class NPCWorkingState : NPCStateBase
         if (showDebugInfo)
         {
             Debug.Log($"[NPCWorkingState] {npc.data.npcName} 正在 {npc.assignedTask.building} 工作 {npc.assignedTask.taskType}");
+            Collider[] allColliders = npc.GetComponentsInChildren<Collider>();
+            foreach (var colli in allColliders) {
+                Debug.Log($"找到碰撞体: {colli.gameObject.name}");
+            }
+            // 进入工作后取消碰撞体 出来后再关闭
+            if (npc.TryGetComponent(out Collider collider))
+            {
+            
+            }
         }
         switch (npc.assignedTask.taskType)
         {
