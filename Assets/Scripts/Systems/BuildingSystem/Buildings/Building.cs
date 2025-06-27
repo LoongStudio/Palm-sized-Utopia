@@ -73,7 +73,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual void RemoveEquipment(Equipment equipment) { }
     
     // 接口实现
-    public virtual SaveData SaveToData() { return null; }
+    public virtual SaveData GetSaveData() { return null; }
     public virtual void LoadFromData(SaveData data) { }
     
     // 游戏循环
