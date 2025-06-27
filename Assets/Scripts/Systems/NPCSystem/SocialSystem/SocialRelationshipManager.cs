@@ -8,12 +8,110 @@ using UnityEngine;
 public class SocialRelationshipManager
 {
     private SocialSystemData data;
+    // 默认关系值
+    public const int DEFAULT_RELATIONSHIP = 50;
     
     public SocialRelationshipManager(SocialSystemData systemData)
     {
         data = systemData;
     }
+
+    #region 关系数据管理
+    /// <summary>
+    /// 获取NPC之间的关系
+    /// </summary>
+    public int GetRelationship(NPC npc1, NPC npc2)
+    {
+        if (npc1 == null || npc2 == null || npc1 == npc2)
+            return DEFAULT_RELATIONSHIP;
+        
+        var key = (npc1.NpcId, npc2.NpcId);
+        return data.relationships.TryGetValue(key, out var value) ? value : DEFAULT_RELATIONSHIP;
+    }
+    /// <summary>
+    /// 设置两个NPC之间的关系值（单向）
+    /// </summary>
+    public void SetRelationship(NPC npc1, NPC npc2, int value)
+    {
+        if (npc1 == null || npc2 == null || npc1 == npc2) 
+            return;
+            
+        var key = (npc1.NpcId, npc2.NpcId);
+        value = Mathf.Clamp(value, data.config.minRelationship, data.config.maxRelationship);
+        data.relationships[key] = value;
+        
+        // 触发关系变化事件
+        var eventArgs = new NPCEventArgs
+        {
+            npc = npc1,
+            otherNPC = npc2,
+            relationshipChange = value - GetRelationship(npc1, npc2),
+            eventType = NPCEventArgs.NPCEventType.RelationshipChanged
+        };
+        GameEvents.TriggerNPCRelationshipChanged(eventArgs);
+    }
+    /// <summary>
+    /// 增加关系值
+    /// </summary>
+    public void IncreaseRelationship(NPC npc1, NPC npc2, int amount)
+    {
+        int currentValue = GetRelationship(npc1, npc2);
+        SetRelationship(npc1, npc2, currentValue + amount);
+    }
+    /// <summary>
+    /// 减少关系值
+    /// </summary>
+    public void DecreaseRelationship(NPC npc1, NPC npc2, int amount)
+    {
+        int currentValue = GetRelationship(npc1, npc2);
+        SetRelationship(npc1, npc2, currentValue - amount);
+    }    
+    /// <summary>
+    /// 获取某个NPC对所有其他NPC的关系
+    /// </summary>
+    public Dictionary<NPC, int> GetAllRelationshipsFor(NPC npc)
+    {
+        var result = new Dictionary<NPC, int>();
+        
+        if (npc == null) return result;
+        
+        foreach (var otherNpc in data.npcs)
+        {
+            if (otherNpc != npc)
+            {
+                result[otherNpc] = GetRelationship(npc, otherNpc);
+            }
+        }
+        
+        return result;
+    }
     
+    /// <summary>
+    /// 移除某个NPC的所有关系数据
+    /// </summary>
+    public void RemoveAllRelationshipsFor(NPC npc)
+    {
+        if (npc == null) return;
+        
+        var keysToRemove = new List<(string, string)>();
+        
+        foreach (var key in data.relationships.Keys)
+        {
+            if (key.Item1 == npc.NpcId || key.Item2 == npc.NpcId)
+            {
+                keysToRemove.Add(key);
+            }
+        }
+        
+        foreach (var key in keysToRemove)
+        {
+            data.relationships.Remove(key);
+        }
+    }
+    
+    #endregion
+
+    #region 关系变化事件
     /// <summary>
     /// 判断NPC是否会发生争吵
     /// </summary>
@@ -45,9 +143,9 @@ public class SocialRelationshipManager
         int penalty = data.config.fightRelationshipPenalty;
         
         // 应用好感度变化
-        npc1.DecreaseRelationship(npc2, penalty);
-        npc2.DecreaseRelationship(npc1, penalty);
-        
+        DecreaseRelationship(npc1, npc2, penalty);
+        DecreaseRelationship(npc2, npc1, penalty);
+
         return penalty;
     }
     
@@ -78,8 +176,8 @@ public class SocialRelationshipManager
         }
         
         // 应用好感度变化
-        npc1.IncreaseRelationship(npc2, bonus);
-        npc2.IncreaseRelationship(npc1, bonus);
+        IncreaseRelationship(npc1, npc2, bonus);
+        IncreaseRelationship(npc2, npc1, bonus);
         
         return bonus;
     }
@@ -99,8 +197,8 @@ public class SocialRelationshipManager
             bonus = Mathf.RoundToInt(bonus * 1.3f);
         }
         
-        npc1.IncreaseRelationship(npc2, bonus);
-        npc2.IncreaseRelationship(npc1, bonus);
+        IncreaseRelationship(npc1, npc2, bonus);
+        IncreaseRelationship(npc2, npc1, bonus);
         
         if (NPCManager.Instance.showDebugInfo)
             Debug.Log($"[SocialRelationshipManager] {npc1.data.npcName} 和 {npc2.data.npcName} 因共同工作获得好感度 +{bonus}");
@@ -111,29 +209,22 @@ public class SocialRelationshipManager
     /// </summary>
     public void ProcessDailyRelationshipDecay()
     {
-        foreach (var npc in data.npcs)
+        var keysToUpdate = new List<(string, string)>(data.relationships.Keys);
+        
+        foreach (var key in keysToUpdate)
         {
-            if (npc.relationships == null) continue;
-            
-            var relationshipKeys = npc.relationships.Keys.ToList();
-            foreach (var otherNPC in relationshipKeys)
-            {
-                if (otherNPC == null) continue;
-                
-                int currentRelationship = npc.relationships[otherNPC];
-                
-                // 只有好感度大于50的才会衰减，避免负面关系无限恶化
-                if (currentRelationship > 50)
-                {
-                    npc.DecreaseRelationship(otherNPC, -data.config.relationshipDecayDaily);
-                }
-            }
+            int currentValue = data.relationships[key];
+            int newValue = currentValue + data.config.relationshipDecayDaily;
+            newValue = Mathf.Clamp(newValue, data.config.minRelationship, data.config.maxRelationship);
+            data.relationships[key] = newValue;
         }
         
         if (NPCManager.Instance.showDebugInfo)
-            Debug.Log("[SocialRelationshipManager] 处理每日好感度衰减完成");
+        {
+            Debug.Log($"[SocialRelationshipManager] 处理每日好感度衰减完成，处理了 {keysToUpdate.Count} 个关系的每日衰减");
+        }
     }
-    
+    #endregion
     /// <summary>
     /// 计算平均好感度
     /// </summary>
@@ -142,15 +233,10 @@ public class SocialRelationshipManager
         float totalRelationship = 0f;
         int relationshipCount = 0;
         
-        foreach (var npc in data.npcs)
+        foreach (var key in data.relationships.Keys)
         {
-            if (npc.relationships == null) continue;
-            
-            foreach (var relationship in npc.relationships.Values)
-            {
-                totalRelationship += relationship;
-                relationshipCount++;
-            }
+            totalRelationship += data.relationships[key];
+            relationshipCount++;
         }
         
         return relationshipCount > 0 ? totalRelationship / relationshipCount : 50f;

@@ -18,6 +18,10 @@ public class NPCManager : SingletonManager<NPCManager>
 
     private List<NPC> allNPCs;
     private List<NPC> availableNPCs;
+    // ID到NPC的映射表
+    private Dictionary<string, NPC> npcIdToNpcMap = new Dictionary<string, NPC>();
+    // 用于检测ID冲突
+    private HashSet<string> usedNpcIds = new HashSet<string>();
     public SocialSystem socialSystem;
     #region 生命周期
     protected override void Awake()
@@ -272,6 +276,15 @@ public class NPCManager : SingletonManager<NPCManager>
             Debug.LogError("[NPCManager] 尝试注册空的NPC");
             return;
         }
+
+        // 检查ID冲突
+        string npcId = npc.NpcId;
+        if (usedNpcIds.Contains(npcId))
+        {
+            Debug.LogWarning($"[NPCManager] 检测到NPC ID冲突: {npcId}，重新生成ID");
+            npc.RegenerateId();
+            npcId = npc.NpcId;
+        }
         
         // 避免重复注册
         if (allNPCs.Contains(npc))
@@ -282,6 +295,8 @@ public class NPCManager : SingletonManager<NPCManager>
         
         // 添加到总列表
         allNPCs.Add(npc);
+        npcIdToNpcMap[npcId] = npc;
+        usedNpcIds.Add(npcId);        
         
         // 检查是否应该添加到可用列表
         if (IsNPCAvailable(npc))
@@ -300,12 +315,108 @@ public class NPCManager : SingletonManager<NPCManager>
     public void UnregisterNPC(NPC npc)
     {
         if (npc == null) return;
+
+        string npcId = npc.NpcId;
         
         allNPCs.Remove(npc);
         availableNPCs.Remove(npc);
+        npcIdToNpcMap.Remove(npcId);
+        usedNpcIds.Remove(npcId);
+
+        // 清理社交关系
+        if (socialSystem != null)
+        {
+            socialSystem.RemoveAllRelationshipsFor(npc);
+        }
         
         if(showDebugInfo) 
             Debug.Log($"[NPCManager] 移除NPC: {npc.data?.npcName}，剩余总数: {allNPCs.Count}");
+    }
+
+    /// <summary>
+    /// 通过ID获取NPC
+    /// </summary>
+    public NPC GetNPCById(string npcId)
+    {
+        if (string.IsNullOrEmpty(npcId))
+            return null;
+            
+        npcIdToNpcMap.TryGetValue(npcId, out var npc);
+        return npc;
+    }
+    
+    /// <summary>
+    /// 检查ID是否已被使用
+    /// </summary>
+    public bool IsNpcIdUsed(string npcId)
+    {
+        return usedNpcIds.Contains(npcId);
+    }
+    
+    /// <summary>
+    /// 获取所有NPC的ID列表
+    /// </summary>
+    public List<string> GetAllNpcIds()
+    {
+        return new List<string>(usedNpcIds);
+    }
+    
+    /// <summary>
+    /// 验证所有NPC的ID完整性
+    /// </summary>
+    [ContextMenu("验证NPC ID完整性")]
+    public void ValidateNpcIds()
+    {
+        Debug.Log("[NPCManager] 开始验证NPC ID完整性...");
+        
+        var foundIssues = new List<string>();
+        
+        // 检查重复ID
+        var idCounts = new Dictionary<string, int>();
+        foreach (var npc in allNPCs)
+        {
+            if (npc != null)
+            {
+                string id = npc.NpcId;
+                idCounts[id] = idCounts.ContainsKey(id) ? idCounts[id] + 1 : 1;
+            }
+        }
+        
+        foreach (var kvp in idCounts)
+        {
+            if (kvp.Value > 1)
+            {
+                foundIssues.Add($"重复ID: {kvp.Key} (出现{kvp.Value}次)");
+            }
+        }
+        
+        // 检查映射表一致性
+        if (npcIdToNpcMap.Count != allNPCs.Count)
+        {
+            foundIssues.Add($"映射表数量不一致: 映射表{npcIdToNpcMap.Count}, 实际NPC{allNPCs.Count}");
+        }
+        
+        // 检查每个NPC是否在映射表中
+        foreach (var npc in allNPCs)
+        {
+            if (npc != null && !npcIdToNpcMap.ContainsKey(npc.NpcId))
+            {
+                foundIssues.Add($"NPC {npc.data?.npcName} (ID: {npc.NpcId}) 不在映射表中");
+            }
+        }
+        
+        if (foundIssues.Count == 0)
+        {
+            Debug.Log("[NPCManager] ✅ NPC ID完整性验证通过");
+        }
+        else
+        {
+            Debug.LogError($"[NPCManager] ❌ 发现{foundIssues.Count}个问题:");
+            foreach (var issue in foundIssues)
+            {
+                Debug.LogError($"  - {issue}");
+            }
+        }
     }
     
     /// <summary>

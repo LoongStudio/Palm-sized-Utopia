@@ -11,12 +11,15 @@ public class NPC : MonoBehaviour, ISaveable
     #region 字段声明
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
+    [Header("唯一标识")]
+    [SerializeField] private string npcId;
+    
     [Header("基本信息")]
     public NPCData data;
     public HousingBuilding housing; // 添加住房属性
     
     [Header("社交系统")]
-    public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
+    // public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
     public Vector3 socialPosition; // 社交位置
 
     [Header("社交配置")]
@@ -53,10 +56,12 @@ public class NPC : MonoBehaviour, ISaveable
     public Vector3? PendingTaskTarget => pendingTask?.building?.transform.position;
     [SerializeField] public TaskInfo assignedTask;               // 分配的建筑
     public float CurrentIdleWeight => currentIdleWeight;
+
     #endregion
     
     #region Unity生命周期
     private void Awake() {
+        var _ = NpcId; // 触发getter，如果没有ID会自动生成
         // 添加状态机组件
         if(stateMachine == null){
             if (!TryGetComponent<NPCStateMachine>(out stateMachine))
@@ -143,7 +148,6 @@ public class NPC : MonoBehaviour, ISaveable
     public void CopyFrom(NPC other){
         data = other.data;
         assignedTask = other.assignedTask;
-        relationships = other.relationships;
         stateMachine = other.stateMachine;
         inventory = other.inventory;
         // currentTarget现在由movement组件管理，不需要在这里复制
@@ -229,6 +233,52 @@ public class NPC : MonoBehaviour, ISaveable
     
     #endregion
 
+    #region 唯一标识
+    /// <summary>
+    /// NPC的唯一标识符
+    /// </summary>
+    public string NpcId 
+    { 
+        get 
+        { 
+            // 如果ID为空，生成新的GUID
+            if (string.IsNullOrEmpty(npcId))
+            {
+                npcId = System.Guid.NewGuid().ToString();
+                if (showDebugInfo)
+                    Debug.Log($"[NPC] 为NPC {data?.npcName} 生成新ID: {npcId}");
+            }
+            return npcId; 
+        }
+        private set
+        {
+            npcId = value;
+        }
+    }
+    /// <summary>
+    /// 手动设置NPC ID（仅用于加载存档）
+    /// </summary>
+    public void SetNpcId(string id)
+    {
+        if (!string.IsNullOrEmpty(id))
+        {
+            npcId = id;
+            if (showDebugInfo)
+                Debug.Log($"[NPC] 设置NPC {data?.npcName} 的ID为: {npcId}");
+        }
+    }
+    /// <summary>
+    /// 强制重新生成ID（慎用）
+    /// </summary>
+    public void RegenerateId()
+    {
+        string oldId = npcId;
+        npcId = System.Guid.NewGuid().ToString();
+        if (showDebugInfo)
+            Debug.Log($"[NPC] NPC {data?.npcName} ID从 {oldId} 重新生成为 {npcId}");
+    }
+    #endregion
+
     #region 工作相关
     public bool CanWorkNow() 
     {
@@ -311,27 +361,33 @@ public class NPC : MonoBehaviour, ISaveable
     
     #region 社交相关
     public void IncreaseRelationship(NPC other, int amount) {
-        if(relationships.ContainsKey(other)){
-            relationships[other] += amount;
-        }else{
-            relationships[other] = amount;
-        }
-     }
+        if(NPCManager.Instance?.socialSystem == null) return;
+        NPCManager.Instance.socialSystem.IncreaseRelationship(this, other, amount);
+    }
     
     public void DecreaseRelationship(NPC other, int amount) {
-        if(relationships.ContainsKey(other)){
-            relationships[other] -= amount;
-        }else{
-            relationships[other] = 0;
-        }
+        if(NPCManager.Instance?.socialSystem == null) return;
+        NPCManager.Instance.socialSystem.DecreaseRelationship(this, other, amount);
     }
     
     public int GetRelationshipWith(NPC other) {
-        if(relationships.ContainsKey(other)){
-            return relationships[other];
-        }else{
-            return 0;
+        if (NPCManager.Instance?.socialSystem != null)
+        {
+            return NPCManager.Instance.socialSystem.GetRelationship(this, other);
         }
+        return SocialRelationshipManager.DEFAULT_RELATIONSHIP;
+    }
+
+    /// <summary>
+    /// 获取与所有其他NPC的关系（用于调试和UI显示）
+    /// </summary>
+    public Dictionary<NPC, int> GetAllRelationships()
+    {
+        if (NPCManager.Instance?.socialSystem != null)
+        {
+            return NPCManager.Instance.socialSystem.GetAllRelationshipsFor(this);
+        }
+        return new Dictionary<NPC, int>();
     }
     #endregion
     
@@ -442,6 +498,7 @@ public class NPC : MonoBehaviour, ISaveable
     public void PrintNPCRelationships()
     {
         Debug.Log($"[NPC] {data.npcName} 当前对其他NPC的好感度: ==========================");
+        var relationships = GetAllRelationships();
         foreach (var relationship in relationships)
         {
             Debug.Log($"{data.npcName} 对 {relationship.Key.data.npcName} 的好感度为: {relationship.Value}");
