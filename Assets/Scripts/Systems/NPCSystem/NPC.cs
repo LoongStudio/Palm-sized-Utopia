@@ -432,7 +432,7 @@ public class NPC : MonoBehaviour, ISaveable
     #endregion
     
     #region 存档系统
-    public SaveData SaveToData() { return null; }
+    public SaveData GetSaveData() { return null; }
     
     public void LoadFromData(SaveData data) { }
     #endregion
