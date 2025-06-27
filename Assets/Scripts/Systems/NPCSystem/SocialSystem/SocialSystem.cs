@@ -160,6 +160,21 @@ public class SocialSystem
     #endregion
     
     #region 关系管理API
+    public int GetRelationship(NPC npc1, NPC npc2){
+        return relationshipManager?.GetRelationship(npc1, npc2) ?? SocialRelationshipManager.DEFAULT_RELATIONSHIP;
+    }
+    public void IncreaseRelationship(NPC npc1, NPC npc2, int amount){
+        relationshipManager?.IncreaseRelationship(npc1, npc2, amount);
+    }
+    public void DecreaseRelationship(NPC npc1, NPC npc2, int amount){
+        relationshipManager?.DecreaseRelationship(npc1, npc2, amount);
+    }
+    public Dictionary<NPC, int> GetAllRelationshipsFor(NPC npc){
+        return relationshipManager?.GetAllRelationshipsFor(npc) ?? new Dictionary<NPC, int>();
+    }
+    public void RemoveAllRelationshipsFor(NPC npc){
+        relationshipManager?.RemoveAllRelationshipsFor(npc);
+    }
     public void ProcessWorkTogetherBonus(NPC npc1, NPC npc2) 
     {
         relationshipManager?.ProcessWorkTogetherBonus(npc1, npc2);
