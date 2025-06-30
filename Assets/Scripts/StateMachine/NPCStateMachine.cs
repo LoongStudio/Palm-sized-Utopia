@@ -93,7 +93,6 @@ public class NPCStateMachine : MonoBehaviour
         // 工作相关状态
         states[NPCState.MovingToWork] = new NPCMovingToWorkState(NPCState.MovingToWork, this, npc);
         states[NPCState.Working] = new NPCWorkingState(NPCState.Working, this, npc);
-        states[NPCState.Transporting] = new NPCTransportingState(NPCState.Transporting, this, npc);
         states[NPCState.WorkComplete] = new NPCWorkCompleteState(NPCState.WorkComplete, this, npc);
         
         // 回家相关状态

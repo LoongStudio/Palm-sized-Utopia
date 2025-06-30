@@ -285,25 +285,42 @@ public class BuildingManager : SingletonManager<BuildingManager>
 
         float weightSlot = 0.5f;
         float weightResourceAgainst = 0.5f;
+        float weightResourceInvolved = 0.8f;
         List<(Building building, float score, TaskType workType)> scored = new();
         foreach (var building in buildings)
         {
+            // 忽略住房与装饰性建筑
+            if (building.data.buildingType == BuildingType.Housing
+                || building.data.buildingType == BuildingType.Decoration) continue;
             // 缺人程度
             float slotRatio = 0f;
             if (building.maxSlotAmount > 0)
                 slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs?.Count ?? 0) / building.maxSlotAmount;
 
-            float resourceAgainstScore = building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
-            float resourceRatioAgainst = resourceAgainstScore * weightResourceAgainst;
-            float score = slotRatio * weightSlot + resourceRatioAgainst;
-            Debug.Log($"{resourceAgainstScore} {resourceRatioAgainst}");
+            float resourceRatioAgainst = 
+                building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
+            float resourceRatioInvolving = building.inventory.GetResourceMappingWithFilter(npc.inventory, building.AcceptResources);
+            float slotScore = slotRatio * weightSlot;
+            float resourceAgainstScore = resourceRatioAgainst * weightResourceAgainst;
+            float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved;
+            float score = slotScore + resourceRatioAgainst + resourceInvolvingScore;
+            Debug.Log($"[Work] 建筑: {building.data.subType} "
+                      + $"| 插槽需求: {slotScore:F2} "
+                      + $"| 资源需求: {resourceInvolvingScore:F2} "
+                      + $"| 资源输出: {resourceAgainstScore:F2} "
+                      + $"| 总分: {score:F2}");
             // 如果需求分数没有达到阈值就跳过
             if (score < 0.1f || !MathUtility.IsValid(score)) continue;
             Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
-            if (resourceRatioAgainst > slotRatio)
+            // 如果资源产出分数占比最高
+            if (resourceAgainstScore > slotScore && resourceAgainstScore > resourceInvolvingScore)
                 scored.Add((building, score, TaskType.HandlingAccept));
-            else
+            // 如果插槽需求占比最高
+            if (slotScore > resourceAgainstScore && slotScore > resourceInvolvingScore)
                 scored.Add((building, score, TaskType.Production));
+            // 如果资源需求分数占比最高
+            if (resourceInvolvingScore > slotScore && resourceInvolvingScore > resourceAgainstScore)
+                scored.Add((building, score, TaskType.HandlingDrop));
         }
         if (scored.Count == 0) return TaskInfo.GetNone();
         float maxScore = scored.Max(x => x.score);
