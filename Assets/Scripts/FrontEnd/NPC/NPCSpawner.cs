@@ -398,6 +398,10 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     /// </summary>
     private IEnumerator DropNPCToGround(GameObject npcObject)
     {
+        if(npcObject == null)
+        {
+            yield break;
+        }
         var navAgent = npcObject.GetComponent<NavMeshAgent>();
         if (navAgent == null)
         {
