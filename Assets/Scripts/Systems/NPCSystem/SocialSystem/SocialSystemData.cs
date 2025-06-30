@@ -12,6 +12,7 @@ public class SocialSystemData
     [Header("社交伙伴和互动")]
     public HashSet<(NPC, NPC)> socialPairs = new HashSet<(NPC, NPC)>();
     public Dictionary<(NPC, NPC), SocialInteraction> activeInteractions = new Dictionary<(NPC, NPC), SocialInteraction>();
+    public Dictionary<(string, string), int> relationships = new Dictionary<(string, string), int>();
     
     [Header("冷却时间")]
     public Dictionary<(NPC, NPC), float> interactionCooldowns = new Dictionary<(NPC, NPC), float>();
