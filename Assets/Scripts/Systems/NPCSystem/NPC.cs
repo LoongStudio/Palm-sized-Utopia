@@ -13,11 +13,11 @@ public class NPC : MonoBehaviour, ISaveable
     [SerializeField] private bool showDebugInfo = false;
     [Header("唯一标识")]
     [SerializeField] private string npcId;
-    
+
     [Header("基本信息")]
     public NPCData data;
     public HousingBuilding housing; // 添加住房属性
-    
+
     [Header("社交系统")]
     // public Dictionary<NPC, int> relationships = new Dictionary<NPC, int>(); // 好感度系统
     public Vector3 socialPosition; // 社交位置
@@ -27,7 +27,7 @@ public class NPC : MonoBehaviour, ISaveable
     // [SerializeField] private int maxRelationship = 100;
     // [SerializeField] private int minRelationship = 0;
     // [SerializeField] private int defaultRelationship = 50;
-    
+
     [Header("状态管理")]
     public NPCStateMachine stateMachine;
     public NPCState currentState => stateMachine.CurrentState;
@@ -41,7 +41,7 @@ public class NPC : MonoBehaviour, ISaveable
     [Header("移动配置")]
     public NPCMovement movement;
     // 移动相关字段已转移到NPCMovement中
-    
+
     // 属性访问器，用于向后兼容
     public Transform currentTarget => movement?.CurrentTarget;
     public bool isLanded => movement?.isLanded ?? false;
@@ -58,38 +58,44 @@ public class NPC : MonoBehaviour, ISaveable
     public float CurrentIdleWeight => currentIdleWeight;
 
     #endregion
-    
+
     #region Unity生命周期
-    private void Awake() {
+    private void Awake()
+    {
         var _ = NpcId; // 触发getter，如果没有ID会自动生成
         // 添加状态机组件
-        if(stateMachine == null){
+        if (stateMachine == null)
+        {
             if (!TryGetComponent<NPCStateMachine>(out stateMachine))
                 stateMachine = gameObject.AddComponent<NPCStateMachine>();
         }
     }
-    private void Start() {
-        if(navAgent == null){
+    private void Start()
+    {
+        if (navAgent == null)
+        {
             navAgent = GetComponent<NavMeshAgent>();
         }
 
         movement = GetComponent<NPCMovement>();
-        if(movement == null){
+        if (movement == null)
+        {
             movement = gameObject.AddComponent<NPCMovement>();
         }
-        
+
 
         SubscribeToEvents();
     }
-    
+
     private void Update()
     {
         UpdateMovement();
     }
-    private void OnDestroy() {
+    private void OnDestroy()
+    {
 
         UnsubscribeFromEvents();
-        
+
         // 确保从NPCManager中移除
         if (NPCManager.Instance != null)
         {
@@ -97,7 +103,7 @@ public class NPC : MonoBehaviour, ISaveable
         }
     }
     #endregion
-    
+
     #region 初始化和设置
 
     /// <summary>
@@ -105,22 +111,25 @@ public class NPC : MonoBehaviour, ISaveable
     /// </summary>
     /// <param name="npcData"></param>
     /// <returns></returns>
-    public NPC SetData(NPCData npcData){
+    public NPC SetData(NPCData npcData)
+    {
         this.data = npcData;
         ResetDynamicData();
         return this;
     }
-    
+
     /// <summary>
     /// 重置NPC的动态数据, 可在生成一个全新的NPC时调用
     /// </summary>
-    public void ResetDynamicData() {
+    public void ResetDynamicData()
+    {
         // // TODO: 从存档加载NPC数据
         // ChangeState(NPCState.Idle);
         // currentTarget = null; // 解除目标位置
         // AssignedBuilding = null; // 解除建筑分配
         // 清空背包
-        if (inventory == null) {
+        if (inventory == null)
+        {
             inventory = new Inventory(
                 new List<ResourceStack>(),
                 Inventory.InventoryAcceptMode.OnlyDefined,
@@ -129,7 +138,9 @@ public class NPC : MonoBehaviour, ISaveable
                 Inventory.InventoryOwnerType.Building,
                 data.itemCapacity
             );
-        } else {
+        }
+        else
+        {
             inventory.ownerType = Inventory.InventoryOwnerType.NPC;
         }
         // relationships.Clear(); // 清空社交关系
@@ -140,32 +151,43 @@ public class NPC : MonoBehaviour, ISaveable
         //     navAgent.enabled = true;
         // }
     }
-    
+
     /// <summary>
     /// 从另一个NPC复制数据
     /// </summary>
     /// <param name="other"></param>
-    public void CopyFrom(NPC other){
+    public void CopyFrom(NPC other)
+    {
         data = other.data;
         assignedTask = other.assignedTask;
         stateMachine = other.stateMachine;
         inventory = other.inventory;
         // currentTarget现在由movement组件管理，不需要在这里复制
     }
+
+    public static NPC CreateNPCFromData(NPCInstanceSaveData npcInstanceData)
+    {
+        return new NPC{
+            data = npcInstanceData.npcData,
+            npcId = npcInstanceData.npcId
+        };
+    }
     #endregion
 
     #region 事件处理
-    private void SubscribeToEvents() {
+    private void SubscribeToEvents()
+    {
         GameEvents.OnNPCSocialInteractionStarted += OnNPCSocialInteractionStarted;
         GameEvents.OnNPCSocialInteractionEnded += OnNPCSocialInteractionEnded;
         GameEvents.OnNPCShouldStartSocialInteraction += OnNPCShouldStartSocialInteraction;
     }
-    private void UnsubscribeFromEvents() {
+    private void UnsubscribeFromEvents()
+    {
         GameEvents.OnNPCSocialInteractionStarted -= OnNPCSocialInteractionStarted;
         GameEvents.OnNPCSocialInteractionEnded -= OnNPCSocialInteractionEnded;
         GameEvents.OnNPCShouldStartSocialInteraction -= OnNPCShouldStartSocialInteraction;
     }
-    
+
     /// <summary>
     /// NPC应该开始社交互动
     /// </summary>
@@ -177,21 +199,21 @@ public class NPC : MonoBehaviour, ISaveable
         {
             return; // 不是针对当前NPC的事件，忽略
         }
-        
+
         // 确认当前NPC处于空闲状态
         if (currentState != NPCState.Idle)
         {
-            if(showDebugInfo)
+            if (showDebugInfo)
                 Debug.LogWarning($"[NPC] {data.npcName} 收到社交事件但不在空闲状态，当前状态：{currentState}");
             return;
         }
-        
-        if(showDebugInfo)
+
+        if (showDebugInfo)
             Debug.Log($"[NPC] {data.npcName} 收到社交事件，准备开始社交");
-        
+
         // 进入准备社交状态
         ChangeState(NPCState.PrepareForSocial);
-        
+
         // 如果是发起者，转向对方；如果是接收者，也转向对方
         NPC otherNPC = (args.npc == this) ? args.otherNPC : args.npc;
         if (otherNPC != null)
@@ -199,48 +221,50 @@ public class NPC : MonoBehaviour, ISaveable
             TurnToPosition(otherNPC.transform.position);
         }
     }
-    
+
     /// <summary>
     /// NPC开始社交互动
     /// </summary>
     /// <param name="args"></param>
-    private void OnNPCSocialInteractionStarted(NPCEventArgs args) {
+    private void OnNPCSocialInteractionStarted(NPCEventArgs args)
+    {
         // TODO: 处理NPC开始社交互动
-        
-        
+
+
         // 状态管理
 
-        
+
     }
 
     /// <summary>
     /// NPC结束社交互动
     /// </summary>
     /// <param name="args"></param>
-    private void OnNPCSocialInteractionEnded(NPCEventArgs args) {
+    private void OnNPCSocialInteractionEnded(NPCEventArgs args)
+    {
         // TODO: 处理NPC结束社交互动
     }
     #endregion
 
     #region 状态管理
-    public void ChangeState(NPCState newState) 
-    { 
+    public void ChangeState(NPCState newState)
+    {
         if (currentState != newState)
         {
             stateMachine.ChangeState(newState);
         }
     }
-    
+
     #endregion
 
     #region 唯一标识
     /// <summary>
     /// NPC的唯一标识符
     /// </summary>
-    public string NpcId 
-    { 
-        get 
-        { 
+    public string NpcId
+    {
+        get
+        {
             // 如果ID为空，生成新的GUID
             if (string.IsNullOrEmpty(npcId))
             {
@@ -248,7 +272,7 @@ public class NPC : MonoBehaviour, ISaveable
                 if (showDebugInfo)
                     Debug.Log($"[NPC] 为NPC {data?.npcName} 生成新ID: {npcId}");
             }
-            return npcId; 
+            return npcId;
         }
         private set
         {
@@ -280,42 +304,42 @@ public class NPC : MonoBehaviour, ISaveable
     #endregion
 
     #region 工作相关
-    public bool CanWorkNow() 
+    public bool CanWorkNow()
     {
-        if(TimeManager.Instance == null) return false;
+        if (TimeManager.Instance == null) return false;
         return TimeManager.Instance.CurrentTime.hour >= data.workTimeStart && TimeManager.Instance.CurrentTime.hour <= data.workTimeEnd;
     }
-    
+
     public bool ShouldRest()
     {
-        if(TimeManager.Instance == null) return false;
+        if (TimeManager.Instance == null) return false;
         // TODO: 后续考虑其他情况 才 Shouldrest
         return IsRestTime();
     }
-    
-    public float GetWorkEfficiency() 
+
+    public float GetWorkEfficiency()
     {
         // 不在工作时间工作效率为0
         if (!CanWorkNow())
-        return 0f;
+            return 0f;
 
         // 基础工作能力
         float efficiency = data.baseWorkAbility / 100.0f;
-        
+
         // 1. 特殊词条加成
         efficiency *= GetTraitEfficiencyMultiplier();
-        
+
         // TODO: 2. 社交关系加成（与同事的好感度）
         // efficiency *= GetRelationshipBonus();
-        
+
         return efficiency;
     }
-    
+
     // 词条加成
     private float GetTraitEfficiencyMultiplier()
     {
         float multiplier = 1.0f;
-        
+
         // 这里写NPC的词条对于工作效率的加成逻辑
         foreach (var trait in data.traits)
         {
@@ -334,7 +358,7 @@ public class NPC : MonoBehaviour, ISaveable
                     break;
             }
         }
-        
+
         return multiplier;
     }
 
@@ -358,19 +382,22 @@ public class NPC : MonoBehaviour, ISaveable
         assignedTask = TaskInfo.GetNone();
     }
     #endregion
-    
+
     #region 社交相关
-    public void IncreaseRelationship(NPC other, int amount) {
-        if(NPCManager.Instance?.socialSystem == null) return;
+    public void IncreaseRelationship(NPC other, int amount)
+    {
+        if (NPCManager.Instance?.socialSystem == null) return;
         NPCManager.Instance.socialSystem.IncreaseRelationship(this, other, amount);
     }
-    
-    public void DecreaseRelationship(NPC other, int amount) {
-        if(NPCManager.Instance?.socialSystem == null) return;
+
+    public void DecreaseRelationship(NPC other, int amount)
+    {
+        if (NPCManager.Instance?.socialSystem == null) return;
         NPCManager.Instance.socialSystem.DecreaseRelationship(this, other, amount);
     }
-    
-    public int GetRelationshipWith(NPC other) {
+
+    public int GetRelationshipWith(NPC other)
+    {
         if (NPCManager.Instance?.socialSystem != null)
         {
             return NPCManager.Instance.socialSystem.GetRelationship(this, other);
@@ -390,22 +417,22 @@ public class NPC : MonoBehaviour, ISaveable
         return new Dictionary<NPC, int>();
     }
     #endregion
-    
+
     #region 特殊能力和词条
     public bool HasTrait(NPCTraitType trait)
     {
         return data.traits != null && data.traits.Contains(trait);
     }
-    
+
     public float GetTraitBonus(NPCTraitType trait) { return 0f; }
     #endregion
-    
+
     #region 移动和任务
-    private void UpdateMovement() 
-    { 
+    private void UpdateMovement()
+    {
         // 移动逻辑已转移到NPCMovement中
     }
-    
+
     /// <summary>
     /// 转向指定方向
     /// </summary>
@@ -417,7 +444,7 @@ public class NPC : MonoBehaviour, ISaveable
             movement.TurnToDirection(direction);
         }
     }
-    
+
     /// <summary>
     /// 转向指定位置
     /// </summary>
@@ -429,7 +456,7 @@ public class NPC : MonoBehaviour, ISaveable
             movement.TurnToPosition(targetPosition);
         }
     }
-    
+
     /// <summary>
     /// 立即转向目标位置（不使用平滑转向）
     /// </summary>
@@ -441,21 +468,23 @@ public class NPC : MonoBehaviour, ISaveable
             movement.TurnToPositionImmediate(targetPosition);
         }
     }
-    
-    public void MoveToTarget(Vector3 target) {
+
+    public void MoveToTarget(Vector3 target)
+    {
         if (movement != null)
         {
             movement.MoveToTarget(target);
         }
     }
-    
-    public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f) {
+
+    public IEnumerator MoveToSocialPosition(Vector3 position, float socialMoveSpeed = 0.5f)
+    {
         if (movement != null)
         {
             yield return movement.MoveToSocialPosition(position, socialMoveSpeed);
         }
     }
-    
+
     public void StartRandomMovement()
     {
         if (movement != null)
@@ -470,7 +499,7 @@ public class NPC : MonoBehaviour, ISaveable
             movement.StopRandomMovement();
         }
     }
-    
+
     public void SetLanded(bool landed)
     {
         if (movement != null)
@@ -478,19 +507,20 @@ public class NPC : MonoBehaviour, ISaveable
             movement.isLanded = landed;
         }
     }
-    public void AssignTask() {}
-    
+    public void AssignTask() { }
+
     public bool CanCarryResource(ResourceType type, int amount) { return false; }
-    
-    public void CollectResource() {}
-    
-    public void DeliverResource() {}
+
+    public void CollectResource() { }
+
+    public void DeliverResource() { }
     #endregion
-    
+
     #region 存档系统
+    // TODO: 这块好像用不到，先留着
     public GameSaveData GetSaveData() { return null; }
-    
-    public void LoadFromData(GameSaveData data) { }
+
+    public bool LoadFromData(GameSaveData data) { return false; }
     #endregion
 
     #region 调试
@@ -528,11 +558,11 @@ public class NPC : MonoBehaviour, ISaveable
 
     public bool IsRestTime()
     {
-        if(TimeManager.Instance == null) return false;
+        if (TimeManager.Instance == null) return false;
         var currentTime = TimeManager.Instance.CurrentTime;
         int restStartHour = data.restTimeStart;
         int restEndHour = data.restTimeEnd;
-        
+
         // 跨天的情况（例如22:00-6:00）
         if (restStartHour > restEndHour)
         {

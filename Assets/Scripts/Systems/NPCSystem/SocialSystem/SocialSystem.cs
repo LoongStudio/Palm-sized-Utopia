@@ -8,7 +8,7 @@ using UnityEngine.AI;
 /// 社交系统主协调器 - 重构后的简化版本
 /// 负责协调各个子管理器，提供统一的API接口
 /// </summary>
-public class SocialSystem
+public class SocialSystem : ISaveable
 {
     #region 管理器
     private SocialSystemData data;
@@ -181,6 +181,29 @@ public class SocialSystem
     }
     #endregion
     
+    #region 保存和加载
+    public GameSaveData GetSaveData()
+    {
+        if(NPCManager.Instance.showDebugInfo)
+            Debug.Log($"[SocialSystem] 保存社交系统数据");
+        return data.GetSaveData();
+    }
+    public bool LoadFromData(GameSaveData data)
+    {
+
+        bool success = this.data.LoadFromData(data);
+        if(success)
+        {
+            if(NPCManager.Instance.showDebugInfo)
+                Debug.Log($"[SocialSystem] 加载社交系统数据成功");
+            return true;
+        }
+        if(NPCManager.Instance.showDebugInfo)
+            Debug.LogWarning($"[SocialSystem] 加载社交系统数据失败");
+        return false;
+    }
+    #endregion
+
     #region 统计和调试
     public SocialSystemStats GetStats()
     {

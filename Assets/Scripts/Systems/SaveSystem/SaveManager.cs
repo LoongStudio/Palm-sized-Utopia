@@ -11,12 +11,18 @@ public class SaveManager : SingletonManager<SaveManager>
         base.Awake();
     }
     public void Initialize() { }
-    
     public void SaveGame() { }
     public bool LoadGame() { return false; }
     public void DeleteSave() { }
     public bool HasSaveFile() { return false; }
-    
-    private GameSaveData CollectSaveData() { return null; }
-    private void ApplySaveData(GameSaveData saveData) { }
+
+    private CoreSaveData CollectSaveData()
+    {
+        return new CoreSaveData{
+            npcSaveData = NPCManager.Instance.GetSaveData() as NPCSaveData
+        };
+    }
+    private void ApplySaveData(CoreSaveData saveData) {
+        NPCManager.Instance.LoadFromData(saveData.npcSaveData);
+    }
 }
