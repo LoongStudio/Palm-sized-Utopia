@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections;
 using UnityEngine.AI;
 
-public class NPCManager : SingletonManager<NPCManager>
+public class NPCManager : SingletonManager<NPCManager>, ISaveable
 {
     [Header("调试信息")]
     [SerializeField] public bool showDebugInfo = false;
@@ -638,6 +638,61 @@ public class NPCManager : SingletonManager<NPCManager>
         
         // 如果没有选中任何项（不应该发生），返回第一个
         return valueSelector(weights[0]);
+    }
+    #endregion
+
+    #region 保存与加载
+    public GameSaveData GetSaveData()
+    {
+        // 所有NPC的实例数据
+        List<NPCInstanceSaveData> npcInstancesData = GetNPCInstancesData();
+        // 社交系统数据
+        SocialSystemSaveData socialSystemData = GetSocialSystemData();
+
+        return new NPCSaveData{
+            npcInstances = npcInstancesData,
+            socialSystemSaveData = socialSystemData
+        };
+    }
+    public bool LoadFromData(GameSaveData data) {
+        // 加载NPC数据到自身
+        LoadNPCsFrom((data as NPCSaveData).npcInstances);
+        // 将社交系统数据加载到社交系统
+        socialSystem.LoadFromData(data as SocialSystemSaveData);
+
+        return true;
+    }
+    /// <summary>             
+    /// 从现有NPC获取所有NPC的实例数据
+    /// </summary>
+    private List<NPCInstanceSaveData> GetNPCInstancesData()
+    {
+        return allNPCs.Select(npc => new NPCInstanceSaveData {
+            npcId = npc.NpcId,
+            npcData = npc.data
+        }).ToList();
+    }
+    /// <summary>
+    /// 从社交系统获取社交系统数据
+    /// </summary>
+    private SocialSystemSaveData GetSocialSystemData()
+    {
+        return socialSystem.GetSaveData() as SocialSystemSaveData;
+    }
+    /// <summary>
+    /// 从存档数据加载NPC并注册生成到场景中
+    /// </summary>
+    private void LoadNPCsFrom(List<NPCInstanceSaveData> npcInstancesData)
+    {
+        foreach (var npcInstanceData in npcInstancesData)
+        {
+            // 创建NPC
+            NPC npc = NPC.CreateNPCFromData(npcInstanceData);
+            // 注册NPC
+            RegisterNPC(npc);
+            // 生成NPC到场景中
+            NPCSpawner.Instance.SpawnNPC(npcInstanceData.npcData);
+        }
     }
     #endregion
 

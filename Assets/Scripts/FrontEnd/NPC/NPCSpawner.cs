@@ -108,6 +108,11 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         StartCoroutine(SpawnNPCCoroutine(args.npcData));
     }
     
+    public void SpawnNPC(NPCData npcData)
+    {
+        StartCoroutine(SpawnNPCCoroutine(npcData));
+    }
+    
     /// <summary>
     /// 生成NPC的协程
     /// </summary>
@@ -128,20 +133,20 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             Debug.LogError("[NPCSpawner] 无法找到有效的生成位置！");
             yield break;
         }
-        
+
         // 创建NPC GameObject
         GameObject npcObject = CreateNPCGameObject(npcData, spawnPosition);
-        
+
         if (npcObject != null)
         {
             // 等待一帧确保所有组件都已初始化
             yield return new WaitForEndOfFrame();
-            
+
             // TODO:这段无效，让NPC降落到地面
             yield return StartCoroutine(DropNPCToGround(npcObject));
-            
+
             totalSpawned++;
-            
+
             if (showDebugInfo)
             {
                 Debug.Log($"[NPCSpawner] 成功生成NPC: {npcData.npcName}，总生成数: {totalSpawned}");

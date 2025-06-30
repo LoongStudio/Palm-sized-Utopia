@@ -1,0 +1,17 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+[System.Serializable]
+public class GameSaveData
+{
+    // 所有保存数据类的基类，留给子类继承
+}
+
+[System.Serializable]
+public class CoreSaveData : GameSaveData
+{
+    // 核心保存数据
+    public NPCSaveData npcSaveData; // NPC保存数据
+    // TODO: 添加其他核心保存数据诸如资源，建筑，报告、时间等
+}
+

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
 /// 社交系统数据容器 - 存储所有社交相关的数据
 /// </summary>
-public class SocialSystemData
+public class SocialSystemData : ISaveable
 {
     [Header("NPC列表")]
     public List<NPC> npcs;
@@ -57,4 +58,28 @@ public class SocialSystemData
     {
         return npc1.GetInstanceID() < npc2.GetInstanceID() ? (npc1, npc2) : (npc2, npc1);
     }
+    #region 保存和加载
+    public GameSaveData GetSaveData()
+    {
+        return new SocialSystemSaveData{
+            relationships = relationships,
+            interactionCooldowns = interactionCooldowns.ToDictionary(kvp => (kvp.Key.Item1.NpcId, kvp.Key.Item2.NpcId), kvp => kvp.Value),
+            personalSocialCooldowns = personalSocialCooldowns.ToDictionary(kvp => kvp.Key.NpcId, kvp => kvp.Value),
+            dailyInteractionCounts = dailyInteractionCounts.ToDictionary(kvp => kvp.Key.NpcId, kvp => kvp.Value)
+        };
+    }
+    public bool LoadFromData(GameSaveData data)
+    {
+        var socialSystemSaveData = data as SocialSystemSaveData;
+        if (socialSystemSaveData != null)
+        {
+            this.relationships = socialSystemSaveData.relationships;
+            this.interactionCooldowns = socialSystemSaveData.interactionCooldowns.ToDictionary(kvp => (NPCManager.Instance.GetNPCById(kvp.Key.Item1), NPCManager.Instance.GetNPCById(kvp.Key.Item2)), kvp => kvp.Value);
+            this.personalSocialCooldowns = socialSystemSaveData.personalSocialCooldowns.ToDictionary(kvp => NPCManager.Instance.GetNPCById(kvp.Key), kvp => kvp.Value);
+            this.dailyInteractionCounts = socialSystemSaveData.dailyInteractionCounts.ToDictionary(kvp => NPCManager.Instance.GetNPCById(kvp.Key), kvp => kvp.Value);
+            return true;
+        }
+        return false;
+    }
+    #endregion
 } 
