@@ -473,6 +473,27 @@ public class Inventory
         return (involving, against);
     }
 
+    public float GetResourceMappingWithFilter(
+        Inventory others, HashSet<ResourceConfig> filter)
+    {
+        List<ResourceStack> result = new List<ResourceStack>();
+        int totalNeeds = 0;
+        int totalTransfer = 0;
+        foreach (var stack in currentStacks)
+        {
+            if (!filter.Contains(stack.resourceConfig)) continue;
+            int othersAmount = others.GetCurrent(stack.resourceConfig)?.amount ?? 0;
+            if (othersAmount != 0) {
+                result.Add(new ResourceStack(
+                    stack.resourceConfig, Math.Min(stack.storageLimit - stack.amount, othersAmount)));
+                totalTransfer += Math.Min(stack.storageLimit - stack.amount, othersAmount);
+            }
+            totalNeeds += stack.storageLimit - stack.amount;
+        }
+        if (totalNeeds == 0) return 0f;
+        return MathUtility.FastSqrt(totalTransfer/(float)totalNeeds);
+    }
+
     // 兼容旧接口（ResourceType+int）
     [System.Obsolete("请使用ResourceStack+ResourceConfig的新接口，旧接口已废弃", true)]
     public bool AddItem(ResourceType type, int subType, int amount)

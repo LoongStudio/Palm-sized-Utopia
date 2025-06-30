@@ -46,7 +46,6 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         // 如果NPC不在已有槽位中且目标就是这个建筑
         if (!assignedNPCs.Contains(npc) 
             && npc.assignedTask.building == this
-            && npc.currentState == NPCState.Working 
             && npc.assignedTask.taskType == TaskType.Production
             && assignedNPCs.Count < maxSlotAmount)
         {
@@ -55,8 +54,8 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         }
         if (!tempAssignedNPCs.Contains(npc)
             && npc.assignedTask.building == this
-            && npc.currentState == NPCState.Working
-            && npc.assignedTask.taskType == TaskType.HandlingAccept)
+            && (npc.assignedTask.taskType == TaskType.HandlingAccept
+            || npc.assignedTask.taskType == TaskType.HandlingDrop))
         {
             tempAssignedNPCs.Add(npc);
             return true;

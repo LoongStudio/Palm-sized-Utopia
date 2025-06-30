@@ -6,10 +6,12 @@ public class NPCWorkingState : NPCStateBase
         : base(stateType, stateMachine, npc)
     {
         stateDescription = "工作中";
-        nextState = NPCState.Transporting;
+        nextState = NPCState.WorkComplete;
     }
 
     public float WorkingTimer = 0.0f;
+    public float WorkingTimerTotal = 0.0f;
+    public float WorkingMaxTimeForTemp = 12.0f;
     public float WorkingEachTime = 0.5f;
     
     protected override void OnEnterState()
@@ -32,21 +34,33 @@ public class NPCWorkingState : NPCStateBase
         switch (npc.assignedTask.taskType)
         {
             case TaskType.Production:
-                if (npc.assignedTask.building.TryAssignNPC(npc))
+                // 改为在查找建筑时就assigned，该检查无效，替换为重复校验
+                if (npc.assignedTask.building.assignedNPCs.Contains(npc))
                 {
-                    nextState = NPCState.WorkComplete;    
+                    Debug.Log($"[Work] 工作注册校验 NPC {npc.data.npcName} "
+                              + $"成功到达目标 注册建筑 {npc.assignedTask.building.data.subType} ");
                 }
-                else // 如果无法给当前NPC提供工作 重新进入Idle
+                else
                 {
-                    Debug.LogWarning($"[Work] 发现无法给NPC分配原先已经规划好的工作 "
-                                     + $"{npc.assignedTask.building.data.subType} "
-                                     + $"{npc.assignedTask.taskType} 情况，重新进入Idle");
-                    nextState = NPCState.Idle;
+                    Debug.LogError($"[Work] 工作注册校验 NPC {npc.data.npcName} "
+                              + $"未到达指定目标 注册建筑 {npc.assignedTask.building.data.subType} 退出");
                     stateMachine.ChangeState(NPCState.Idle);
                 }
+                // if (npc.assignedTask.building.TryAssignNPC(npc))
+                // {
+                //     nextState = NPCState.WorkComplete;
+                // }
+                // else // 如果无法给当前NPC提供工作 重新进入Idle
+                // {
+                //     Debug.LogWarning($"[Work] 发现无法给NPC分配原先已经规划好的工作 "
+                //                      + $"{npc.assignedTask.building.data.subType} "
+                //                      + $"{npc.assignedTask.taskType} 情况，重新进入Idle");
+                //     nextState = NPCState.Idle;
+                //     stateMachine.ChangeState(NPCState.Idle);
+                // }
                 break;
             case TaskType.HandlingAccept:
-                nextState = NPCState.Transporting;
+                nextState = NPCState.Idle;
                 break;
             default:
                 Debug.LogWarning($"[Work] 发现意料外的进入工作情况 "
@@ -86,6 +100,7 @@ public class NPCWorkingState : NPCStateBase
         
         // 每个工作帧
         WorkingTimer += Time.deltaTime;
+        WorkingTimerTotal += Time.deltaTime;
         if (WorkingTimer > WorkingEachTime)
         {
             WorkingTimer = 0;
@@ -96,8 +111,24 @@ public class NPCWorkingState : NPCStateBase
                     npc.inventory, 
                     npc.data.itemTakeEachTimeCapacity, 
                     npc.assignedTask.building.AcceptResources))
-                    stateMachine.ChangeState(NPCState.Transporting);
+                    stateMachine.ChangeState(NPCState.Idle);
             }
+            if (npc.assignedTask.taskType == TaskType.HandlingDrop)
+            {
+                // 如果已经没有东西可以传输了
+                if (!npc.inventory.TransferToWithFilter(
+                    npc.assignedTask.building.inventory, 
+                    npc.data.itemTakeEachTimeCapacity, 
+                    npc.assignedTask.building.AcceptResources))
+                    stateMachine.ChangeState(NPCState.Idle);
+            }
+        }
+        // 如果是拾取和放置
+        if ((npc.assignedTask.taskType == TaskType.HandlingAccept
+            || npc.assignedTask.taskType == TaskType.HandlingDrop) 
+            &&WorkingMaxTimeForTemp < WorkingTimerTotal)
+        {
+            stateMachine.ChangeState(NPCState.Idle);
         }
     }
 

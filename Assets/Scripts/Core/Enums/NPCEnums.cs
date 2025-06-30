@@ -10,7 +10,6 @@ public enum NPCState
     SocialEndFight, // 社交结束（争吵）
     MovingToWork,   // 前往工作
     Working,        // 进行工作
-    Transporting,   // 运输阶段
     WorkComplete,   // 完成工作
     MovingHome,     // 回家阶段
     Sleeping        // 休眠阶段

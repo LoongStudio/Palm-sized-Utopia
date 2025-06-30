@@ -17,14 +17,20 @@ public class NPCMovingToWorkState : NPCStateBase
         if (!npc.HasPendingWork())
         {
             var nextWork = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
-            if (nextWork.building != null)
+            Debug.Log($"[Work] 查找最适合NPC的建筑 {nextWork.building.data.subType}");
+            npc.assignedTask = nextWork;
+            // 改为找到时立刻注册
+            if (nextWork.building != null && nextWork.building.TryAssignNPC(npc))
             {
+                Debug.Log($"[Work] 找到目标工作 {nextWork.building.data.subType}");
                 // 使用NPCMovement的MoveToTarget方法，而不是直接设置currentTarget
                 npc.MoveToTarget(nextWork.building.transform.position);
-                npc.assignedTask = nextWork;
+                
             }
             else
             {
+                Debug.Log($"[Work] 找不到目标工作 进入 Idle");
+                npc.assignedTask = null;
                 // 如果没有找到工作，返回空闲状态
                 stateMachine.ChangeState(NPCState.Idle);
                 return;
