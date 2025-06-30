@@ -5,6 +5,8 @@ using UnityEngine;
 public class GameSaveData
 {
     // 所有保存数据类的基类，留给子类继承
+    // 子类重写ToString方法，用于调试
+    public override string ToString() { return "GameSaveData"; }
 }
 
 [System.Serializable]

@@ -188,19 +188,9 @@ public class SocialSystem : ISaveable
             Debug.Log($"[SocialSystem] 保存社交系统数据");
         return data.GetSaveData();
     }
-    public bool LoadFromData(GameSaveData data)
+    public void LoadFromData(GameSaveData data)
     {
-
-        bool success = this.data.LoadFromData(data);
-        if(success)
-        {
-            if(NPCManager.Instance.showDebugInfo)
-                Debug.Log($"[SocialSystem] 加载社交系统数据成功");
-            return true;
-        }
-        if(NPCManager.Instance.showDebugInfo)
-            Debug.LogWarning($"[SocialSystem] 加载社交系统数据失败");
-        return false;
+        this.data.LoadFromData(data);
     }
     #endregion
 
