@@ -1,6 +1,6 @@
 public interface ISaveable
 {
-    SaveData GetSaveData();
-    void LoadFromData(SaveData data);
+    GameSaveData GetSaveData();
+    void LoadFromData(GameSaveData data);
 }
 

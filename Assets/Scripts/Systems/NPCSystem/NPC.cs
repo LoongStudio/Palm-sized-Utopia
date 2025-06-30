@@ -488,9 +488,9 @@ public class NPC : MonoBehaviour, ISaveable
     #endregion
     
     #region 存档系统
-    public SaveData GetSaveData() { return null; }
+    public GameSaveData GetSaveData() { return null; }
     
-    public void LoadFromData(SaveData data) { }
+    public void LoadFromData(GameSaveData data) { }
     #endregion
 
     #region 调试
