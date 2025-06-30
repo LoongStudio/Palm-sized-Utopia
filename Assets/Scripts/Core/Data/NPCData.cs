@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class NPCData
 {
+    public string npcId;
     public string npcName;
     public int baseSalary;
     public int restTimeStart;
@@ -23,6 +24,7 @@ public class NPCData
             : "无";
             
         return $"NPC信息:\n" +
+               $"  ID: {npcId}\n" +
                $"  姓名: {npcName}\n" +
                $"  基础工资: {baseSalary}\n" +
                $"  基础工作能力: {baseWorkAbility}\n" +

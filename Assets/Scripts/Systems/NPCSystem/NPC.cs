@@ -114,6 +114,7 @@ public class NPC : MonoBehaviour, ISaveable
     public NPC SetData(NPCData npcData)
     {
         this.data = npcData;
+        this.npcId = npcData.npcId;
         ResetDynamicData();
         return this;
     }
@@ -269,6 +270,7 @@ public class NPC : MonoBehaviour, ISaveable
             if (string.IsNullOrEmpty(npcId))
             {
                 npcId = System.Guid.NewGuid().ToString();
+                data.npcId = npcId;
                 if (showDebugInfo)
                     Debug.Log($"[NPC] 为NPC {data?.npcName} 生成新ID: {npcId}");
             }
@@ -287,6 +289,7 @@ public class NPC : MonoBehaviour, ISaveable
         if (!string.IsNullOrEmpty(id))
         {
             npcId = id;
+            data.npcId = npcId;
             if (showDebugInfo)
                 Debug.Log($"[NPC] 设置NPC {data?.npcName} 的ID为: {npcId}");
         }
@@ -298,6 +301,7 @@ public class NPC : MonoBehaviour, ISaveable
     {
         string oldId = npcId;
         npcId = System.Guid.NewGuid().ToString();
+        data.npcId = npcId;
         if (showDebugInfo)
             Debug.Log($"[NPC] NPC {data?.npcName} ID从 {oldId} 重新生成为 {npcId}");
     }
@@ -520,7 +524,7 @@ public class NPC : MonoBehaviour, ISaveable
     // TODO: 这块好像用不到，先留着
     public GameSaveData GetSaveData() { return null; }
 
-    public bool LoadFromData(GameSaveData data) { return false; }
+    public void LoadFromData(GameSaveData data) { }
     #endregion
 
     #region 调试

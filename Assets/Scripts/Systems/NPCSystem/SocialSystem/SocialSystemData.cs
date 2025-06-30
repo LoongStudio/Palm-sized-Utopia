@@ -61,25 +61,31 @@ public class SocialSystemData : ISaveable
     #region 保存和加载
     public GameSaveData GetSaveData()
     {
-        return new SocialSystemSaveData{
+        SocialSystemSaveData toSave = new SocialSystemSaveData
+        {
             relationships = relationships,
             interactionCooldowns = interactionCooldowns.ToDictionary(kvp => (kvp.Key.Item1.NpcId, kvp.Key.Item2.NpcId), kvp => kvp.Value),
             personalSocialCooldowns = personalSocialCooldowns.ToDictionary(kvp => kvp.Key.NpcId, kvp => kvp.Value),
             dailyInteractionCounts = dailyInteractionCounts.ToDictionary(kvp => kvp.Key.NpcId, kvp => kvp.Value)
         };
+        if(NPCManager.Instance.showDebugInfo) Debug.Log($"[SocialSystemData] 获取社交系统数据: {toSave}");
+        return toSave;
     }
-    public bool LoadFromData(GameSaveData data)
+    public void LoadFromData(GameSaveData data)
     {
         var socialSystemSaveData = data as SocialSystemSaveData;
         if (socialSystemSaveData != null)
         {
+            Debug.Log($"[SocialSystemData] 加载社交系统数据: {socialSystemSaveData}");
             this.relationships = socialSystemSaveData.relationships;
             this.interactionCooldowns = socialSystemSaveData.interactionCooldowns.ToDictionary(kvp => (NPCManager.Instance.GetNPCById(kvp.Key.Item1), NPCManager.Instance.GetNPCById(kvp.Key.Item2)), kvp => kvp.Value);
             this.personalSocialCooldowns = socialSystemSaveData.personalSocialCooldowns.ToDictionary(kvp => NPCManager.Instance.GetNPCById(kvp.Key), kvp => kvp.Value);
             this.dailyInteractionCounts = socialSystemSaveData.dailyInteractionCounts.ToDictionary(kvp => NPCManager.Instance.GetNPCById(kvp.Key), kvp => kvp.Value);
-            return true;
         }
-        return false;
+        else
+        {
+            Debug.LogError($"[SocialSystemData] 加载社交系统数据失败");
+        }
     }
     #endregion
 } 

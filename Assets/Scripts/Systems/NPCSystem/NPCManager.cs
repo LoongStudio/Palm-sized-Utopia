@@ -438,7 +438,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         }
 
         if(showDebugInfo) 
-            Debug.Log($"[NPCManager] 尝试雇佣NPC: {npcData.npcName}");
+            Debug.Log($"[NPCManager] 尝试雇佣NPC: {npcData.npcName}, ID: {npcData.npcId}");
 
         // 雇佣NPC事件
         var eventArgs = new NPCEventArgs(){
@@ -654,13 +654,20 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
             socialSystemSaveData = socialSystemData
         };
     }
-    public bool LoadFromData(GameSaveData data) {
-        // 加载NPC数据到自身
-        LoadNPCsFrom((data as NPCSaveData).npcInstances);
-        // 将社交系统数据加载到社交系统
-        socialSystem.LoadFromData(data as SocialSystemSaveData);
-
-        return true;
+    public void LoadFromData(GameSaveData data) {
+        var npcSaveData = data as NPCSaveData;
+        if (npcSaveData != null)
+        {
+            // 加载NPC数据到自身
+            LoadNPCsFrom(npcSaveData.npcInstances);
+            // 将社交系统数据加载到社交系统
+            int count = npcSaveData.npcInstances.Count;
+            StartCoroutine(LoadSocialSystemData(count,npcSaveData.socialSystemSaveData));
+        }
+        else
+        {
+            Debug.LogError("[NPCManager] LoadFromData: 数据转换失败，期望NPCSaveData类型");
+        }
     }
     /// <summary>             
     /// 从现有NPC获取所有NPC的实例数据
@@ -686,13 +693,33 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     {
         foreach (var npcInstanceData in npcInstancesData)
         {
-            // 创建NPC
-            NPC npc = NPC.CreateNPCFromData(npcInstanceData);
-            // 注册NPC
-            RegisterNPC(npc);
-            // 生成NPC到场景中
-            NPCSpawner.Instance.SpawnNPC(npcInstanceData.npcData);
+            // 注册并生成NPC到场景中
+            HireNPC(npcInstanceData.npcData);
         }
+        // 将NPC ID加载给NPC们
+
+    }
+
+    /// <summary>
+    /// 延迟加载社交系统数据，确保所有NPC都注册完成
+    /// </summary>
+    private IEnumerator LoadSocialSystemData(int npcCount,SocialSystemSaveData socialSystemSaveData)
+    {
+        // 记录开始的时间
+        float startTime = Time.time;
+        // 等待直到全部读取到的NPC已经注册完成
+        while (allNPCs.Count < npcCount)
+        {
+            if(Time.time - startTime > 3f){
+                Debug.LogError("[NPCManager] 加载社交系统数据超过3秒，加载失败， 因为有NPC没有注册成功。");
+                // 终止该协程
+                yield break;
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+            
+        // 将社交系统数据加载到社交系统
+        socialSystem.LoadFromData(socialSystemSaveData);
     }
     #endregion
 
@@ -744,7 +771,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         Debug.Log($"[NPCManager] ========================== 输出所有NPC ==========================");
         foreach (var npc in allNPCs)
         {
-            Debug.Log($"[NPCManager] NPC: {npc.data.npcName}");
+            Debug.Log($"[NPCManager] NPC: {npc.data.npcName}, NPCId: {npc.NpcId}");
         }
         Debug.Log($"[NPCManager] ========================== 输出所有NPC ==========================");
     }

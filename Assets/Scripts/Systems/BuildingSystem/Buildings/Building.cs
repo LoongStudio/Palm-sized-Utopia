@@ -106,7 +106,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     
     // 接口实现
     public virtual GameSaveData GetSaveData() { return null; }
-    public virtual bool LoadFromData(GameSaveData data) { return false; }
+    public virtual void LoadFromData(GameSaveData data) { }
     
     // 游戏循环
     public virtual void Start() {
