@@ -507,11 +507,11 @@ public class NPC : MonoBehaviour, ISaveable
     }
     #endregion
 
-    public TaskInfo GetPendingWork()
+    public TaskInfo GetPendingTask()
     {
         return pendingTask;
     }
-    public bool HasPendingWork()
+    public bool HasPendingTask()
     {
         if (pendingTask == null || pendingTask.building == null || pendingTask.taskType == TaskType.None) return false;
         return true;
