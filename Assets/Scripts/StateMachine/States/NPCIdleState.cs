@@ -54,7 +54,7 @@ public class NPCIdleState : NPCStateBase
         {
             // 工作时间段
             workWeight = 1.0f;
-            pendingWorkWeight = npc.HasPendingWork() ? 1.2f : 0f;
+            pendingWorkWeight = npc.HasPendingTask() ? 1.2f : 0f;
             restTimeWeight = 0f; // 工作时间不考虑回家
             socialWeight = 0.0f; // TODO: 临时从 0.2 改到 0.0
         }
@@ -95,14 +95,14 @@ public class NPCIdleState : NPCStateBase
         else if (randomValue < restTimeWeight + pendingWorkWeight)
         {
             // 执行待处理的工作
-            if (npc.HasPendingWork())
+            if (npc.HasPendingTask())
             {
                 if (showDebugInfo && !canWorkNow)
                 {
                     Debug.Log($"[NPCIdleState] {npc.data.npcName} 虽然不是工作时间，但还是决定去处理待完成的工作");
                 }
                 npc.MoveToTarget(npc.pendingTask.building.transform.position);
-                npc.assignedTask = npc.GetPendingWork();
+                npc.assignedTask = npc.GetPendingTask();
                 stateMachine.ChangeState(NPCState.MovingToWork);
             }
         }

@@ -14,7 +14,7 @@ public class NPCMovingToWorkState : NPCStateBase
         base.OnEnterState();
         
         // 如果没有待处理的工作，寻找新的工作
-        if (!npc.HasPendingWork())
+        if (!npc.HasPendingTask())
         {
             var nextWork = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
             Debug.Log($"[Work] 查找最适合NPC的建筑 {nextWork.building.data.subType}");
@@ -38,13 +38,14 @@ public class NPCMovingToWorkState : NPCStateBase
         }
         else
         {
+            npc.assignedTask = npc.pendingTask;
             // 有待处理的工作，直接移动到目标位置 正常来说在上一个状态应该已经设置了 Assigned
             npc.MoveToTarget(npc.assignedTask.building.transform.position);
         }
 
         if (showDebugInfo)
         {
-            Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 正在前往工作地点: {npc.GetPendingWork()?.building?.data.buildingName ?? "未知"}");
+            Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 正在前往工作地点: {npc.GetPendingTask()?.building?.data.buildingName ?? "未知"}");
         }
     }
 
@@ -55,19 +56,9 @@ public class NPCMovingToWorkState : NPCStateBase
         // 检查是否到达工作地点 - 使用NPCMovement的isInPosition属性
         if (npc.isInPosition)
         {
-            // 如果这是待处理的工作，设置为已分配建筑
-            if (npc.HasPendingWork())
-            {
-                npc.assignedTask = new TaskInfo(
-                    npc.GetPendingWork()?.building, 
-                    npc.GetPendingWork()?.taskType ?? TaskType.None);
-                if (showDebugInfo)
-                {
-                    Debug.Log($"[NPCMovingToWorkState] {npc.data.npcName} 已分配到建筑: {npc.assignedTask.building.data.subType}");
-                }
-                npc.ClearPendingWork();
-            }
-            
+            // 如果这是待处理的工作，移除待处理
+            if (npc.pendingTask != null)
+                npc.pendingTask = null;
             // 进入工作状态
             stateMachine.ChangeState(nextState);
         }

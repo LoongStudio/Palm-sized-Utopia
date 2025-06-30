@@ -62,10 +62,11 @@ public class NPCWorkingState : NPCStateBase
             case TaskType.HandlingAccept:
                 nextState = NPCState.Idle;
                 break;
+            case TaskType.HandlingDrop:
+                nextState = NPCState.Idle;
+                break;
             default:
-                Debug.LogWarning($"[Work] 发现意料外的进入工作情况 "
-                                 + $"{npc.assignedTask.building.data.subType} "
-                                 + $"{npc.assignedTask.taskType}，重新进入Idle");
+                Debug.LogWarning($"[Work] 发现 {npc.name} 意料外的进入工作情况，重新进入Idle");
                 nextState = NPCState.Idle;
                 stateMachine.ChangeState(NPCState.Idle);
                 break;
@@ -139,9 +140,12 @@ public class NPCWorkingState : NPCStateBase
         // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
         if (showDebugInfo)
         {
-            Debug.Log($"[NPCWorkingState] {npc.data.npcName} 离开工作状态，清除已分配建筑: "
-                      + $"{npc.assignedTask.building.data.buildingName}");
+            Debug.Log($"[Work] {npc.data.npcName} 离开工作状态，清除已分配建筑: "
+                      + $"{npc.assignedTask?.building.data.buildingName ?? "None"}");
+            npc.assignedTask?.building.TryRemoveNPC(npc);
+            npc.assignedTask = TaskInfo.GetNone();
+            
         }
-        npc.assignedTask = TaskInfo.GetNone();
+        
     }
 } 

@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using NUnit.Framework;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(Collider))]
 public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
@@ -19,6 +22,35 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public List<Equipment> installedEquipment;
     public Inventory inventory;           // 背包
     
+    [Header("调试设置")]
+    public float heightOffset = 0.1f;  // 文本显示高度
+    public Color textColor = Color.white;
+    public float textSize = 12;
+    public bool alwaysShow = true;  // 是否始终显示，否则仅在选中时显示
+    private GUIStyle textStyle;
+    private void OnDrawGizmos()
+    {
+        if (!alwaysShow) return;
+#if UNITY_EDITOR
+        DrawDebugTextWithHandles();
+#endif
+    }
+
+#if UNITY_EDITOR
+    private void DrawDebugTextWithHandles()
+    {
+        if (assignedNPCs == null || tempAssignedNPCs == null) return;
+        // 计算文本位置（在对象上方）
+        Vector3 textPosition = transform.position + Vector3.up * heightOffset;
+        // 设置文本样式
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = textColor;
+        style.fontSize = (int)textSize;
+        style.alignment = TextAnchor.UpperCenter;
+        string displayText = $"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]";
+        Handles.Label(textPosition, displayText, style);
+    }
+#endif
     /// <summary>
     /// Try Snap 会先给其赋值 positions, 然后调用它，
     /// 如果回传是 true 登记成功
@@ -65,8 +97,9 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual void TryRemoveNPC(NPC npc)
     {
         assignedNPCs.Remove(npc);
+        tempAssignedNPCs.Remove(npc);
         // npc.AssignedBuilding = null;
-        npc.ChangeState(NPCState.Idle);
+        // npc.ChangeState(NPCState.Idle);
     }
     public virtual void InstallEquipment(Equipment equipment) { }
     public virtual void RemoveEquipment(Equipment equipment) { }
