@@ -630,7 +630,7 @@ public class NPCMovement : MonoBehaviour
     
     private void OnDisable()
     {
-        StopRandomMovement();
+        // StopRandomMovement();
     }
     
     private void OnDestroy()
