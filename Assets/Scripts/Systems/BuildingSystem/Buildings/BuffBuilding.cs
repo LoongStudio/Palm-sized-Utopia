@@ -40,6 +40,7 @@ public abstract class BuffBuilding : Building
     public override void OnDestroyed()
     {
         OnBuffBuildingDestroyed?.Invoke(this);
+        base.OnDestroyed();
     }
     
     // protected virtual void FindAffectedBuildings() { } 现在直接全局搜索apply

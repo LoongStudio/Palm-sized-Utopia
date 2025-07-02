@@ -12,6 +12,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
     private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
+    private Dictionary<string, Building> _buildingsById; // 通过ID快速查找建筑
     // 历史资源变化记录（可用于曲线绘制）
     private Dictionary<DateTime, List<ResourceStack>> resourceHistory = new();
     // 事件
@@ -54,6 +55,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
         _buildings = new List<Building>();
         _buildingDataDict = new Dictionary<BuildingSubType, BuildingData>();
         _buildingOccupies = new Dictionary<Vector2Int, Building>();
+        _buildingsById = new Dictionary<string, Building>();
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
     }
     
@@ -191,8 +193,9 @@ public class BuildingManager : SingletonManager<BuildingManager>
         if (building == null) return false;
         
         _buildings.Add(building);
+        _buildingsById[building.BuildingId] = building;
         if(showDebugInfo)
-            Debug.Log($"[BuildingManager] 建筑 {building.name} 已建造");
+            Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已建造");
         
         OnBuildingBuilt?.Invoke(building);
         return true;
@@ -200,13 +203,37 @@ public class BuildingManager : SingletonManager<BuildingManager>
     public bool BuildBuilding(BuildingSubType type, Vector2Int position) { return false; }
     public bool UpgradeBuilding(Building building) { return false; }
     public bool DestroyBuilding(Building building) { return false; }
+    
+    /// <summary>
+    /// 从BuildingManager中移除建筑（当建筑被销毁时调用）
+    /// </summary>
+    /// <param name="building">要移除的建筑</param>
+    /// <returns>是否成功移除</returns>
+    public bool UnregisterBuilding(Building building)
+    {
+        if (building == null) return false;
+        
+        bool removedFromList = _buildings.Remove(building);
+        bool removedFromDict = _buildingsById.Remove(building.BuildingId);
+        
+        if (showDebugInfo)
+        {
+            if (removedFromList || removedFromDict)
+                Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已从管理器移除");
+            else
+                Debug.LogWarning($"[BuildingManager] 尝试移除不存在的建筑 {building.name} (ID: {building.BuildingId})");
+        }
+        
+        return removedFromList || removedFromDict;
+    }
     public bool RegisterBuilding(Building building)
     {
         if (building == null) return false;
         
         _buildings.Add(building);
+        _buildingsById[building.BuildingId] = building;
         if(showDebugInfo)
-            Debug.Log($"[BuildingManager] 建筑 {building.name} 已注册");
+            Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已注册");
         return true;
     }
     // 查询方法
@@ -220,6 +247,35 @@ public class BuildingManager : SingletonManager<BuildingManager>
         return buildingsReturn;
     }
     public Building GetBuildingAt(Vector2Int position) { return _buildingOccupies[position]; }
+    
+    /// <summary>
+    /// 通过建筑ID查找建筑
+    /// </summary>
+    /// <param name="buildingId">建筑唯一ID</param>
+    /// <returns>找到的建筑，如果没找到返回null</returns>
+    public Building GetBuildingById(string buildingId)
+    {
+        if (string.IsNullOrEmpty(buildingId)) return null;
+        
+        if (_buildingsById.TryGetValue(buildingId, out Building building))
+        {
+            return building;
+        }
+        
+        if (showDebugInfo)
+            Debug.LogWarning($"[BuildingManager] 未找到ID为 {buildingId} 的建筑");
+        return null;
+    }
+    
+    /// <summary>
+    /// 检查建筑ID是否存在
+    /// </summary>
+    /// <param name="buildingId">建筑唯一ID</param>
+    /// <returns>是否存在</returns>
+    public bool HasBuildingWithId(string buildingId)
+    {
+        return !string.IsNullOrEmpty(buildingId) && _buildingsById.ContainsKey(buildingId);
+    }
     
     // 建筑解锁检查
     public bool IsBuildingUnlocked(BuildingSubType type) { return false; }
