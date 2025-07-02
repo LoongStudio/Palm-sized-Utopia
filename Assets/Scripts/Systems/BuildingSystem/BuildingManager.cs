@@ -4,29 +4,37 @@ using System.Collections.Generic;
 using System.Linq;
 
 [DisallowMultipleComponent]
-public class BuildingManager : SingletonManager<BuildingManager>
+public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
 {
+    #region 字段声明
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
     
+    [Header("建筑管理")]
     private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
     private Dictionary<string, Building> _buildingsById; // 通过ID快速查找建筑
+    
+    [Header("资源管理")]
     // 历史资源变化记录（可用于曲线绘制）
     private Dictionary<DateTime, List<ResourceStack>> resourceHistory = new();
-    // 事件
+    // 资源需求与输出表
+    private Dictionary<(ResourceType, int), List<Building>> resourceNeeds = new();
+    private Dictionary<(ResourceType, int), List<Building>> resourceOutputs = new();
+    
+    [Header("Buff系统")]
+    public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
+    #endregion
+
+    #region 事件声明
     public static event System.Action<Building> OnBuildingBuilt;
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action<Building> OnBuildingUpgraded;
     // public static event System.Action<Building> OnBuildingDestroyed;
-    // Buff 加成
-    public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
-    
-    // 资源需求与输出表
-    private Dictionary<(ResourceType, int), List<Building>> resourceNeeds = new();
-    private Dictionary<(ResourceType, int), List<Building>> resourceOutputs = new();
+    #endregion
 
+    #region Unity生命周期
     private void OnEnable()
     {
         BuffBuilding.OnBuffBuildingBuilt += HandleBuffBuildingBuilt;
@@ -38,6 +46,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
         BuffBuilding.OnBuffBuildingBuilt -= HandleBuffBuildingBuilt;
         BuffBuilding.OnBuffBuildingDestroyed -= HandleBuffBuildingDestroyed;
     }
+
     protected override void Awake()
     {
         base.Awake();
@@ -49,6 +58,12 @@ public class BuildingManager : SingletonManager<BuildingManager>
         if (Time.frameCount % 5 == 0)
             RecordResourceSnapshot();
     }
+    #endregion
+
+    #region 初始化和设置
+    /// <summary>
+    /// 初始化BuildingManager
+    /// </summary>
     public void Initialize()
     {
         // TODO: 后续改为从存档中读取
@@ -58,8 +73,9 @@ public class BuildingManager : SingletonManager<BuildingManager>
         _buildingsById = new Dictionary<string, Building>();
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
     }
-    
-    
+    #endregion
+
+    #region 资源管理
     /// <summary>
     /// 记录当前帧资源分布
     /// </summary>
@@ -109,7 +125,6 @@ public class BuildingManager : SingletonManager<BuildingManager>
         return result;
     }
 
-
     /// <summary>
     /// 找出拥有富余资源的建筑（资源未被限制且有剩余）
     /// </summary>
@@ -132,7 +147,6 @@ public class BuildingManager : SingletonManager<BuildingManager>
         return result;
     }
 
-
     /// <summary>
     /// 获取资源增长曲线（某个资源）
     /// </summary>
@@ -147,6 +161,22 @@ public class BuildingManager : SingletonManager<BuildingManager>
         return output;
     }
 
+    /// <summary>
+    /// 资源变动事件处理
+    /// </summary>
+    public void OnBuildingResourceChanged(ResourceConfig config, int value)
+    {
+        // TODO: 这里可以根据value正负判断是产出还是消耗，动态维护resourceNeeds/resourceOutputs表
+        // 这里只做Debug输出，后续可完善
+        if (showDebugInfo)
+            Debug.Log($"[BuildingManager] 资源变动: {config.type}-{config.subType} 变化量: {value}");
+    }
+    #endregion
+
+    #region Buff系统
+    /// <summary>
+    /// 处理Buff建筑建造事件
+    /// </summary>
     public void HandleBuffBuildingBuilt(BuffBuilding building)
     {
         foreach (var targetBuildingSubType in building.affectedBuildingSubTypes)
@@ -161,9 +191,11 @@ public class BuildingManager : SingletonManager<BuildingManager>
                     AppliedBuffs[targetBuildingSubType][targetBuffType] += 1;
             }
         }
-        
     }
 
+    /// <summary>
+    /// 处理Buff建筑销毁事件
+    /// </summary>
     public void HandleBuffBuildingDestroyed(BuffBuilding building)
     {
         foreach (var targetBuildingSubType in building.affectedBuildingSubTypes)
@@ -182,12 +214,14 @@ public class BuildingManager : SingletonManager<BuildingManager>
             }
         }
     }
-    
-    // 建筑管理
+    #endregion
+
+    #region 建筑管理
     /// <summary>
-    /// 用于给Building Base 类OnBuild 事件调用用于注册
+    /// 建筑建造完成，注册到管理器
     /// </summary>
-    /// <param name="building"></param>
+    /// <param name="building">要注册的建筑</param>
+    /// <returns>是否注册成功</returns>
     public bool BuildingBuilt(Building building)
     {
         if (building == null) return false;
@@ -200,10 +234,23 @@ public class BuildingManager : SingletonManager<BuildingManager>
         OnBuildingBuilt?.Invoke(building);
         return true;
     }
-    public bool BuildBuilding(BuildingSubType type, Vector2Int position) { return false; }
-    public bool UpgradeBuilding(Building building) { return false; }
-    public bool DestroyBuilding(Building building) { return false; }
-    
+
+    /// <summary>
+    /// 注册建筑到管理器
+    /// </summary>
+    /// <param name="building">要注册的建筑</param>
+    /// <returns>是否注册成功</returns>
+    public bool RegisterBuilding(Building building)
+    {
+        if (building == null) return false;
+        
+        _buildings.Add(building);
+        _buildingsById[building.BuildingId] = building;
+        if(showDebugInfo)
+            Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已注册");
+        return true;
+    }
+
     /// <summary>
     /// 从BuildingManager中移除建筑（当建筑被销毁时调用）
     /// </summary>
@@ -226,18 +273,32 @@ public class BuildingManager : SingletonManager<BuildingManager>
         
         return removedFromList || removedFromDict;
     }
-    public bool RegisterBuilding(Building building)
-    {
-        if (building == null) return false;
-        
-        _buildings.Add(building);
-        _buildingsById[building.BuildingId] = building;
-        if(showDebugInfo)
-            Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已注册");
-        return true;
-    }
-    // 查询方法
+
+    /// <summary>
+    /// 建造建筑（待实现）
+    /// </summary>
+    public bool BuildBuilding(BuildingSubType type, Vector2Int position) { return false; }
+
+    /// <summary>
+    /// 升级建筑（待实现）
+    /// </summary>
+    public bool UpgradeBuilding(Building building) { return false; }
+
+    /// <summary>
+    /// 销毁建筑（待实现）
+    /// </summary>
+    public bool DestroyBuilding(Building building) { return false; }
+    #endregion
+
+    #region 建筑查询
+    /// <summary>
+    /// 获取所有建筑
+    /// </summary>
     public List<Building> GetAllBuildings() { return _buildings.ToList(); }
+
+    /// <summary>
+    /// 根据建筑类型获取建筑列表
+    /// </summary>
     public List<Building> GetBuildingsByType(BuildingType type)
     {
         List<Building> buildingsReturn = new List<Building>();
@@ -246,8 +307,12 @@ public class BuildingManager : SingletonManager<BuildingManager>
                 buildingsReturn.Add(building);
         return buildingsReturn;
     }
+
+    /// <summary>
+    /// 获取指定位置的建筑
+    /// </summary>
     public Building GetBuildingAt(Vector2Int position) { return _buildingOccupies[position]; }
-    
+
     /// <summary>
     /// 通过建筑ID查找建筑
     /// </summary>
@@ -266,7 +331,7 @@ public class BuildingManager : SingletonManager<BuildingManager>
             Debug.LogWarning($"[BuildingManager] 未找到ID为 {buildingId} 的建筑");
         return null;
     }
-    
+
     /// <summary>
     /// 检查建筑ID是否存在
     /// </summary>
@@ -276,10 +341,14 @@ public class BuildingManager : SingletonManager<BuildingManager>
     {
         return !string.IsNullOrEmpty(buildingId) && _buildingsById.ContainsKey(buildingId);
     }
-    
-    // 建筑解锁检查
-    public bool IsBuildingUnlocked(BuildingSubType type) { return false; }
 
+    /// <summary>
+    /// 检查建筑是否解锁（待实现）
+    /// </summary>
+    public bool IsBuildingUnlocked(BuildingSubType type) { return false; }
+    #endregion
+
+    #region 工作系统
     /// <summary>
     /// 获取需要工作的建筑列表，按优先级排序
     /// </summary>
@@ -343,11 +412,13 @@ public class BuildingManager : SingletonManager<BuildingManager>
         float weightResourceAgainst = 0.5f;
         float weightResourceInvolved = 0.8f;
         List<(Building building, float score, TaskType workType)> scored = new();
+        
         foreach (var building in buildings)
         {
             // 忽略住房与装饰性建筑
             if (building.data.buildingType == BuildingType.Housing
                 || building.data.buildingType == BuildingType.Decoration) continue;
+                
             // 缺人程度
             float slotRatio = 0f;
             if (building.maxSlotAmount > 0)
@@ -356,18 +427,22 @@ public class BuildingManager : SingletonManager<BuildingManager>
             float resourceRatioAgainst = 
                 building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
             float resourceRatioInvolving = building.inventory.GetResourceMappingWithFilter(npc.inventory, building.AcceptResources);
+            
             float slotScore = slotRatio * weightSlot;
             float resourceAgainstScore = resourceRatioAgainst * weightResourceAgainst;
             float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved;
             float score = slotScore + resourceRatioAgainst + resourceInvolvingScore;
+            
             Debug.Log($"[Work] 建筑: {building.data.subType} "
                       + $"| 插槽需求: {slotScore:F2} "
                       + $"| 资源需求: {resourceInvolvingScore:F2} "
                       + $"| 资源输出: {resourceAgainstScore:F2} "
                       + $"| 总分: {score:F2}");
+                      
             // 如果需求分数没有达到阈值就跳过
             if (score < 0.1f || !MathUtility.IsValid(score)) continue;
             Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
+            
             // 如果资源产出分数占比最高
             if (resourceAgainstScore > slotScore && resourceAgainstScore > resourceInvolvingScore)
                 scored.Add((building, score, TaskType.HandlingAccept));
@@ -378,20 +453,30 @@ public class BuildingManager : SingletonManager<BuildingManager>
             if (resourceInvolvingScore > slotScore && resourceInvolvingScore > resourceAgainstScore)
                 scored.Add((building, score, TaskType.HandlingDrop));
         }
+        
         if (scored.Count == 0) return TaskInfo.GetNone();
+        
         float maxScore = scored.Max(x => x.score);
-        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f).Select(x => new TaskInfo(x.building, x.workType)).ToList();
+        var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f)
+                                 .Select(x => new TaskInfo(x.building, x.workType))
+                                 .ToList();
+                                 
         if (bestBuildings.Count == 1) return bestBuildings[0];
+        
         // 多个得分相同，随机分配
         return bestBuildings[UnityEngine.Random.Range(0, bestBuildings.Count)];
     }
+    #endregion
 
-    // 资源变动事件处理
-    public void OnBuildingResourceChanged(ResourceConfig config, int value)
+    #region 存档系统
+    public GameSaveData GetSaveData()
     {
-        // TODO: 这里可以根据value正负判断是产出还是消耗，动态维护resourceNeeds/resourceOutputs表
-        // 这里只做Debug输出，后续可完善
-        if (showDebugInfo)
-            Debug.Log($"[BuildingManager] 资源变动: {config.type}-{config.subType} 变化量: {value}");
+        throw new System.NotImplementedException();
     }
+
+    public void LoadFromData(GameSaveData data)
+    {
+        throw new System.NotImplementedException();
+    }
+    #endregion
 }
