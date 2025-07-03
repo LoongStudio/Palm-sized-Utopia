@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEngine.EventSystems;
 
 public class UIManager : SingletonManager<UIManager>
 {
@@ -58,6 +59,17 @@ public class UIManager : SingletonManager<UIManager>
         OpenPanel("EditModePanel");
     }
 
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 如果点击了空白处，关闭商店面板
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                ClosePanel("ShopPanel");
+            }
+        }
+    }
     private void InitDicts()
     {
         prefabDict = new Dictionary<string, GameObject>();
