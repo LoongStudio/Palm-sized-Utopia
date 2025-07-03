@@ -102,6 +102,9 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
 
                 Debug.Log($"[PlaceableObject] {name} 自动注册并对齐到网格，占用 {currentPositions.Length} 个位置");
 
+                // 同步建筑位置信息
+                SyncPositionsToBuilding();
+
                 // 触发放置事件
                 TriggerEvents();
             }
@@ -172,6 +175,9 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
             // 对齐到网格
             SnapToGrid(positions);
 
+            // 同步建筑位置信息
+            SyncPositionsToBuilding();
+
             // 恢复原始材质
             RestoreOriginalMaterials();
 
@@ -206,6 +212,9 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         gridSystem.Release(currentPositions);
         currentPositions = null;
         IsPlaced = false;
+        
+        // 同步建筑位置信息（清空）
+        SyncPositionsToBuilding();
         
         // 触发事件
         OnRemoved?.Invoke(this);
@@ -525,5 +534,17 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
             renderer.enabled = visible;
         }
         isHiddenForDrag = !visible;
+    }
+    
+    /// <summary>
+    /// 同步位置信息到Building组件
+    /// </summary>
+    private void SyncPositionsToBuilding()
+    {
+        var building = GetComponentInChildren<Building>();
+        if (building != null)
+        {
+            building.SyncPositionsFromPlaceable();
+        }
     }
 }
