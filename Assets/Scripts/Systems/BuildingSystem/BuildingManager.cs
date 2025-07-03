@@ -412,11 +412,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     }
     private void HandleBuildingPlaced(BuildingEventArgs args)
     {
-        // 对指定建筑进行位置同步
-        if (args.building != null && args.eventType == BuildingEventArgs.BuildingEventType.PlaceSuccess)
-        {
-            args.building.InitPositions();
-        }
+
     }
     /// <summary>
     /// 根据subType从配置中获取建筑数据
