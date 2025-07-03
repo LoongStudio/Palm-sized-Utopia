@@ -449,8 +449,6 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 通过建筑ID查找建筑
     /// </summary>
-    /// <param name="buildingId">建筑唯一ID</param>
-    /// <returns>找到的建筑，如果没找到返回null</returns>
     public Building GetBuildingById(string buildingId)
     {
         if (string.IsNullOrEmpty(buildingId)) return null;
@@ -468,8 +466,6 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 检查建筑ID是否存在
     /// </summary>
-    /// <param name="buildingId">建筑唯一ID</param>
-    /// <returns>是否存在</returns>
     public bool HasBuildingWithId(string buildingId)
     {
         return !string.IsNullOrEmpty(buildingId) && _buildingsById.ContainsKey(buildingId);
