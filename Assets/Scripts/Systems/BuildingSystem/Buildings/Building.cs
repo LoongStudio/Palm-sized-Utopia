@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using NUnit.Framework;
+using NaughtyAttributes;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -79,6 +81,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     }
     // 抽象方法
     public abstract void OnUpgraded();
+    [Button("销毁建筑")]
     public virtual bool DestroySelf()
     {
         var parentPlaceable = GetComponentInParent<PlaceableObject>();
