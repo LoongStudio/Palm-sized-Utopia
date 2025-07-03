@@ -150,15 +150,27 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
         
         if (canPlace)
         {
-            // 放置成功
-            currentTarget.PlaceAt(previewPositions);
-            GameEvents.TriggerBuildingPlaced(new BuildingEventArgs(){
-                building = currentDraggingBuilding,
-                placeable = currentTarget,
-                eventType = BuildingEventArgs.BuildingEventType.PlaceSuccess,
-                timestamp = System.DateTime.Now
-            });
-            PlacementEvents.TriggerDragEnded(currentTarget);
+            if (isNewlyBoughtBuilding)
+            {
+                // 新创建建筑放置成功
+                currentTarget.PlaceAt(previewPositions);
+                PlacementEvents.TriggerDragEnded(currentTarget);
+                // 触发新创建建筑放置成功事件
+                GameEvents.TriggerBoughtBuildingPlacedAfterDragging(new BuildingEventArgs()
+                {
+                    building = currentDraggingBuilding,
+                    placeable = currentTarget,
+                    eventType = BuildingEventArgs.BuildingEventType.PlaceSuccess,
+                    timestamp = System.DateTime.Now
+                });
+            }
+            else
+            {
+                // 已存在的建筑放置成功
+                currentTarget.PlaceAt(previewPositions);
+                PlacementEvents.TriggerDragEnded(currentTarget);
+                // TODO：触发已存在建筑放置成功事件
+            }
             
             Debug.Log($"[DragHandler] Successfully placed {currentTarget}");
         }
@@ -167,7 +179,7 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
             if (isNewlyBoughtBuilding)
             {
                 // 新创建建筑放置失败时
-                GameEvents.TriggerBuildingPlaced(new BuildingEventArgs(){
+                GameEvents.TriggerBoughtBuildingPlacedAfterDragging(new BuildingEventArgs(){
                     building = currentDraggingBuilding,
                     placeable = currentTarget,
                     eventType = BuildingEventArgs.BuildingEventType.PlaceFailed,
