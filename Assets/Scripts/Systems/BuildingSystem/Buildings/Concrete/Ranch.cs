@@ -11,6 +11,7 @@ public class Ranch : ProductionBuilding
     
     public override void OnDestroyed()
     {
+        base.OnDestroyed();
         StopProduction();
         Debug.Log($"牧场被摧毁，位置: {string.Join(" ", positions)}");
     }

@@ -11,6 +11,7 @@ public class CompostYard : ProductionBuilding
     
     public override void OnDestroyed()
     {
+        base.OnDestroyed();
         StopProduction();
         Debug.Log($"堆肥场被摧毁，位置: {string.Join(" ", positions)}");
     }
