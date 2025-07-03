@@ -46,7 +46,8 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     {
         BuffBuilding.OnBuffBuildingBuilt -= HandleBuffBuildingBuilt;
         BuffBuilding.OnBuffBuildingDestroyed -= HandleBuffBuildingDestroyed;
-        GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
+        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
+        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
     }
 
     protected override void Awake()
@@ -80,11 +81,12 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
 
     private void SubscribeEvents()
     {
-        // 先取消订阅，避免重复订阅
-        GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
-        // 然后重新订阅
-        GameEvents.OnBuildingPlaced += HandleBuildingPlaced;
-        
+        // // 先取消订阅，避免重复订阅
+        // GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
+        // // 然后重新订阅
+        // GameEvents.OnBuildingPlaced += HandleBuildingPlaced;
+        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
+        GameEvents.OnBoughtBuildingPlacedAfterDragging += HandleBoughtBuildingPlacedAfterDragging;
         Debug.Log("[BuildingManager] Events subscribed successfully");
     }
     #endregion
@@ -393,9 +395,9 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
 
     }
     /// <summary>
-    /// 处理建筑放置事件
+    /// 处理建筑放置事件,该事件负责处理拖拽事件
     /// </summary>
-    public void HandleBuildingPlaced(BuildingEventArgs args)
+    public void HandleBoughtBuildingPlacedAfterDragging(BuildingEventArgs args)
     {
         Debug.Log($"[BuildingManager] HandleBuildingPlaced called with event type: {args.eventType}, building: {args.building?.name}, timestamp: {args.timestamp}");
         
@@ -619,6 +621,14 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     public void LoadFromData(GameSaveData data)
     {
         BuildingSaveData buildingSaveData = data as BuildingSaveData;
+        if(buildingSaveData == null) {
+            Debug.LogError("[BuildingManager] LoadFromData: 数据转换失败，期望BuildingSaveData类型");
+            return;
+        }
+        foreach(var buildingData in buildingSaveData.buildings) {
+            var building = CreateBuilding(buildingData.subType);
+            building.LoadFromData(buildingData);
+        }
         // 在场上的指定位置，生成Building，并将数据进行写入
         throw new System.NotImplementedException();
     }
