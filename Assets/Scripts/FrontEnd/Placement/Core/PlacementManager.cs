@@ -54,6 +54,7 @@ public class PlacementManager : SingletonManager<PlacementManager>
     private void Start()
     {
         StartCoroutine(DelayedInitialization());
+        StartCoroutine(PeriodicCleanup());
     }
     
     private void SubscribeEvents()
@@ -82,6 +83,22 @@ public class PlacementManager : SingletonManager<PlacementManager>
         IsInitialized = true;
         if (showDebugInfo)
             Debug.Log("[PlacementManager] Placement system initialized successfully");
+    }
+    
+    /// <summary>
+    /// 定期清理无效引用
+    /// </summary>
+    private IEnumerator PeriodicCleanup()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(5f); // 每5秒清理一次
+            
+            if (gridSystem != null)
+            {
+                gridSystem.CleanupInvalidReferences();
+            }
+        }
     }
     
     private void AutoGetComponents()

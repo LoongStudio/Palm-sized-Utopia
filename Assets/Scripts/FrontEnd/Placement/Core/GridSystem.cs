@@ -131,6 +131,45 @@ public class GridSystem : SingletonManager<GridSystem>, IGridSystem
     }
     
     /// <summary>
+    /// 清理无效的引用（防止内存泄漏）
+    /// </summary>
+    public void CleanupInvalidReferences()
+    {
+        // 清理已销毁的GameObject引用
+        var invalidPlaceables = new List<IPlaceable>();
+        
+        foreach (var kvp in placeablePositions)
+        {
+            var placeable = kvp.Key;
+            var positions = kvp.Value;
+            
+            // 检查MonoBehaviour是否已被销毁
+            if (placeable is MonoBehaviour mb && mb == null)
+            {
+                invalidPlaceables.Add(placeable);
+                
+                // 释放占用的位置
+                foreach (var pos in positions)
+                {
+                    occupiedCells.Remove(pos);
+                    cellOwners.Remove(pos);
+                }
+            }
+        }
+        
+        // 移除无效引用
+        foreach (var invalidPlaceable in invalidPlaceables)
+        {
+            placeablePositions.Remove(invalidPlaceable);
+        }
+        
+        if (invalidPlaceables.Count > 0)
+        {
+            Debug.Log($"[GridSystem] 清理了 {invalidPlaceables.Count} 个无效引用");
+        }
+    }
+    
+    /// <summary>
     /// 获取所有占用的位置
     /// </summary>
     public Vector3Int[] GetAllOccupiedPositions()

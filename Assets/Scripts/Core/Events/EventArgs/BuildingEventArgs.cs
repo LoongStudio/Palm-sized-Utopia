@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildingEventArgs 
@@ -5,7 +6,7 @@ public class BuildingEventArgs
     public Building building;
     public IPlaceable placeable;
     public BuildingEventType eventType;
-    public Vector2Int position;
+    public List<Vector2Int> positions;
     public int oldLevel;
     public int newLevel;
     public bool isSuccess;
@@ -13,9 +14,7 @@ public class BuildingEventArgs
     
     public enum BuildingEventType 
     {
-        BuiltFromBuy,
-        BuiltFromDrag,
-        BuiltFromLoad,
+        Created,
         PlaceSuccess,
         PlaceFailed,
         Upgraded,

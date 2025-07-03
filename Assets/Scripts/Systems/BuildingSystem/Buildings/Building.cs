@@ -116,6 +116,15 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 #endif
     }
 
+    /// <summary>
+    /// Unity生命周期方法 - GameObject被销毁时调用
+    /// </summary>
+    private void OnDestroy()
+    {
+        // 调用自定义的销毁回调方法
+        OnDestroyed();
+    }
+
     #endregion
 
     #region 初始化方法
@@ -194,6 +203,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     [Button("销毁建筑")]
     public virtual bool DestroySelf()
     {
+        // 注意：不需要在这里手动调用UnregisterBuilding，因为OnDestroy会调用OnDestroyed来处理
         var parentPlaceable = GetComponentInParent<PlaceableObject>();
         if (parentPlaceable != null)
         {
@@ -212,6 +222,12 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if (BuildingManager.Instance != null)
         {
             BuildingManager.Instance.UnregisterBuilding(this);
+        }
+
+        // 确保网格占用被释放
+        if (PlaceableObject != null && PlaceableObject.IsPlaced)
+        {
+            PlaceableObject.RemoveFromGrid();
         }
 
         if (showDebugInfo)

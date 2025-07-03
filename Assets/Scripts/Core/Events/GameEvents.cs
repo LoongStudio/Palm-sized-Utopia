@@ -17,6 +17,7 @@ public static class GameEvents
     public static event System.Action<BuildingEventArgs> OnBuildingBuilt;
     public static event System.Action<BuildingEventArgs> OnBuildingPlaced;
     public static event System.Action<BuildingEventArgs> OnBoughtBuildingPlacedAfterDragging;
+    public static event System.Action<BuildingEventArgs> OnBuildingCreated;
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action<BuildingEventArgs> OnBuildingUpgraded;
     // public static event System.Action<BuildingEventArgs> OnBuildingDestroyed;
@@ -102,6 +103,10 @@ public static class GameEvents
     public static void TriggerBoughtBuildingPlacedAfterDragging(BuildingEventArgs args) 
     {
         OnBoughtBuildingPlacedAfterDragging?.Invoke(args);
+    }
+    public static void TriggerBuildingCreated(BuildingEventArgs args) 
+    {
+        OnBuildingCreated?.Invoke(args);
     }
     #endregion
     
