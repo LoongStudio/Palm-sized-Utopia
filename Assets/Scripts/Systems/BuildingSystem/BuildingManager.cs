@@ -333,13 +333,13 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         GameEvents.TriggerBuildingBought(new BuildingEventArgs()
         {
             building = building,
-            eventType = BuildingEventArgs.BuildingEventType.BuiltFromBuy,
+            eventType = BuildingEventArgs.BuildingEventType.Created,
             timestamp = DateTime.Now
         });
         return true;
 
     }
-    public Building CreateBuilding(BuildingSubType type, Vector2Int position = default)
+    public Building CreateBuilding(BuildingSubType type, List<Vector2Int> positions = null)
     {
         // 获取建筑预制体
         var prefab = buildingConfig.buildingPrefabDatas.Find(x => x.subType == type).prefab;
@@ -351,6 +351,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         }
 
         // 创建建筑实例
+        Vector2Int position = new Vector2Int(99, 99); // 创建在一个很远的地方
         Vector3 worldPosition = new Vector3(position.x, 0, position.y);
         var instance = Instantiate(prefab, worldPosition, Quaternion.identity);
 
@@ -366,6 +367,23 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         building.SetBuildingData(GetBuildingData(type));
         if (showDebugInfo)
             Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已创建在 {worldPosition}");
+
+        // 根据传入的positions，设置建筑位置
+        if (positions != null)
+        {
+            if (showDebugInfo)
+                Debug.Log($"[BuildingManager] 尝试根据读取到的位置信息将建筑 {building.name} (ID: {building.BuildingId}) 放置在 {positions.Count} 个位置");
+            building.positions = positions; // 设置位置数据
+            GameEvents.TriggerBuildingCreated(new BuildingEventArgs()
+            {
+                building = building,
+                positions = positions,
+                eventType = BuildingEventArgs.BuildingEventType.Created,
+                timestamp = DateTime.Now
+            });
+            // // 根据building的位置信息将其放置在对应位置
+            // building.PlaceableObject.PlaceAt(positions.Select(x => new Vector3Int(x.x, 0, x.y)).ToArray());
+        }
         return building;
     }
     /// <summary>
@@ -615,13 +633,30 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             Debug.LogError("[BuildingManager] LoadFromData: 数据转换失败，期望BuildingSaveData类型");
             return;
         }
+        if (showDebugInfo)
+        {
+            Debug.Log($"[BuildingManager] 加载建筑数据: {buildingSaveData.buildings.Count}个建筑");
+        }
         foreach (var buildingData in buildingSaveData.buildings)
         {
-            var building = CreateBuilding(buildingData.subType);
+            if (showDebugInfo)
+            {
+                Debug.Log($"[BuildingManager] 加载建筑数据: {buildingData.buildingId} {buildingData.subType} {buildingData.status} {buildingData.currentLevel}");
+            }
+            // 创建建筑
+            var building = CreateBuilding(buildingData.subType, buildingData.positions);
+            // 加载建筑数据
             building.LoadFromData(buildingData);
+            // 设置建筑ID
+            building.SetBuildingId(buildingData.buildingId);
+            // 设置建筑状态
+            building.status = buildingData.status;
+            // 设置建筑等级
+            building.currentLevel = buildingData.currentLevel;
+            // 加载背包数据
+            building.inventory.LoadFromData(buildingData.inventory);
+            // TODO: 加载装备
         }
-        // 在场上的指定位置，生成Building，并将数据进行写入
-        throw new System.NotImplementedException();
     }
 
     private List<BuildingInstanceSaveData> GetBuildingInstancesData()

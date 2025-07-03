@@ -17,6 +17,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     [SerializeField] private GameObject previewPrefab;
     [SerializeField] private Renderer[] renderers;
     private bool isHiddenForDrag = false;
+    private bool isSetPositionManually = false;
     
     private IGridSystem gridSystem;
     private Vector3Int[] currentPositions;
@@ -28,7 +29,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     public bool IsPlaced { get; private set; }
     public System.Action<IPlaceable> OnPlaced { get; set; }
     public System.Action<IPlaceable> OnRemoved { get; set; }
-    
+
     private void Awake()
     {
         // 自动获取组件
@@ -36,28 +37,38 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         {
             renderers = GetComponentsInChildren<Renderer>();
         }
-        
+
         // 保存原始材质
         SaveOriginalMaterials();
-        
+
         // 自动计算锚点
         if (autoCalculateAnchors && (anchorPoints == null || anchorPoints.Length == 0))
         {
             CalculateAnchorPoints();
         }
-    }
-    
-    private void Start()
-    {
+        
         // 获取系统引用
         gridSystem = FindAnyObjectByType<GridSystem>();
         settings = FindAnyObjectByType<PlacementManager>()?.Settings;
-        
+
         if (gridSystem == null)
         {
             Debug.LogError("[PlaceableObject] GridSystem not found!");
         }
+    }
+    
+    private void OnEnable()
+    {
+        GameEvents.OnBuildingCreated += OnBuildingCreated;
+    }
+    
+    private void OnDisable()
+    {
+        GameEvents.OnBuildingCreated -= OnBuildingCreated;
+    }
 
+    private void Start()
+    {
         // 如果物体已经在场景中，自动注册到网格系统
         if (!IsPlaced && gridSystem != null)
         {
@@ -66,10 +77,70 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     }
 
     /// <summary>
+    /// Unity生命周期方法 - GameObject被销毁时调用
+    /// </summary>
+    private void OnDestroy()
+    {
+        // 确保在销毁时释放网格占用
+        if (IsPlaced && currentPositions != null)
+        {
+            Debug.Log($"[PlaceableObject] {name} 被销毁，释放网格占用: {string.Join(", ", currentPositions)}");
+            
+            // 直接调用网格系统释放，避免重复触发事件
+            if (gridSystem != null)
+            {
+                gridSystem.Release(currentPositions);
+            }
+            
+            // 触发移除事件
+            OnRemoved?.Invoke(this);
+            PlacementEvents.TriggerObjectRemoved(this);
+        }
+    }
+    
+    /// <summary>
+    /// 处理建筑创建事件
+    /// </summary>
+    private void OnBuildingCreated(BuildingEventArgs args)
+    {
+        // 检查是否是当前建筑
+        var building = GetComponentInChildren<Building>();
+        if (building == null || args.building != building) return;
+        
+        // 检查是否有位置数据
+        if (args.positions == null || args.positions.Count == 0) return;
+        
+        Debug.Log($"[PlaceableObject] 收到建筑创建事件，建筑: {building.name}，位置数量: {args.positions.Count}");
+
+        isSetPositionManually = true;
+        // 转换位置格式
+        var gridPositions = args.positions.Select(x => new Vector3Int(x.x, 0, x.y)).ToArray();
+        
+        Debug.Log($"[PlaceableObject] 转换后的网格位置: {string.Join(", ", gridPositions)}");
+        
+        // 检查是否可以放置
+        if (CanPlaceAt(gridPositions))
+        {
+            Debug.Log($"[PlaceableObject] 可以放置，开始放置建筑");
+            PlaceAt(gridPositions);
+        }
+        else
+        {
+            Debug.LogWarning($"[PlaceableObject] 无法放置建筑，位置可能被占用");
+        }
+    }
+
+    /// <summary>
     /// 自动注册到网格系统（用于预先放置在场景中的物体）
     /// </summary>
     private void AutoRegisterToGrid()
     {
+        if (isSetPositionManually)
+        {
+            Debug.Log($"[PlaceableObject] {name} 已手动设置位置，跳过自动注册");
+            return;
+        }
+        
         if (anchorPoints == null || anchorPoints.Length == 0)
         {
             if (autoCalculateAnchors)

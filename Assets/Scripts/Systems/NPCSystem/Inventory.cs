@@ -528,7 +528,7 @@ public class Inventory : ISaveable
 
     public void LoadFromData(GameSaveData data)
     {
-        throw new System.NotImplementedException();
+        Debug.LogWarning("Inventory的LoadFromData还没有实现");
     }
     
     private Dictionary<ResourceType, int> hashSetToDict(HashSet<ResourceConfig> hashSet){

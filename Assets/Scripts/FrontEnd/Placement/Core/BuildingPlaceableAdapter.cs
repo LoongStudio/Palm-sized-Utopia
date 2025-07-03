@@ -37,6 +37,12 @@ public class BuildingPlaceableAdapter : MonoBehaviour
             placeableObject.OnPlaced -= OnBuildingPlaced;
             placeableObject.OnRemoved -= OnBuildingRemoved;
         }
+        
+        // 确保建筑被销毁时也调用OnDestroyed
+        if (building != null)
+        {
+            building.OnDestroyed();
+        }
     }
     
     private void OnBuildingPlaced(IPlaceable placeable)
