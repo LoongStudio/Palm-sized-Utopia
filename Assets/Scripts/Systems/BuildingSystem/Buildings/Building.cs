@@ -35,6 +35,70 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public float textSize = 12;
     public bool alwaysShow = true;  // 是否始终显示，否则仅在选中时显示
     private GUIStyle textStyle;
+    
+    // 缓存PlaceableObject引用
+    private PlaceableObject cachedPlaceableObject;
+    
+    /// <summary>
+    /// 获取关联的PlaceableObject组件
+    /// </summary>
+    public PlaceableObject PlaceableObject
+    {
+        get
+        {
+            if (cachedPlaceableObject == null)
+            {
+                cachedPlaceableObject = GetComponentInParent<PlaceableObject>();
+            }
+            return cachedPlaceableObject;
+        }
+    }
+    
+    /// <summary>
+    /// 同步位置信息 - 从PlaceableObject获取当前位置
+    /// </summary>
+    public void SyncPositionsFromPlaceable()
+    {
+        if (PlaceableObject != null)
+        {
+            var currentPositions = PlaceableObject.GetOccupiedPositions();
+            if (currentPositions != null && currentPositions.Length > 0)
+            {
+                // 转换Vector3Int数组为Vector2Int列表
+                positions = new List<Vector2Int>();
+                foreach (var pos in currentPositions)
+                {
+                    positions.Add(new Vector2Int(pos.x, pos.z));
+                }
+                
+                if (showDebugInfo)
+                    Debug.Log($"[Building] {data?.buildingName} (ID: {BuildingId}) 位置已同步: {string.Join(", ", positions)}");
+            }
+            else
+            {
+                // 如果PlaceableObject没有位置信息，清空positions
+                positions = new List<Vector2Int>();
+                if (showDebugInfo)
+                    Debug.Log($"[Building] {data?.buildingName} (ID: {BuildingId}) 位置已清空");
+            }
+        }
+        else
+        {
+            // 如果没有PlaceableObject，初始化空列表
+            if (positions == null)
+                positions = new List<Vector2Int>();
+        }
+    }
+    
+    /// <summary>
+    /// 强制刷新位置信息
+    /// </summary>
+    [Button("刷新位置信息")]
+    public void RefreshPositions()
+    {
+        SyncPositionsFromPlaceable();
+    }
+
     private void OnDrawGizmos()
     {
         if (!alwaysShow) return;
@@ -158,6 +222,10 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // 游戏循环
     public virtual void Start() {
         var _ = BuildingId; // 触发getter，如果没有ID会自动生成
+        
+        // 同步位置信息
+        SyncPositionsFromPlaceable();
+        
         // LoadFromData(); // TODO: 开始时 如果数据并没有正常加载，尝试重新从Data中读取
         if (!OnTryBuilt())
         {
