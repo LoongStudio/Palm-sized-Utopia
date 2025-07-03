@@ -40,11 +40,14 @@ public class SaveManager : SingletonManager<SaveManager>
 
     private CoreSaveData CollectSaveData()
     {
-        return new CoreSaveData{
-            npcSaveData = NPCManager.Instance.GetSaveData() as NPCSaveData
+        return new CoreSaveData
+        {
+            npcSaveData = NPCManager.Instance.GetSaveData() as NPCSaveData,
+            buildingSaveData = BuildingManager.Instance.GetSaveData() as BuildingSaveData
         };
     }
     private void ApplySaveData(CoreSaveData saveData) {
         NPCManager.Instance.LoadFromData(saveData.npcSaveData);
+        BuildingManager.Instance.LoadFromData(saveData.buildingSaveData);
     }
 }

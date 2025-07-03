@@ -64,14 +64,31 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     /// <returns></returns>
     public virtual bool OnTryBuilt()
     {
+        Debug.Log($"[Building] OnTryBuilt called for building {data?.buildingName} (ID: {BuildingId})");
+        
         if (BuildingManager.Instance.BuildingBuilt(this))
+        {
+            Debug.Log($"[Building] BuildingBuilt returned true for {data?.buildingName}");
             return true;
+        }
+        
+        Debug.Log($"[Building] BuildingBuilt returned false, calling RegisterBuilding for {data?.buildingName}");
         BuildingManager.Instance.RegisterBuilding(this);
         status = BuildingStatus.Inactive;
         return false;
     }
     // 抽象方法
     public abstract void OnUpgraded();
+    public virtual bool DestroySelf()
+    {
+        var parentPlaceable = GetComponentInParent<PlaceableObject>();
+        if (parentPlaceable != null)
+        {
+            Destroy(parentPlaceable.gameObject);
+            return true;
+        }
+        return false;
+    }
     public virtual void OnDestroyed()
     {
         // 从BuildingManager中移除
@@ -79,7 +96,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         {
             BuildingManager.Instance.UnregisterBuilding(this);
         }
-        
+
         if (showDebugInfo)
             Debug.Log($"[Building] 建筑 {data?.buildingName} (ID: {BuildingId}) 已被销毁");
     }
@@ -118,11 +135,23 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     }
     public virtual void InstallEquipment(Equipment equipment) { }
     public virtual void RemoveEquipment(Equipment equipment) { }
-    
-    // 接口实现
-    public virtual GameSaveData GetSaveData() { return null; }
+
+    #region 保存与加载
+    public virtual GameSaveData GetSaveData()
+    {
+        InventorySaveData inventorySaveData = inventory.GetSaveData() as InventorySaveData;
+        return new BuildingInstanceSaveData(){
+            buildingId = BuildingId,
+            subType = data.subType,
+            status = status,
+            currentLevel = currentLevel,
+            positions = positions,
+            inventory = inventorySaveData,
+            // TODO: 添加诸如installedEquipment等数据
+        };
+    }
     public virtual void LoadFromData(GameSaveData data) { }
-    
+    #endregion
     // 游戏循环
     public virtual void Start() {
         var _ = BuildingId; // 触发getter，如果没有ID会自动生成
@@ -218,5 +247,9 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         // 或者通过工厂模式来实现
         Debug.LogWarning("[Building] CreateBuildingFromData方法需要在具体实现中重写");
         return null;
+    }
+    public void SetBuildingData(BuildingData data)
+    {
+        this.data = data;
     }
 }

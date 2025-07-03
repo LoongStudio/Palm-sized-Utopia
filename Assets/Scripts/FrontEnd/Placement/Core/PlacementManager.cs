@@ -45,7 +45,19 @@ public class PlacementManager : SingletonManager<PlacementManager>
     
     private void Start()
     {
+        SubscribeEvents();
         StartCoroutine(DelayedInitialization());
+    }
+    
+    private void SubscribeEvents()
+    {
+        GameEvents.OnBuildingBought += OnBuildingBought;
+    }
+
+    private void OnBuildingBought(BuildingEventArgs args)
+    {
+        Debug.Log($"[PlacementManager] Building bought: {args.building.name}");
+        SetEditMode(true);
     }
     
     private IEnumerator DelayedInitialization()

@@ -6,19 +6,21 @@ public static class GameEvents
     
     #region 资源相关事件
     public static event System.Action<ResourceEventArgs> OnResourceChanged;
-    
+
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action<ResourceEventArgs> OnResourceAdded;
     // public static event System.Action<ResourceEventArgs> OnResourceRemoved;
     #endregion
-    
+
     #region 建筑相关事件
+    public static event System.Action<BuildingEventArgs> OnBuildingBought;
     public static event System.Action<BuildingEventArgs> OnBuildingBuilt;
+    public static event System.Action<BuildingEventArgs> OnBuildingPlaced;
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action<BuildingEventArgs> OnBuildingUpgraded;
     // public static event System.Action<BuildingEventArgs> OnBuildingDestroyed;
     #endregion
-    
+
     #region NPC相关事件
     public static event System.Action<NPCEventArgs> OnNPCHired;
     public static event System.Action<NPCEventArgs> OnNPCInstantiated;
@@ -82,9 +84,18 @@ public static class GameEvents
     #endregion
     
     #region 建筑事件触发方法
+    public static void TriggerBuildingBought(BuildingEventArgs args) 
+    {
+        OnBuildingBought?.Invoke(args);
+    }
     public static void TriggerBuildingBuilt(BuildingEventArgs args) 
     {
         OnBuildingBuilt?.Invoke(args);
+    }
+    public static void TriggerBuildingPlaced(BuildingEventArgs args) 
+    {
+        Debug.Log($"[GameEvents] TriggerBuildingPlaced called with event type: {args.eventType}, building: {args.building?.name}, timestamp: {args.timestamp}");
+        OnBuildingPlaced?.Invoke(args);
     }
     #endregion
     

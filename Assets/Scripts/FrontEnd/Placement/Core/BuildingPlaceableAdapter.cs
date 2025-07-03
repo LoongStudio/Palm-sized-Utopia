@@ -43,6 +43,8 @@ public class BuildingPlaceableAdapter : MonoBehaviour
     {
         if (building == null) return;
         
+        Debug.Log($"[BuildingPlaceableAdapter] OnBuildingPlaced called for building {building.name}");
+        
         // 转换网格位置到建筑系统的位置格式
         var gridPositions = placeableObject.GetOccupiedPositions();
         var buildingPositions = new List<Vector2Int>();
@@ -56,6 +58,7 @@ public class BuildingPlaceableAdapter : MonoBehaviour
         building.positions = buildingPositions;
         
         // 调用建筑的放置逻辑
+        Debug.Log($"[BuildingPlaceableAdapter] About to call building.OnTryBuilt() for {building.name}");
         if (!building.OnTryBuilt())
         {
             Debug.LogError($"[BuildingPlaceableAdapter] Building {building.name} failed to register with BuildingManager");
