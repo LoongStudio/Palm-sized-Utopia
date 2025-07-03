@@ -43,6 +43,7 @@ public class Warehouse : FunctionalBuilding
     
     public override void OnDestroyed()
     {
+        base.OnDestroyed();
         DecreaseStorageCapacity();
         Debug.Log($"仓库被摧毁，位置: {string.Join(" ", positions)}");
     }

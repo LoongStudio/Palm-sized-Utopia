@@ -59,6 +59,7 @@ public class TradeMarket : ProductionBuilding
     
     public override void OnDestroyed()
     {
+        base.OnDestroyed();
         Debug.Log($"贸易市场被摧毁，位置: {string.Join(" ", positions)}");
     }
     
