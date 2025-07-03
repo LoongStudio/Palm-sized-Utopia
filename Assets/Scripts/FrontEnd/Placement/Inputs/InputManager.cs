@@ -107,7 +107,7 @@ public class InputManager : SingletonManager<InputManager>
         }
     }
     
-    private void ToggleEditMode()
+    public void ToggleEditMode()
     {
         isEditMode = !isEditMode;
         if(showDebugInfo)

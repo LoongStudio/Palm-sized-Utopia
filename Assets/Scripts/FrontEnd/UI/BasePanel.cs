@@ -1,11 +1,31 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+[RequireComponent(typeof(CanvasGroup))]
 public class BasePanel : MonoBehaviour
 {
     protected string panelName;
     protected bool isRemoved = false;
     protected bool isShow = false;
+    protected CanvasGroup canvasGroup;
+    protected virtual void Awake()
+    {
+        InitializeCanvasGroup();
+    }
+    
+    /// <summary>
+    /// 初始化CanvasGroup组件
+    /// </summary>
+    private void InitializeCanvasGroup()
+    {
+        if (canvasGroup == null)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                Debug.LogError($"BasePanel: {gameObject.name} 缺少 CanvasGroup 组件！");
+            }
+        }
+    }
     /// <summary>
     /// 打开面板
     /// </summary>
@@ -32,7 +52,12 @@ public class BasePanel : MonoBehaviour
     /// </summary>
     public virtual void Show()
     {
-        gameObject.SetActive(true);
+        InitializeCanvasGroup(); // 确保canvasGroup已初始化
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1;
+            canvasGroup.blocksRaycasts = true;
+        }
         isShow = true;
         OnShow();
     }
@@ -42,7 +67,12 @@ public class BasePanel : MonoBehaviour
     public virtual void Hide()
     {
         isShow = false;
-        gameObject.SetActive(false);
+        InitializeCanvasGroup(); // 确保canvasGroup已初始化
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0;
+            canvasGroup.blocksRaycasts = false;
+        }
         OnHide();
     }
     // 子类重写

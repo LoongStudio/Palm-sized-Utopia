@@ -37,10 +37,25 @@ public class UIManager : SingletonManager<UIManager>
         base.Awake();
         InitDicts();
     }
+    private void OnEnable()
+    {
+        RegisterEvents();
+    }
+    private void OnDisable()
+    {
+        UnregisterEvents();
+    }
+    private void RegisterEvents()
+    {
+    }
+    private void UnregisterEvents()
+    {
+    }
 
     private void Start()
     {
         OpenPanel("TestPanel");
+        OpenPanel("EditModePanel");
     }
 
     private void InitDicts()
@@ -51,6 +66,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict = new Dictionary<string, string>();
         pathDict.Add("TestPanel", UIConst.TestPanel);
         pathDict.Add("ShopPanel", UIConst.ShopPanel);
+        pathDict.Add("EditModePanel", UIConst.EditModePanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -152,4 +168,5 @@ public class UIConst
 {
     public const string TestPanel = "UI/Panels/TestPanel";
     public const string ShopPanel = "UI/Panels/ShopPanel";
+    public const string EditModePanel = "UI/Panels/EditModePanel";
 }
