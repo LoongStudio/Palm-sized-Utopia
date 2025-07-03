@@ -11,8 +11,11 @@ using UnityEditor;
 [RequireComponent(typeof(Collider))]
 public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 {
+    #region 字段和属性
+
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
+    
     [Header("唯一标识")]
     [SerializeField] private string buildingId;
 
@@ -22,6 +25,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public int currentLevel;
     public List<Vector2Int> positions;
     public HashSet<ResourceConfig> AcceptResources;
+    
     [Header("槽位管理")] 
     public int maxSlotAmount = 3;
     public List<NPC> assignedNPCs;
@@ -38,6 +42,32 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     
     // 缓存PlaceableObject引用
     private PlaceableObject cachedPlaceableObject;
+
+    #endregion
+
+    #region 属性访问器
+
+    /// <summary>
+    /// 建筑的唯一标识符
+    /// </summary>
+    public string BuildingId
+    {
+        get
+        {
+            // 如果ID为空，生成新的GUID
+            if (string.IsNullOrEmpty(buildingId))
+            {
+                buildingId = System.Guid.NewGuid().ToString();
+                if (showDebugInfo)
+                    Debug.Log($"[Building] 为建筑 {data?.buildingName} 生成新ID: {buildingId}");
+            }
+            return buildingId;
+        }
+        private set
+        {
+            buildingId = value;
+        }
+    }
     
     /// <summary>
     /// 获取关联的PlaceableObject组件
@@ -53,7 +83,145 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
             return cachedPlaceableObject;
         }
     }
-    
+
+    #endregion
+
+    #region Unity生命周期
+
+    public virtual void Start() 
+    {
+        var _ = BuildingId; // 触发getter，如果没有ID会自动生成
+        
+        // 同步位置信息
+        SyncPositionsFromPlaceable();
+        
+        // LoadFromData(); // TODO: 开始时 如果数据并没有正常加载，尝试重新从Data中读取
+        if (!OnTryBuilt())
+        {
+            Debug.LogError($"[Building] 建筑 {this.ToString()} 放置失败, 游戏开始时所有建筑应正常被放置成功");    
+        }
+        InitialSelfStorage();
+        // 注册资源变动事件
+        if (inventory != null && inventory.ownerType == Inventory.InventoryOwnerType.Building)
+        {
+            inventory.OnResourceChanged += BuildingManager.Instance.OnBuildingResourceChanged;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!alwaysShow) return;
+#if UNITY_EDITOR
+        DrawDebugTextWithHandles();
+#endif
+    }
+
+    #endregion
+
+    #region 初始化方法
+
+    /// <summary>
+    /// 初始化建筑存储
+    /// </summary>
+    public abstract void InitialSelfStorage();
+
+    /// <summary>
+    /// 设置建筑数据
+    /// </summary>
+    public void SetBuildingData(BuildingData data)
+    {
+        this.data = data;
+    }
+
+    /// <summary>
+    /// 手动设置建筑ID（仅用于加载存档）
+    /// </summary>
+    public void SetBuildingId(string id)
+    {
+        if (!string.IsNullOrEmpty(id))
+        {
+            buildingId = id;
+            if (showDebugInfo)
+                Debug.Log($"[Building] 设置建筑 {data?.buildingName} 的ID为: {buildingId}");
+        }
+    }
+
+    /// <summary>
+    /// 强制重新生成ID（慎用）
+    /// </summary>
+    public void RegenerateId()
+    {
+        string oldId = buildingId;
+        buildingId = System.Guid.NewGuid().ToString();
+        if (showDebugInfo)
+            Debug.Log($"[Building] 建筑 {data?.buildingName} ID从 {oldId} 重新生成为 {buildingId}");
+    }
+
+    #endregion
+
+    #region 建筑生命周期
+
+    /// <summary>
+    /// Try Snap 会先给其赋值 positions, 然后调用它，
+    /// 如果回传是 true 登记成功
+    /// 如果回传是 false 它会把内容 Deactive 保存到未使用空间
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool OnTryBuilt()
+    {
+        Debug.Log($"[Building] OnTryBuilt called for building {data?.buildingName} (ID: {BuildingId})");
+        
+        if (BuildingManager.Instance.BuildingBuilt(this))
+        {
+            Debug.Log($"[Building] BuildingBuilt returned true for {data?.buildingName}");
+            return true;
+        }
+        
+        Debug.Log($"[Building] BuildingBuilt returned false, calling RegisterBuilding for {data?.buildingName}");
+        BuildingManager.Instance.RegisterBuilding(this);
+        status = BuildingStatus.Inactive;
+        return false;
+    }
+
+    /// <summary>
+    /// 建筑升级回调
+    /// </summary>
+    public abstract void OnUpgraded();
+
+    /// <summary>
+    /// 销毁建筑
+    /// </summary>
+    [Button("销毁建筑")]
+    public virtual bool DestroySelf()
+    {
+        var parentPlaceable = GetComponentInParent<PlaceableObject>();
+        if (parentPlaceable != null)
+        {
+            Destroy(parentPlaceable.gameObject);
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 建筑被销毁时的回调
+    /// </summary>
+    public virtual void OnDestroyed()
+    {
+        // 从BuildingManager中移除
+        if (BuildingManager.Instance != null)
+        {
+            BuildingManager.Instance.UnregisterBuilding(this);
+        }
+
+        if (showDebugInfo)
+            Debug.Log($"[Building] 建筑 {data?.buildingName} (ID: {BuildingId}) 已被销毁");
+    }
+
+    #endregion
+
+    #region 位置管理
+
     /// <summary>
     /// 同步位置信息 - 从PlaceableObject获取当前位置
     /// </summary>
@@ -99,79 +267,13 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         SyncPositionsFromPlaceable();
     }
 
-    private void OnDrawGizmos()
-    {
-        if (!alwaysShow) return;
-#if UNITY_EDITOR
-        DrawDebugTextWithHandles();
-#endif
-    }
+    #endregion
 
-#if UNITY_EDITOR
-    private void DrawDebugTextWithHandles()
-    {
-        if (assignedNPCs == null || tempAssignedNPCs == null) return;
-        // 计算文本位置（在对象上方）
-        Vector3 textPosition = transform.position + Vector3.up * heightOffset;
-        // 设置文本样式
-        GUIStyle style = new GUIStyle();
-        style.normal.textColor = textColor;
-        style.fontSize = (int)textSize;
-        style.alignment = TextAnchor.UpperCenter;
-        string displayText = $"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]";
-        Handles.Label(textPosition, displayText, style);
-    }
-#endif
+    #region NPC管理
+
     /// <summary>
-    /// Try Snap 会先给其赋值 positions, 然后调用它，
-    /// 如果回传是 true 登记成功
-    /// 如果回传是 false 它会把内容 Deactive 保存到未使用空间
+    /// 尝试分配NPC到建筑
     /// </summary>
-    /// <returns></returns>
-    public virtual bool OnTryBuilt()
-    {
-        Debug.Log($"[Building] OnTryBuilt called for building {data?.buildingName} (ID: {BuildingId})");
-        
-        if (BuildingManager.Instance.BuildingBuilt(this))
-        {
-            Debug.Log($"[Building] BuildingBuilt returned true for {data?.buildingName}");
-            return true;
-        }
-        
-        Debug.Log($"[Building] BuildingBuilt returned false, calling RegisterBuilding for {data?.buildingName}");
-        BuildingManager.Instance.RegisterBuilding(this);
-        status = BuildingStatus.Inactive;
-        return false;
-    }
-    // 抽象方法
-    public abstract void OnUpgraded();
-    [Button("销毁建筑")]
-    public virtual bool DestroySelf()
-    {
-        var parentPlaceable = GetComponentInParent<PlaceableObject>();
-        if (parentPlaceable != null)
-        {
-            Destroy(parentPlaceable.gameObject);
-            return true;
-        }
-        return false;
-    }
-    public virtual void OnDestroyed()
-    {
-        // 从BuildingManager中移除
-        if (BuildingManager.Instance != null)
-        {
-            BuildingManager.Instance.UnregisterBuilding(this);
-        }
-
-        if (showDebugInfo)
-            Debug.Log($"[Building] 建筑 {data?.buildingName} (ID: {BuildingId}) 已被销毁");
-    }
-    // 通用方法
-    public abstract void InitialSelfStorage();
-    public virtual bool CanUpgrade() { return false; }
-    public virtual bool Upgrade() { return false; }
-    public virtual int GetUpgradePrice() { return 0; }
     public virtual bool TryAssignNPC(NPC npc)
     {
         // 如果NPC不在已有槽位中且目标就是这个建筑
@@ -193,6 +295,10 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         }
         return false;
     }
+
+    /// <summary>
+    /// 尝试移除NPC
+    /// </summary>
     public virtual void TryRemoveNPC(NPC npc)
     {
         assignedNPCs.Remove(npc);
@@ -200,10 +306,47 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         // npc.AssignedBuilding = null;
         // npc.ChangeState(NPCState.Idle);
     }
+
+    #endregion
+
+    #region 装备管理
+
+    /// <summary>
+    /// 安装装备
+    /// </summary>
     public virtual void InstallEquipment(Equipment equipment) { }
+
+    /// <summary>
+    /// 移除装备
+    /// </summary>
     public virtual void RemoveEquipment(Equipment equipment) { }
 
-    #region 保存与加载
+    #endregion
+
+    #region 升级系统
+
+    /// <summary>
+    /// 检查是否可以升级
+    /// </summary>
+    public virtual bool CanUpgrade() { return false; }
+
+    /// <summary>
+    /// 执行升级
+    /// </summary>
+    public virtual bool Upgrade() { return false; }
+
+    /// <summary>
+    /// 获取升级价格
+    /// </summary>
+    public virtual int GetUpgradePrice() { return 0; }
+
+    #endregion
+
+    #region 存档系统
+
+    /// <summary>
+    /// 获取存档数据
+    /// </summary>
     public virtual GameSaveData GetSaveData()
     {
         InventorySaveData inventorySaveData = inventory.GetSaveData() as InventorySaveData;
@@ -217,94 +360,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
             // TODO: 添加诸如installedEquipment等数据
         };
     }
+
+    /// <summary>
+    /// 从数据加载
+    /// </summary>
     public virtual void LoadFromData(GameSaveData data) { }
-    #endregion
-    // 游戏循环
-    public virtual void Start() {
-        var _ = BuildingId; // 触发getter，如果没有ID会自动生成
-        
-        // 同步位置信息
-        SyncPositionsFromPlaceable();
-        
-        // LoadFromData(); // TODO: 开始时 如果数据并没有正常加载，尝试重新从Data中读取
-        if (!OnTryBuilt())
-        {
-            Debug.LogError($"[Building] 建筑 {this.ToString()} 放置失败, 游戏开始时所有建筑应正常被放置成功");    
-        }
-        InitialSelfStorage();
-        // 注册资源变动事件
-        if (inventory != null && inventory.ownerType == Inventory.InventoryOwnerType.Building)
-        {
-            inventory.OnResourceChanged += BuildingManager.Instance.OnBuildingResourceChanged;
-        }
-    }
-
-    public override string ToString()
-    {
-        return $"[{data.buildingName} - {data.buildingType}/{data.subType}] ID: {BuildingId} Pos: {string.Join(" ", positions)}";
-    }
-
-    #region 调试
-    [ContextMenu("Print Building Info")]
-    public void PrintBuildingInfo()
-    {
-        Debug.Log($"[Building] {data.buildingName} 信息: ==========================");
-        Debug.Log($"ID: {BuildingId}");
-        Debug.Log($"类型: {data.buildingType}/{data.subType}");
-        Debug.Log($"状态: {status}");
-        Debug.Log($"等级: {currentLevel}");
-        Debug.Log($"位置: {string.Join(" ", positions)}");
-        Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{maxSlotAmount}");
-        Debug.Log($"临时NPC数量: {tempAssignedNPCs?.Count ?? 0}");
-        Debug.Log($"[Building] ====================================================");
-    }
-    #endregion
-    
-    /// <summary>
-    /// 建筑的唯一标识符
-    /// </summary>
-    public string BuildingId
-    {
-        get
-        {
-            // 如果ID为空，生成新的GUID
-            if (string.IsNullOrEmpty(buildingId))
-            {
-                buildingId = System.Guid.NewGuid().ToString();
-                if (showDebugInfo)
-                    Debug.Log($"[Building] 为建筑 {data?.buildingName} 生成新ID: {buildingId}");
-            }
-            return buildingId;
-        }
-        private set
-        {
-            buildingId = value;
-        }
-    }
-
-    /// <summary>
-    /// 手动设置建筑ID（仅用于加载存档）
-    /// </summary>
-    public void SetBuildingId(string id)
-    {
-        if (!string.IsNullOrEmpty(id))
-        {
-            buildingId = id;
-            if (showDebugInfo)
-                Debug.Log($"[Building] 设置建筑 {data?.buildingName} 的ID为: {buildingId}");
-        }
-    }
-
-    /// <summary>
-    /// 强制重新生成ID（慎用）
-    /// </summary>
-    public void RegenerateId()
-    {
-        string oldId = buildingId;
-        buildingId = System.Guid.NewGuid().ToString();
-        if (showDebugInfo)
-            Debug.Log($"[Building] 建筑 {data?.buildingName} ID从 {oldId} 重新生成为 {buildingId}");
-    }
 
     /// <summary>
     /// 从存档数据创建建筑实例
@@ -319,8 +379,49 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         Debug.LogWarning("[Building] CreateBuildingFromData方法需要在具体实现中重写");
         return null;
     }
-    public void SetBuildingData(BuildingData data)
+
+    #endregion
+
+    #region 调试和工具方法
+
+    public override string ToString()
     {
-        this.data = data;
+        return $"[{data.buildingName} - {data.buildingType}/{data.subType}] ID: {BuildingId} Pos: {string.Join(" ", positions)}";
     }
+
+    [ContextMenu("Print Building Info")]
+    public void PrintBuildingInfo()
+    {
+        Debug.Log($"[Building] {data.buildingName} 信息: ==========================");
+        Debug.Log($"ID: {BuildingId}");
+        Debug.Log($"类型: {data.buildingType}/{data.subType}");
+        Debug.Log($"状态: {status}");
+        Debug.Log($"等级: {currentLevel}");
+        Debug.Log($"位置: {string.Join(" ", positions)}");
+        Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{maxSlotAmount}");
+        Debug.Log($"临时NPC数量: {tempAssignedNPCs?.Count ?? 0}");
+        Debug.Log($"[Building] ====================================================");
+    }
+
+    #endregion
+
+    #region 编辑器调试
+
+#if UNITY_EDITOR
+    private void DrawDebugTextWithHandles()
+    {
+        if (assignedNPCs == null || tempAssignedNPCs == null) return;
+        // 计算文本位置（在对象上方）
+        Vector3 textPosition = transform.position + Vector3.up * heightOffset;
+        // 设置文本样式
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = textColor;
+        style.fontSize = (int)textSize;
+        style.alignment = TextAnchor.UpperCenter;
+        string displayText = $"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]";
+        Handles.Label(textPosition, displayText, style);
+    }
+#endif
+
+    #endregion
 }
