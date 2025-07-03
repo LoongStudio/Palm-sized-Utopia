@@ -55,13 +55,14 @@ public static class GameEvents
     public static event System.Action<TimeEventArgs> OnTimePaused;            // 时间暂停
     public static event System.Action<TimeEventArgs> OnTimeResumed;           // 时间恢复
     #endregion
-    
+
     #region 游戏流程事件
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action OnGameStarted;
     // public static event System.Action OnGamePaused;
+    public static event System.Action<bool> OnEditModeChanged;
     #endregion
-    
+
     #region 已废弃事件 (向后兼容)
     [System.Obsolete("请使用OnDayChanged替代，OnDayChanged现在包含新一天开始的语义")]
     public static event System.Action OnDayStarted;
@@ -340,6 +341,14 @@ public static class GameEvents
             changeReason = "时间恢复"
         }.AutoCalculate();
         OnTimeResumed?.Invoke(args);
+    }
+    #endregion
+
+    #region 游戏流程事件触发方法
+    public static void TriggerEditModeChanged(bool isEditMode)
+    {
+        OnEditModeChanged?.Invoke(isEditMode);
+        Debug.Log($"[GameEvents] Edit Mode Changed: {isEditMode}");
     }
     #endregion
     

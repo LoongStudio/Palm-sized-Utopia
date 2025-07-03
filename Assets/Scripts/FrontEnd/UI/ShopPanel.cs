@@ -7,25 +7,28 @@ public class ShopPanel : BasePanel
     [SerializeField] private Button buildingButton;
     [SerializeField] private Button seedButton;
     [SerializeField] private Button NPCButton;
-    private void Awake()
+    private void OnEnable()
     {
-
-    }
-    private void Start()
-    {
-        closeButton.onClick.AddListener(OnHidePanel);
+        closeButton.onClick.AddListener(Hide);
         buildingButton.onClick.AddListener(OnBuildingButtonClick);
         seedButton.onClick.AddListener(OnSeedButtonClick);
         NPCButton.onClick.AddListener(OnNPCButtonClick);
     }
-    private void OnHidePanel()
+    private void Start()
     {
-        UIManager.Instance.HidePanel("ShopPanel");
     }
+    private void OnDisable()
+    {
+        closeButton.onClick.RemoveListener(Hide);
+        buildingButton.onClick.RemoveListener(OnBuildingButtonClick);
+        seedButton.onClick.RemoveListener(OnSeedButtonClick);
+        NPCButton.onClick.RemoveListener(OnNPCButtonClick);
+    }
+
     private void OnBuildingButtonClick()
     {
         BuildingManager.Instance.BuyBuilding(BuildingSubType.Farm);
-        UIManager.Instance.HidePanel("ShopPanel");
+        Hide();
     }
     private void OnSeedButtonClick()
     {
@@ -35,4 +38,5 @@ public class ShopPanel : BasePanel
     {
         NPCManager.Instance.HireNPC();
     }
+
 }

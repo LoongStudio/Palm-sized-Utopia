@@ -42,10 +42,17 @@ public class PlacementManager : SingletonManager<PlacementManager>
         // 初始化系统
         InitializeSystems();
     }
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
     
     private void Start()
     {
-        SubscribeEvents();
         StartCoroutine(DelayedInitialization());
     }
     
@@ -54,21 +61,26 @@ public class PlacementManager : SingletonManager<PlacementManager>
         GameEvents.OnBuildingBought += OnBuildingBought;
     }
 
+    private void UnsubscribeEvents()
+    {
+        GameEvents.OnBuildingBought -= OnBuildingBought;
+    }
+
     private void OnBuildingBought(BuildingEventArgs args)
     {
-        Debug.Log($"[PlacementManager] Building bought: {args.building.name}");
-        SetEditMode(true);
+        // Debug.Log($"[PlacementManager] Building bought: {args.building.name}");
+        // SetEditMode(true);
     }
     
     private IEnumerator DelayedInitialization()
     {
         yield return new WaitForEndOfFrame();
-        
+
         // 确保所有系统都已初始化
         ValidateSystems();
-        
+
         IsInitialized = true;
-        if(showDebugInfo)
+        if (showDebugInfo)
             Debug.Log("[PlacementManager] Placement system initialized successfully");
     }
     
@@ -153,7 +165,8 @@ public class PlacementManager : SingletonManager<PlacementManager>
             dragHandler.CancelDrag();
         }
         
-        if(showDebugInfo)
+        GameEvents.TriggerEditModeChanged(enabled);
+        if (showDebugInfo)
             Debug.Log($"[PlacementManager] Edit Mode: {(enabled ? "Enabled" : "Disabled")}");
     }
     
