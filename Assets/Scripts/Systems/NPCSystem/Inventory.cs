@@ -7,6 +7,7 @@ using UnityEngine;
 [System.Serializable]
 public class Inventory : ISaveable
 {
+    #region 枚举定义
     public enum InventoryOwnerType
     {
         Building,
@@ -14,24 +15,6 @@ public class Inventory : ISaveable
         None
     }
 
-    public InventoryOwnerType ownerType = InventoryOwnerType.NPC;
-    public event Action<ResourceConfig, int> OnResourceChanged; // type, subType, value变化量
-    // 新版：资源堆栈结构
-    public List<ResourceStack> currentStacks;
-    // 只保留ResourceStack相关字段
-
-    // // 旧版：已过期，待移除
-    // [System.Obsolete("请使用currentStacks替代")] public List<SubResourceValue<int>> currentSubResource;
-    // [System.Obsolete("已废弃，limit由ResourceStack维护")] public List<SubResourceValue<int>> maximumSubResource;
-    // [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> whiteList;
-    // [System.Obsolete("请使用ResourceStack相关逻辑替代")] public List<SubResource> blackList;
-    // 资源过滤列表
-    public HashSet<ResourceConfig> acceptList = new();
-    public HashSet<ResourceConfig> rejectList = new();
-    // 策略选项
-    public InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined;
-    public InventoryListFilterMode filterMode = InventoryListFilterMode.None;
-    public int defaultMaxValue = 100; // 新增默认最大容量
     /// <summary>
     /// 背包资源主接收模式
     /// </summary>
@@ -51,6 +34,25 @@ public class Inventory : ISaveable
         RejectList,     // 只拒绝黑名单
         Both            // 白名单和黑名单都启用（先黑名单后白名单）
     }
+    #endregion
+
+    #region 字段和属性
+    [Header("基本配置")]
+    public InventoryOwnerType ownerType = InventoryOwnerType.NPC;
+    public List<ResourceStack> currentStacks;
+    public int defaultMaxValue = 100; // 默认最大容量
+
+    [Header("过滤策略")]
+    public InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined;
+    public InventoryListFilterMode filterMode = InventoryListFilterMode.None;
+    public HashSet<ResourceConfig> acceptList = new();
+    public HashSet<ResourceConfig> rejectList = new();
+
+    // 事件
+    public event Action<ResourceConfig, int> OnResourceChanged; // type, subType, value变化量
+    #endregion
+
+    #region 构造函数
     /// <summary>
     /// 推荐唯一构造函数，必须传入所有关键参数。
     /// </summary>
@@ -71,8 +73,12 @@ public class Inventory : ISaveable
         this.ownerType = ownerType;
         this.defaultMaxValue = defaultMaxValue;
     }
+    #endregion
 
-    // 通过ResourceStack查找
+    #region 私有辅助方法
+    /// <summary>
+    /// 通过ResourceStack查找
+    /// </summary>
     private ResourceStack GetCurrent(ResourceConfig config)
     {
         foreach (var resourceStack in currentStacks)
@@ -142,6 +148,18 @@ public class Inventory : ISaveable
         return cur.CanAdd(amount);
     }
 
+    private Dictionary<ResourceType, int> hashSetToDict(HashSet<ResourceConfig> hashSet)
+    {
+        Dictionary<ResourceType, int> dict = new Dictionary<ResourceType, int>();
+        foreach (var config in hashSet)
+        {
+            dict[config.type] = config.subType;
+        }
+        return dict;
+    }
+    #endregion
+
+    #region 基本物品操作
     /// <summary>
     /// 添加物品，按输入策略处理
     /// </summary>
@@ -167,6 +185,31 @@ public class Inventory : ISaveable
         return true;
     }
 
+    public bool HasEnough(ResourceStack required)
+    {
+        var current = currentStacks.FirstOrDefault(r => r.Equals(required));
+        return current != null && current.amount >= required.amount;
+    }
+
+    /// <summary>
+    /// 检查是否可以接收指定资源
+    /// </summary>
+    public bool CanReceive(ResourceStack type)
+    {
+        // 先检查过滤规则
+        if (!PassesFilter(type.resourceConfig))
+            return false;
+
+        // 如果是AllowAll模式，总是可以接收
+        if (acceptMode == InventoryAcceptMode.AllowAll)
+            return true;
+
+        // OnlyDefined模式下，必须已经定义了这个资源
+        return GetCurrent(type.resourceConfig) != null;
+    }
+    #endregion
+
+    #region 状态查询
     public bool IsFull()
     {
         foreach (var cur in currentStacks)
@@ -212,7 +255,9 @@ public class Inventory : ISaveable
         foreach (var cur in currentStacks)
             cur.amount = 0;
     }
+    #endregion
 
+    #region 转移操作
     public bool TransferTo(Inventory target, int maxTransferAmount)
     {
         int transferredTotal = 0;
@@ -320,30 +365,9 @@ public class Inventory : ISaveable
         }
         return transferredTotal > 0;
     }
+    #endregion
 
-    public bool HasEnough(ResourceStack required)
-    {
-        var current = currentStacks.FirstOrDefault(r => r.Equals(required));
-        return current != null && current.amount >= required.amount;
-    }
-
-    /// <summary>
-    /// 检查是否可以接收指定资源
-    /// </summary>
-    public bool CanReceive(ResourceStack type)
-    {
-        // 先检查过滤规则
-        if (!PassesFilter(type.resourceConfig))
-            return false;
-
-        // 如果是AllowAll模式，总是可以接收
-        if (acceptMode == InventoryAcceptMode.AllowAll)
-            return true;
-
-        // OnlyDefined模式下，必须已经定义了这个资源
-        return GetCurrent(type.resourceConfig) != null;
-    }
-
+    #region 交换操作
     /// <summary>
     /// 交换资源（用于交易）
     /// </summary>
@@ -416,7 +440,9 @@ public class Inventory : ISaveable
 
         return true;
     }
+    #endregion
 
+    #region 统计分析
     public float GetResourceRatioLimitInvolvingList(HashSet<ResourceConfig> resourceConfigs)
     {
         int count = 0;
@@ -494,23 +520,29 @@ public class Inventory : ISaveable
         if (totalNeeds == 0) return 0f;
         return MathUtility.FastSqrt(totalTransfer / (float)totalNeeds);
     }
+    #endregion
 
+    #region 废弃方法
     // 兼容旧接口（ResourceType+int）
     [System.Obsolete("请使用ResourceStack+ResourceConfig的新接口，旧接口已废弃", true)]
     public bool AddItem(ResourceType type, int subType, int amount)
     {
         throw new System.NotSupportedException("请使用ResourceStack+ResourceConfig的新接口");
     }
+
     [System.Obsolete("请使用ResourceStack+ResourceConfig的新接口，旧接口已废弃", true)]
     public bool RemoveItem(ResourceType type, int subType, int amount)
     {
         throw new System.NotSupportedException("请使用ResourceStack+ResourceConfig的新接口");
     }
+
     [System.Obsolete("请使用ResourceStack+ResourceConfig的新接口，旧接口已废弃", true)]
     public int GetItemCount(ResourceType type, int subType)
     {
         throw new System.NotSupportedException("请使用ResourceStack+ResourceConfig的新接口");
     }
+    #endregion
+
     #region 保存与加载
     public GameSaveData GetSaveData()
     {
@@ -529,15 +561,6 @@ public class Inventory : ISaveable
     public void LoadFromData(GameSaveData data)
     {
         Debug.LogWarning("Inventory的LoadFromData还没有实现");
-    }
-    
-    private Dictionary<ResourceType, int> hashSetToDict(HashSet<ResourceConfig> hashSet){
-        Dictionary<ResourceType, int> dict = new Dictionary<ResourceType, int>();
-        foreach (var config in hashSet)
-        {
-            dict[config.type] = config.subType;
-        }
-        return dict;
     }
     #endregion
 }
