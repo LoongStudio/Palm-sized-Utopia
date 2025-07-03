@@ -93,18 +93,17 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
             
             // 3. 重新计算对齐后的网格位置
             currentPositions = GetPreviewPositions(transform.position);
-            
+
             // 4. 尝试注册到网格系统
             if (gridSystem.TryReserve(currentPositions, this))
             {
                 this.currentPositions = currentPositions;
                 IsPlaced = true;
-                
+
                 Debug.Log($"[PlaceableObject] {name} 自动注册并对齐到网格，占用 {currentPositions.Length} 个位置");
-                
+
                 // 触发放置事件
-                OnPlaced?.Invoke(this);
-                PlacementEvents.TriggerObjectPlaced(this);
+                TriggerEvents();
             }
             else
             {
@@ -169,17 +168,16 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         {
             currentPositions = positions.ToArray();
             IsPlaced = true;
-            
+
             // 对齐到网格
             SnapToGrid(positions);
-            
+
             // 恢复原始材质
             RestoreOriginalMaterials();
-            
+
             // 触发事件
-            OnPlaced?.Invoke(this);
-            PlacementEvents.TriggerObjectPlaced(this);
-            
+            TriggerEvents();
+
             Debug.Log($"[PlaceableObject] {name} placed at {positions.Length} positions");
         }
         else
@@ -187,7 +185,20 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
             Debug.LogWarning($"[PlaceableObject] Failed to place {name} - positions already occupied");
         }
     }
-    
+
+    private void TriggerEvents()
+    {
+        OnPlaced?.Invoke(this);
+        PlacementEvents.TriggerObjectPlaced(this);
+        GameEvents.TriggerBuildingPlaced(new BuildingEventArgs()
+        {
+            placeable = this,
+            building = GetComponentInParent<Building>(),
+            eventType = BuildingEventArgs.BuildingEventType.PlaceSuccess,
+            timestamp = System.DateTime.Now
+        });
+    }
+
     public void RemoveFromGrid()
     {
         if (gridSystem == null || !IsPlaced) return;
