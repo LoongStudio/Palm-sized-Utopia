@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using NaughtyAttributes;
+using UnityEngine.Rendering;
 
 [DisallowMultipleComponent]
 public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
@@ -16,14 +18,14 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
     private Dictionary<string, Building> _buildingsById; // 通过ID快速查找建筑
-    
+
     [Header("资源管理")]
     // 历史资源变化记录（可用于曲线绘制）
     private Dictionary<DateTime, List<ResourceStack>> resourceHistory = new();
     // 资源需求与输出表
     private Dictionary<(ResourceType, int), List<Building>> resourceNeeds = new();
     private Dictionary<(ResourceType, int), List<Building>> resourceOutputs = new();
-    
+
     [Header("Buff系统")]
     public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
     #endregion
@@ -38,16 +40,12 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     #region Unity生命周期
     private void OnEnable()
     {
-        BuffBuilding.OnBuffBuildingBuilt += HandleBuffBuildingBuilt;
-        BuffBuilding.OnBuffBuildingDestroyed += HandleBuffBuildingDestroyed;
+        SubscribeEvents();
     }
 
     private void OnDisable()
     {
-        BuffBuilding.OnBuffBuildingBuilt -= HandleBuffBuildingBuilt;
-        BuffBuilding.OnBuffBuildingDestroyed -= HandleBuffBuildingDestroyed;
-        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
-        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
+        UnsubscribeEvents();
     }
 
     protected override void Awake()
@@ -76,18 +74,23 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         _buildingsById = new Dictionary<string, Building>();
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
 
-        SubscribeEvents();
     }
 
     private void SubscribeEvents()
     {
-        // // 先取消订阅，避免重复订阅
-        // GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
-        // // 然后重新订阅
-        // GameEvents.OnBuildingPlaced += HandleBuildingPlaced;
-        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
+        BuffBuilding.OnBuffBuildingBuilt += HandleBuffBuildingBuilt;
+        BuffBuilding.OnBuffBuildingDestroyed += HandleBuffBuildingDestroyed;
+        GameEvents.OnBuildingPlaced += HandleBuildingPlaced;
         GameEvents.OnBoughtBuildingPlacedAfterDragging += HandleBoughtBuildingPlacedAfterDragging;
         Debug.Log("[BuildingManager] Events subscribed successfully");
+    }
+    private void UnsubscribeEvents()
+    {
+        BuffBuilding.OnBuffBuildingBuilt -= HandleBuffBuildingBuilt;
+        BuffBuilding.OnBuffBuildingDestroyed -= HandleBuffBuildingDestroyed;
+        GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
+        GameEvents.OnBoughtBuildingPlacedAfterDragging -= HandleBoughtBuildingPlacedAfterDragging;
+        Debug.Log("[BuildingManager] Events unsubscribed successfully");
     }
     #endregion
 
@@ -110,7 +113,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         {
             foreach (var stack in building.inventory.currentStacks)
             {
-                if (resourceStacks.ContainsKey(stack.resourceConfig)) 
+                if (resourceStacks.ContainsKey(stack.resourceConfig))
                     resourceStacks[stack.resourceConfig].AddAmount(stack.amount);
                 else
                     resourceStacks[stack.resourceConfig] = stack.Clone();
@@ -197,7 +200,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     {
         foreach (var targetBuildingSubType in building.affectedBuildingSubTypes)
         {
-            if (!AppliedBuffs.ContainsKey(targetBuildingSubType)) 
+            if (!AppliedBuffs.ContainsKey(targetBuildingSubType))
                 AppliedBuffs.Add(targetBuildingSubType, new Dictionary<BuffEnums, int>());
             foreach (var targetBuffType in building.affectedBuffTypes)
             {
@@ -216,9 +219,9 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     {
         foreach (var targetBuildingSubType in building.affectedBuildingSubTypes)
         {
-            if (!AppliedBuffs.ContainsKey(targetBuildingSubType)) 
+            if (!AppliedBuffs.ContainsKey(targetBuildingSubType))
                 Debug.LogError("Buff建筑移除错误，参数不匹配，不可能存在目标建筑参数不存在登记表的情况");
-            
+
             foreach (var targetBuffType in building.affectedBuffTypes)
             {
                 if (!AppliedBuffs[targetBuildingSubType].ContainsKey(targetBuffType))
@@ -236,19 +239,17 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 建筑建造完成，注册到管理器
     /// </summary>
-    /// <param name="building">要注册的建筑</param>
-    /// <returns>是否注册成功</returns>
     public bool BuildingBuilt(Building building)
     {
         if (building == null) return false;
-        
+
         Debug.Log($"[BuildingManager] BuildingBuilt called for {building.name} (ID: {building.BuildingId})");
-        
+
         _buildings.Add(building);
         _buildingsById[building.BuildingId] = building;
-        if(showDebugInfo)
+        if (showDebugInfo)
             Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已建造");
-        
+
         OnBuildingBuilt?.Invoke(building);
         return true;
     }
@@ -256,15 +257,21 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 注册建筑到管理器
     /// </summary>
-    /// <param name="building">要注册的建筑</param>
-    /// <returns>是否注册成功</returns>
     public bool RegisterBuilding(Building building)
     {
         if (building == null) return false;
-        
+        if (_buildings.Contains(building))
+        {
+            Debug.LogWarning($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已注册");
+            return false;
+        }else if(_buildingsById.ContainsKey(building.BuildingId))
+        {
+            Debug.LogWarning($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已注册");
+            return false;
+        }
         _buildings.Add(building);
         _buildingsById[building.BuildingId] = building;
-        if(showDebugInfo)
+        if (showDebugInfo)
             Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已注册");
         return true;
     }
@@ -272,15 +279,13 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 从BuildingManager中移除建筑（当建筑被销毁时调用）
     /// </summary>
-    /// <param name="building">要移除的建筑</param>
-    /// <returns>是否成功移除</returns>
     public bool UnregisterBuilding(Building building)
     {
         if (building == null) return false;
-        
+
         bool removedFromList = _buildings.Remove(building);
         bool removedFromDict = _buildingsById.Remove(building.BuildingId);
-        
+
         if (showDebugInfo)
         {
             if (removedFromList || removedFromDict)
@@ -288,7 +293,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             else
                 Debug.LogWarning($"[BuildingManager] 尝试移除不存在的建筑 {building.name} (ID: {building.BuildingId})");
         }
-        
+
         return removedFromList || removedFromDict;
     }
 
@@ -332,32 +337,15 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             timestamp = DateTime.Now
         });
         return true;
-        
-        // 以下逻辑均已通过事件系统实现，这里不再需要
-        // // 进入放置模式
-        // PlacementManager.Instance.SetEditMode(true);
-        // // 放置建筑
-        // var placeable = building.GetComponentInParent<IPlaceable>();
-        // if (placeable != null) {
-        //     // 注册建筑
-        //     RegisterBuilding(building);
-        //     // 开始拖拽
-        //     DragHandler.Instance.StartDrag(placeable, building, true, true);
-        // }
-        // else
-        // {
-        //     Debug.LogError($"[BuildingManager] 建筑没有实现 IPlaceable 接口: {type}");
-        //     return false;
-        // }
 
-        // return true;
     }
     public Building CreateBuilding(BuildingSubType type, Vector2Int position = default)
     {
         // 获取建筑预制体
         var prefab = buildingConfig.buildingPrefabDatas.Find(x => x.subType == type).prefab;
-        if (prefab == null) {
-            if(showDebugInfo)
+        if (prefab == null)
+        {
+            if (showDebugInfo)
                 Debug.LogError($"[BuildingManager] 建筑预制体不存在: {type}");
             return null;
         }
@@ -376,7 +364,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         }
         // 设置建筑数据
         building.SetBuildingData(GetBuildingData(type));
-        if(showDebugInfo)
+        if (showDebugInfo)
             Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已创建在 {worldPosition}");
         return building;
     }
@@ -388,8 +376,9 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 销毁建筑
     /// </summary>
-    public bool DestroyBuilding(Building building) {
-        if(building == null) return false;
+    public bool DestroyBuilding(Building building)
+    {
+        if (building == null) return false;
         UnregisterBuilding(building);
         return building.DestroySelf();
 
@@ -400,7 +389,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     public void HandleBoughtBuildingPlacedAfterDragging(BuildingEventArgs args)
     {
         Debug.Log($"[BuildingManager] HandleBuildingPlaced called with event type: {args.eventType}, building: {args.building?.name}, timestamp: {args.timestamp}");
-        
+
         if (args.eventType == BuildingEventArgs.BuildingEventType.PlaceSuccess)
         {
             // 注册建筑
@@ -408,7 +397,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             // 消耗资源
             Debug.Log($"[BuildingManager] About to remove {args.building.data.purchasePrice} coins for building {args.building.name}");
             ResourceManager.Instance.RemoveResource(ResourceType.Coin, CoinSubType.Gold, args.building.data.purchasePrice);
-            if(showDebugInfo)
+            if (showDebugInfo)
                 Debug.Log($"[BuildingManager] 建筑 {args.building.name} (ID: {args.building.BuildingId}) 已放置并注册, 消耗资源: {args.building.data.purchasePrice}");
         }
         else if (args.eventType == BuildingEventArgs.BuildingEventType.PlaceFailed)
@@ -421,7 +410,14 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             Debug.LogError($"[BuildingManager] 建筑放置事件类型错误: {args.eventType}");
         }
     }
-
+    private void HandleBuildingPlaced(BuildingEventArgs args)
+    {
+        // 对指定建筑进行位置同步
+        if (args.building != null && args.eventType == BuildingEventArgs.BuildingEventType.PlaceSuccess)
+        {
+            args.building.InitPositions();
+        }
+    }
     /// <summary>
     /// 根据subType从配置中获取建筑数据
     /// </summary>
@@ -462,12 +458,12 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     public Building GetBuildingById(string buildingId)
     {
         if (string.IsNullOrEmpty(buildingId)) return null;
-        
+
         if (_buildingsById.TryGetValue(buildingId, out Building building))
         {
             return building;
         }
-        
+
         if (showDebugInfo)
             Debug.LogWarning($"[BuildingManager] 未找到ID为 {buildingId} 的建筑");
         return null;
@@ -496,7 +492,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     public List<Building> GetBuildingsNeedingWork()
     {
         List<Building> result = new List<Building>();
-        
+
         foreach (var building in _buildings)
         {
             // 检查是否有空余槽位
@@ -532,7 +528,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         }
 
         // 按优先级排序：空余槽位 > 需要输入资源 > 需要转移资源
-        return result.OrderBy(b => 
+        return result.OrderBy(b =>
         {
             if (b.assignedNPCs.Count < b.maxSlotAmount) return 0;
             if (b.AcceptResources.Any()) return 1;
@@ -553,37 +549,37 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         float weightResourceAgainst = 0.5f;
         float weightResourceInvolved = 0.8f;
         List<(Building building, float score, TaskType workType)> scored = new();
-        
+
         foreach (var building in buildings)
         {
             // 忽略住房与装饰性建筑
             if (building.data.buildingType == BuildingType.Housing
                 || building.data.buildingType == BuildingType.Decoration) continue;
-                
+
             // 缺人程度
             float slotRatio = 0f;
             if (building.maxSlotAmount > 0)
                 slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs?.Count ?? 0) / building.maxSlotAmount;
 
-            float resourceRatioAgainst = 
+            float resourceRatioAgainst =
                 building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
             float resourceRatioInvolving = building.inventory.GetResourceMappingWithFilter(npc.inventory, building.AcceptResources);
-            
+
             float slotScore = slotRatio * weightSlot;
             float resourceAgainstScore = resourceRatioAgainst * weightResourceAgainst;
             float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved;
             float score = slotScore + resourceRatioAgainst + resourceInvolvingScore;
-            
+
             Debug.Log($"[Work] 建筑: {building.data.subType} "
                       + $"| 插槽需求: {slotScore:F2} "
                       + $"| 资源需求: {resourceInvolvingScore:F2} "
                       + $"| 资源输出: {resourceAgainstScore:F2} "
                       + $"| 总分: {score:F2}");
-                      
+
             // 如果需求分数没有达到阈值就跳过
             if (score < 0.1f || !MathUtility.IsValid(score)) continue;
             Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
-            
+
             // 如果资源产出分数占比最高
             if (resourceAgainstScore > slotScore && resourceAgainstScore > resourceInvolvingScore)
                 scored.Add((building, score, TaskType.HandlingAccept));
@@ -594,16 +590,16 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             if (resourceInvolvingScore > slotScore && resourceInvolvingScore > resourceAgainstScore)
                 scored.Add((building, score, TaskType.HandlingDrop));
         }
-        
+
         if (scored.Count == 0) return TaskInfo.GetNone();
-        
+
         float maxScore = scored.Max(x => x.score);
         var bestBuildings = scored.Where(x => Math.Abs(x.score - maxScore) < 0.0001f)
                                  .Select(x => new TaskInfo(x.building, x.workType))
                                  .ToList();
-                                 
+
         if (bestBuildings.Count == 1) return bestBuildings[0];
-        
+
         // 多个得分相同，随机分配
         return bestBuildings[UnityEngine.Random.Range(0, bestBuildings.Count)];
     }
@@ -613,7 +609,8 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     public GameSaveData GetSaveData()
     {
         List<BuildingInstanceSaveData> buildings = GetBuildingInstancesData();
-        return new BuildingSaveData(){
+        return new BuildingSaveData()
+        {
             buildings = buildings
         };
     }
@@ -621,11 +618,13 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     public void LoadFromData(GameSaveData data)
     {
         BuildingSaveData buildingSaveData = data as BuildingSaveData;
-        if(buildingSaveData == null) {
+        if (buildingSaveData == null)
+        {
             Debug.LogError("[BuildingManager] LoadFromData: 数据转换失败，期望BuildingSaveData类型");
             return;
         }
-        foreach(var buildingData in buildingSaveData.buildings) {
+        foreach (var buildingData in buildingSaveData.buildings)
+        {
             var building = CreateBuilding(buildingData.subType);
             building.LoadFromData(buildingData);
         }
@@ -633,8 +632,20 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         throw new System.NotImplementedException();
     }
 
-    private List<BuildingInstanceSaveData> GetBuildingInstancesData(){
+    private List<BuildingInstanceSaveData> GetBuildingInstancesData()
+    {
         return _buildings.Select(b => b.GetSaveData() as BuildingInstanceSaveData).ToList();
+    }
+    #endregion
+
+    #region 调试
+    [Button("打印所有建筑")]
+    public void PrintAllBuildings()
+    {
+        foreach (var building in _buildings)
+        {
+            Debug.Log(building.data.buildingName + " " + building.BuildingId);
+        }
     }
     #endregion
 }
