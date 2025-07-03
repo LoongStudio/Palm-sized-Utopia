@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 /// 拖拽处理器
 public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
@@ -15,9 +16,14 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
     private Vector3 velocity;
     private Plane groundPlane;
     
+    private bool isNewlyBoughtBuilding = false;
+    private Building currentDraggingBuilding;
+    private bool isEndingDrag = false; // 防止重复调用EndDrag
+    
     // 属性
     public bool IsDragging { get; private set; }
     public IPlaceable CurrentTarget => currentTarget;
+    public bool IsNewlyBoughtBuilding => isNewlyBoughtBuilding;
     
     protected override void Awake()
     {
@@ -27,24 +33,56 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
             
         groundPlane = new Plane(Vector3.up, Vector3.zero);
     }
-    
-    public void StartDrag(IPlaceable target)
+    private void Start()
+    {
+        SubscribeEvents();
+    }
+    private void SubscribeEvents()
+    {
+        GameEvents.OnBuildingBought += OnBuildingBought;
+    }
+    private void OnBuildingBought(BuildingEventArgs args)
+    {
+        Debug.Log($"[DragHandler] Building bought: {args.building.name}");
+        var placeable = args.building.GetComponentInParent<IPlaceable>();
+        if (placeable != null)
+        {
+            StartDrag(placeable, args.building, true, true);
+        }
+        else
+        {
+            Debug.LogError($"[DragHandler] Building没有实现IPlaceable接口: {args.building.name}");
+        }
+    }
+    public void StartDrag(IPlaceable target, Building building = null, bool isNewlyCreated = false, bool isNewlyBought = false)
     {
         if (target == null || IsDragging) return;
         
         currentTarget = target;
         IsDragging = true;
-        
+        isNewlyBoughtBuilding = isNewlyCreated;
+        currentDraggingBuilding = building;
         // 记录原始状态
         var targetTransform = GetTransform(target);
         if (targetTransform != null)
         {
-            originalPosition = targetTransform.position;
-            originalRotation = targetTransform.rotation;
-            
-            // 计算拖拽偏移
-            var mouseWorldPos = GetMouseWorldPosition();
-            dragOffset = originalPosition - mouseWorldPos;
+            if (isNewlyCreated)
+            {
+                // 对于新创建的建筑，直接设置到鼠标位置
+                var mouseWorldPos = GetMouseWorldPosition();
+                targetTransform.position = mouseWorldPos;
+                originalPosition = mouseWorldPos;
+                dragOffset = Vector3.zero; // 新建筑不需要偏移
+            }
+            else
+            {
+                // 对于已存在的建筑，使用原有的偏移计算
+                originalPosition = targetTransform.position;
+                originalRotation = targetTransform.rotation;
+                
+                var mouseWorldPos = GetMouseWorldPosition();
+                dragOffset = originalPosition - mouseWorldPos;
+            }
         }
 
         // 隐藏原物体
@@ -93,7 +131,11 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
     
     public bool EndDrag()
     {
-        if (!IsDragging || currentTarget == null) return false;
+        if (!IsDragging || currentTarget == null || isEndingDrag) return false;
+        
+        // 设置标志防止重复调用
+        isEndingDrag = true;
+        Debug.Log($"[DragHandler] EndDrag called - preventing duplicate calls");
         
         var targetTransform = GetTransform(currentTarget);
         if (targetTransform == null)
@@ -110,20 +152,41 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
         {
             // 放置成功
             currentTarget.PlaceAt(previewPositions);
+            GameEvents.TriggerBuildingPlaced(new BuildingEventArgs(){
+                building = currentDraggingBuilding,
+                placeable = currentTarget,
+                eventType = BuildingEventArgs.BuildingEventType.PlaceSuccess,
+                timestamp = System.DateTime.Now
+            });
             PlacementEvents.TriggerDragEnded(currentTarget);
             
             Debug.Log($"[DragHandler] Successfully placed {currentTarget}");
         }
         else
         {
-            // 放置失败，恢复原位置
-            targetTransform.position = originalPosition;
-            targetTransform.rotation = originalRotation;
-            
-            Debug.Log($"[DragHandler] Failed to place {currentTarget}, restored to original position");
+            if (isNewlyBoughtBuilding)
+            {
+                // 新创建建筑放置失败时
+                GameEvents.TriggerBuildingPlaced(new BuildingEventArgs(){
+                    building = currentDraggingBuilding,
+                    placeable = currentTarget,
+                    eventType = BuildingEventArgs.BuildingEventType.PlaceFailed,
+                    timestamp = System.DateTime.Now
+                });
+
+                Debug.LogWarning($"[DragHandler] 新建筑放置失败");
+            }
+            else
+            {
+                // 放置失败，恢复原位置
+                targetTransform.position = originalPosition;
+                targetTransform.rotation = originalRotation;
+
+                Debug.Log($"[DragHandler] Failed to place {currentTarget}, restored to original position:{originalPosition}");
+            }
         }
         
-        // 清理状态
+        // 清理状态 - 这里会将IsDragging设为false，防止重复调用
         CleanupDrag();
         
         return canPlace;
@@ -132,6 +195,9 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
     public void CancelDrag()
     {
         if (!IsDragging) return;
+        
+        // 设置标志防止重复调用
+        isEndingDrag = true;
         
         // 恢复原位置
         var targetTransform = GetTransform(currentTarget);
@@ -159,6 +225,9 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
         PlacementEvents.TriggerPreviewCleared();
         currentTarget = null;
         IsDragging = false;
+        isNewlyBoughtBuilding = false;
+        currentDraggingBuilding = null;
+        isEndingDrag = false; // 重置标志
         velocity = Vector3.zero;
     }
     
@@ -203,6 +272,13 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
             if (Input.GetKeyDown(settings.CancelKey))
             {
                 CancelDrag();
+            }
+            
+            // 对于新建建筑，检查左键点击来放置
+            if (isNewlyBoughtBuilding && Input.GetMouseButtonDown(0))
+            {
+                Debug.Log($"[DragHandler] Mouse button down detected in Update() - calling EndDrag()");
+                EndDrag();
             }
         }
     }

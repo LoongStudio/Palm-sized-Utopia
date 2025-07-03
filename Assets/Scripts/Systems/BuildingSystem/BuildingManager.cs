@@ -9,7 +9,8 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     #region 字段声明
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
-    
+    [Header("建筑配置")]
+    [SerializeField] private BuildingConfig buildingConfig;
     [Header("建筑管理")]
     private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
@@ -45,6 +46,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     {
         BuffBuilding.OnBuffBuildingBuilt -= HandleBuffBuildingBuilt;
         BuffBuilding.OnBuffBuildingDestroyed -= HandleBuffBuildingDestroyed;
+        GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
     }
 
     protected override void Awake()
@@ -72,6 +74,18 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         _buildingOccupies = new Dictionary<Vector2Int, Building>();
         _buildingsById = new Dictionary<string, Building>();
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
+
+        SubscribeEvents();
+    }
+
+    private void SubscribeEvents()
+    {
+        // 先取消订阅，避免重复订阅
+        GameEvents.OnBuildingPlaced -= HandleBuildingPlaced;
+        // 然后重新订阅
+        GameEvents.OnBuildingPlaced += HandleBuildingPlaced;
+        
+        Debug.Log("[BuildingManager] Events subscribed successfully");
     }
     #endregion
 
@@ -226,6 +240,8 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     {
         if (building == null) return false;
         
+        Debug.Log($"[BuildingManager] BuildingBuilt called for {building.name} (ID: {building.BuildingId})");
+        
         _buildings.Add(building);
         _buildingsById[building.BuildingId] = building;
         if(showDebugInfo)
@@ -278,16 +294,139 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// 建造建筑（待实现）
     /// </summary>
     public bool BuildBuilding(BuildingSubType type, Vector2Int position) { return false; }
+    public bool BuyBuilding(BuildingSubType type)
+    {
+        // 获取建筑数据
+        BuildingData buildingData = GetBuildingData(type);
+        if (buildingData == null)
+        {
+            if (showDebugInfo)
+                Debug.LogError($"[BuildingManager] 建筑数据不存在: {type}");
+            return false;
+        }
 
+        // 检查玩家是否拥有足够资源
+        if (!ResourceManager.Instance.HasEnoughResource(ResourceType.Coin, CoinSubType.Gold, buildingData.purchasePrice))
+        {
+            if (showDebugInfo)
+                Debug.LogError($"[BuildingManager] 玩家没有足够资源购买 {buildingData.buildingName}，需要 {buildingData.purchasePrice} 金币");
+            return false;
+        }
+
+        // 创建建筑实例
+        var building = CreateBuilding(type);
+        if (building == null)
+        {
+            if (showDebugInfo)
+                Debug.LogError($"[BuildingManager] 创建建筑失败: {type}");
+            return false;
+        }
+
+        // 触发建筑购买事件
+        GameEvents.TriggerBuildingBought(new BuildingEventArgs()
+        {
+            building = building,
+            eventType = BuildingEventArgs.BuildingEventType.BuiltFromBuy,
+            timestamp = DateTime.Now
+        });
+        return true;
+        
+        // 以下逻辑均已通过事件系统实现，这里不再需要
+        // // 进入放置模式
+        // PlacementManager.Instance.SetEditMode(true);
+        // // 放置建筑
+        // var placeable = building.GetComponentInParent<IPlaceable>();
+        // if (placeable != null) {
+        //     // 注册建筑
+        //     RegisterBuilding(building);
+        //     // 开始拖拽
+        //     DragHandler.Instance.StartDrag(placeable, building, true, true);
+        // }
+        // else
+        // {
+        //     Debug.LogError($"[BuildingManager] 建筑没有实现 IPlaceable 接口: {type}");
+        //     return false;
+        // }
+
+        // return true;
+    }
+    public Building CreateBuilding(BuildingSubType type, Vector2Int position = default)
+    {
+        // 获取建筑预制体
+        var prefab = buildingConfig.buildingPrefabDatas.Find(x => x.subType == type).prefab;
+        if (prefab == null) {
+            if(showDebugInfo)
+                Debug.LogError($"[BuildingManager] 建筑预制体不存在: {type}");
+            return null;
+        }
+
+        // 创建建筑实例
+        Vector3 worldPosition = new Vector3(position.x, 0, position.y);
+        var instance = Instantiate(prefab, worldPosition, Quaternion.identity);
+
+        // 获取建筑组件
+        var building = instance.GetComponentInChildren<Building>();
+        if (building == null)
+        {
+            if (showDebugInfo)
+                Debug.LogError($"[BuildingManager] 在实体中没有找到 Building 组件: {type}");
+            return null;
+        }
+        // 设置建筑数据
+        building.SetBuildingData(GetBuildingData(type));
+        if(showDebugInfo)
+            Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已创建在 {worldPosition}");
+        return building;
+    }
     /// <summary>
     /// 升级建筑（待实现）
     /// </summary>
     public bool UpgradeBuilding(Building building) { return false; }
 
     /// <summary>
-    /// 销毁建筑（待实现）
+    /// 销毁建筑
     /// </summary>
-    public bool DestroyBuilding(Building building) { return false; }
+    public bool DestroyBuilding(Building building) {
+        if(building == null) return false;
+        UnregisterBuilding(building);
+        return building.DestroySelf();
+
+    }
+    /// <summary>
+    /// 处理建筑放置事件
+    /// </summary>
+    public void HandleBuildingPlaced(BuildingEventArgs args)
+    {
+        Debug.Log($"[BuildingManager] HandleBuildingPlaced called with event type: {args.eventType}, building: {args.building?.name}, timestamp: {args.timestamp}");
+        
+        if (args.eventType == BuildingEventArgs.BuildingEventType.PlaceSuccess)
+        {
+            // 注册建筑
+            RegisterBuilding(args.building);
+            // 消耗资源
+            Debug.Log($"[BuildingManager] About to remove {args.building.data.purchasePrice} coins for building {args.building.name}");
+            ResourceManager.Instance.RemoveResource(ResourceType.Coin, CoinSubType.Gold, args.building.data.purchasePrice);
+            if(showDebugInfo)
+                Debug.Log($"[BuildingManager] 建筑 {args.building.name} (ID: {args.building.BuildingId}) 已放置并注册, 消耗资源: {args.building.data.purchasePrice}");
+        }
+        else if (args.eventType == BuildingEventArgs.BuildingEventType.PlaceFailed)
+        {
+            // 销毁建筑
+            DestroyBuilding(args.building);
+        }
+        else
+        {
+            Debug.LogError($"[BuildingManager] 建筑放置事件类型错误: {args.eventType}");
+        }
+    }
+
+    /// <summary>
+    /// 根据subType从配置中获取建筑数据
+    /// </summary>
+    public BuildingData GetBuildingData(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).buildingDatas;
+    }
     #endregion
 
     #region 建筑查询
@@ -471,12 +610,21 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     #region 存档系统
     public GameSaveData GetSaveData()
     {
-        throw new System.NotImplementedException();
+        List<BuildingInstanceSaveData> buildings = GetBuildingInstancesData();
+        return new BuildingSaveData(){
+            buildings = buildings
+        };
     }
 
     public void LoadFromData(GameSaveData data)
     {
+        BuildingSaveData buildingSaveData = data as BuildingSaveData;
+        // 在场上的指定位置，生成Building，并将数据进行写入
         throw new System.NotImplementedException();
+    }
+
+    private List<BuildingInstanceSaveData> GetBuildingInstancesData(){
+        return _buildings.Select(b => b.GetSaveData() as BuildingInstanceSaveData).ToList();
     }
     #endregion
 }

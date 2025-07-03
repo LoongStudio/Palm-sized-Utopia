@@ -4,7 +4,7 @@ using UnityEngine;
 public interface IDragHandler_Utopia
 {
     /// 开始拖拽
-    void StartDrag(IPlaceable target);
+    void StartDrag(IPlaceable target, Building building = null, bool isNewlyCreated = false, bool isNewlyBought = false);
     
     /// 更新拖拽位置
     void UpdateDrag(Vector3 worldPosition);

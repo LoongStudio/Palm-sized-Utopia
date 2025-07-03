@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [System.Serializable]
-public class ResourceStack
+public class ResourceStack : ISaveable
 {
     [Header("资源数据")]
     public ResourceConfig resourceConfig;
@@ -180,4 +180,21 @@ public class ResourceStack
     {
         return $"{GetSubTypeName()} x{amount}";
     }
+    #region 保存与加载
+    public GameSaveData GetSaveData()
+    {
+        return new ResourceStackSaveData(){
+            type = type,
+            subType = subType,
+            amount = amount,
+            storageLimit = storageLimit
+        };
+    }
+
+    public void LoadFromData(GameSaveData data)
+    {
+        ResourceStackSaveData resourceStackSaveData = data as ResourceStackSaveData;
+        // TODO: 从ResourceStackSaveData中加载数据
+    }
+    #endregion
 }

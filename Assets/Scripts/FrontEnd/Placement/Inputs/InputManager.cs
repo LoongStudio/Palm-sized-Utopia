@@ -59,6 +59,16 @@ public class InputManager : SingletonManager<InputManager>
         }
         else if (Input.GetMouseButtonUp(settings.DragMouseButton))
         {
+            // 检查是否是新建建筑的拖拽，如果是则不处理鼠标抬起事件
+            // 新建建筑的拖拽由DragHandler的Update方法处理
+            var dragHandlerComponent = dragHandler as DragHandler;
+            if (dragHandlerComponent != null && dragHandlerComponent.IsNewlyBoughtBuilding)
+            {
+                // 新建建筑的拖拽不在这里处理鼠标抬起事件
+                Debug.Log($"[InputManager] Skipping mouse up event for newly bought building");
+                return;
+            }
+            Debug.Log($"[InputManager] Mouse button up detected - calling EndDrag()");
             EndDrag();
         }
     }

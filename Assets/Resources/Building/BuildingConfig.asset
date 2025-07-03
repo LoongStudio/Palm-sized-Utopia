@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9935d48a36f1b485db95c3c66023b383, type: 3}
+  m_Name: BuildingConfig
+  m_EditorClassIdentifier: 
+  buildingPrefabDatas:
+  - subType: 0
+    buildingDatas:
+      buildingType: 0
+      subType: 0
+      buildingName: Farm
+      purchasePrice: 100
+      upgradePrices: 64000000640000006400000064000000
+      maxLevel: 5
+      size: {x: 2, y: 2}
+      npcSlots: 3
+      equipmentSlots: 3
+      baseEfficiency: 1
+    prefab: {fileID: 3491214700092412604, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
+  - subType: 2
+    buildingDatas:
+      buildingType: 0
+      subType: 2
+      buildingName: Trade Market
+      purchasePrice: 100
+      upgradePrices: 64000000640000006400000064000000
+      maxLevel: 5
+      size: {x: 1, y: 1}
+      npcSlots: 1
+      equipmentSlots: 1
+      baseEfficiency: 1
+    prefab: {fileID: 8842694713244571849, guid: f01d58811061e6d42ba88ca3c62303b2, type: 3}
+  - subType: 7
+    buildingDatas:
+      buildingType: 3
+      subType: 7
+      buildingName: Apartment
+      purchasePrice: 50
+      upgradePrices: 6400000064000000
+      maxLevel: 3
+      size: {x: 1, y: 1}
+      npcSlots: 5
+      equipmentSlots: 1
+      baseEfficiency: 1
+    prefab: {fileID: 5590697140018055236, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
+  - subType: 5
+    buildingDatas:
+      buildingType: 4
+      subType: 5
+      buildingName: Warehouse
+      purchasePrice: 100
+      upgradePrices: 64000000640000006400000064000000
+      maxLevel: 5
+      size: {x: 1, y: 1}
+      npcSlots: 1
+      equipmentSlots: 1
+      baseEfficiency: 1
+    prefab: {fileID: 1429137967068105344, guid: a9a6deaddcd6be942ab2e03ed0b31fb7, type: 3}

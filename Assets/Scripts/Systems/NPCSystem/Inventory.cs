@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [System.Serializable]
-public class Inventory
+public class Inventory : ISaveable
 {
     public enum InventoryOwnerType
     {
@@ -19,7 +19,7 @@ public class Inventory
     // 新版：资源堆栈结构
     public List<ResourceStack> currentStacks;
     // 只保留ResourceStack相关字段
-    
+
     // // 旧版：已过期，待移除
     // [System.Obsolete("请使用currentStacks替代")] public List<SubResourceValue<int>> currentSubResource;
     // [System.Obsolete("已废弃，limit由ResourceStack维护")] public List<SubResourceValue<int>> maximumSubResource;
@@ -55,12 +55,12 @@ public class Inventory
     /// 推荐唯一构造函数，必须传入所有关键参数。
     /// </summary>
     public Inventory(
-        List<ResourceStack> currentStacks, 
-        InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined, 
+        List<ResourceStack> currentStacks,
+        InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined,
         InventoryListFilterMode filterMode = InventoryListFilterMode.None,
         HashSet<ResourceConfig> acceptList = null,
         HashSet<ResourceConfig> rejectList = null,
-        InventoryOwnerType ownerType = InventoryOwnerType.None, 
+        InventoryOwnerType ownerType = InventoryOwnerType.None,
         int defaultMaxValue = 100)
     {
         this.currentStacks = currentStacks ?? new List<ResourceStack>();
@@ -90,7 +90,7 @@ public class Inventory
             return true;
 
         // 先检查黑名单（如果启用了黑名单）
-        if ((filterMode == InventoryListFilterMode.RejectList || filterMode == InventoryListFilterMode.Both) 
+        if ((filterMode == InventoryListFilterMode.RejectList || filterMode == InventoryListFilterMode.Both)
             && rejectList != null)
         {
             foreach (var reject in rejectList)
@@ -101,7 +101,7 @@ public class Inventory
         }
 
         // 再检查白名单（如果启用了白名单）
-        if ((filterMode == InventoryListFilterMode.AcceptList || filterMode == InventoryListFilterMode.Both) 
+        if ((filterMode == InventoryListFilterMode.AcceptList || filterMode == InventoryListFilterMode.Both)
             && acceptList != null)
         {
             bool found = false;
@@ -150,10 +150,10 @@ public class Inventory
         // 先检查过滤规则
         if (!CanAddItem(config, amount))
             return false;
-        
+
         var cur = GetCurrent(config);
         cur.AddAmount(amount);
-        
+
         return true;
     }
 
@@ -248,7 +248,7 @@ public class Inventory
         }
         return transferredTotal > 0;
     }
-    
+
     public bool TransferToWithFilter(Inventory target, int maxTransferAmount, HashSet<ResourceConfig> filters)
     {
         int transferredTotal = 0;
@@ -284,7 +284,7 @@ public class Inventory
         }
         return transferredTotal > 0;
     }
-    
+
     public bool TransferToWithIgnore(Inventory target, int maxTransferAmount, HashSet<ResourceConfig> ignores)
     {
         int transferredTotal = 0;
@@ -432,7 +432,7 @@ public class Inventory
         if (totalLimit == 0) return 0f;
         return count / (float)totalLimit;
     }
-    
+
     public float GetResourceRatioLimitAgainstList(HashSet<ResourceConfig> resourceConfigs)
     {
         int count = 0;
@@ -448,7 +448,7 @@ public class Inventory
         if (totalLimit == 0) return 0f;
         return count / (float)totalLimit;
     }
-    
+
     public (float involving, float against) GetResourceRatioLimitInvolvingAgainstList(HashSet<ResourceConfig> resourceConfigs)
     {
         int countInvolving = 0;
@@ -483,7 +483,8 @@ public class Inventory
         {
             if (!filter.Contains(stack.resourceConfig)) continue;
             int othersAmount = others.GetCurrent(stack.resourceConfig)?.amount ?? 0;
-            if (othersAmount != 0) {
+            if (othersAmount != 0)
+            {
                 result.Add(new ResourceStack(
                     stack.resourceConfig, Math.Min(stack.storageLimit - stack.amount, othersAmount)));
                 totalTransfer += Math.Min(stack.storageLimit - stack.amount, othersAmount);
@@ -491,7 +492,7 @@ public class Inventory
             totalNeeds += stack.storageLimit - stack.amount;
         }
         if (totalNeeds == 0) return 0f;
-        return MathUtility.FastSqrt(totalTransfer/(float)totalNeeds);
+        return MathUtility.FastSqrt(totalTransfer / (float)totalNeeds);
     }
 
     // 兼容旧接口（ResourceType+int）
@@ -510,4 +511,33 @@ public class Inventory
     {
         throw new System.NotSupportedException("请使用ResourceStack+ResourceConfig的新接口");
     }
+    #region 保存与加载
+    public GameSaveData GetSaveData()
+    {
+        return new InventorySaveData()
+        {
+            ownerType = ownerType,
+            currentStacks = currentStacks.Select(r => r.GetSaveData() as ResourceStackSaveData).ToList(),
+            acceptMode = acceptMode,
+            filterMode = filterMode,
+            acceptList = hashSetToDict(acceptList),
+            rejectList = hashSetToDict(rejectList),
+            defaultMaxValue = defaultMaxValue
+        };
+    }
+
+    public void LoadFromData(GameSaveData data)
+    {
+        throw new System.NotImplementedException();
+    }
+    
+    private Dictionary<ResourceType, int> hashSetToDict(HashSet<ResourceConfig> hashSet){
+        Dictionary<ResourceType, int> dict = new Dictionary<ResourceType, int>();
+        foreach (var config in hashSet)
+        {
+            dict[config.type] = config.subType;
+        }
+        return dict;
+    }
+    #endregion
 }
