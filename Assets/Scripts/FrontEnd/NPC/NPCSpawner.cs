@@ -17,6 +17,13 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     [SerializeField] private Transform spawnCenter;                  // 生成中心点
     [SerializeField] private Transform spawnPoint;                   // 生成点
     [SerializeField] private bool spawnAtSpawnPoint = false;         // 是否在生成点生成
+
+    [Header("生成缓存")]
+    [SerializeField] private List<NPC> npcList = new List<NPC>();
+    [SerializeField] private List<GameObject> npcObjectList = new List<GameObject>();
+    private int totalNPCsToSpawn = 0;
+    private int totalSpawned = 0;
+    private List<Vector3> lastValidSpawnPoints = new List<Vector3>();
     
     [Header("移动设置")]
     [SerializeField] private float defaultMoveSpeed = 3.5f;           // 默认移动速度
@@ -35,9 +42,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     [SerializeField] private Color spawnAreaColor = Color.yellow;     // 生成区域颜色
     [SerializeField] private Color validSpawnPointColor = Color.green; // 有效生成点颜色
     
-    // 生成统计
-    private int totalSpawned = 0;
-    private List<Vector3> lastValidSpawnPoints = new List<Vector3>();
+
     
     // 组件类型字典 - 用于自动挂载组件
     private Dictionary<System.Type, bool> requiredComponents = new Dictionary<System.Type, bool>
@@ -59,16 +64,22 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             spawnCenter = transform;
         }
     }
-    
-    private void Start()
+    private void OnEnable()
     {
         SubscribeToEvents();
+    }
+    private void OnDisable()
+    {
+        UnsubscribeFromEvents();
+    }
+    
+    private void Start()
+    {   
         ValidateSettings();
     }
     
     private void OnDestroy()
     {
-        UnsubscribeFromEvents();
     }
     
     #endregion
@@ -78,16 +89,17 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     private void SubscribeToEvents()
     {
         GameEvents.OnNPCHired += OnNPCHired;
-        
+        GameEvents.OnNPCLoadedFromData += OnNPCLoadedFromData;
         if (showDebugInfo)
         {
-            Debug.Log("[NPCSpawner] 已订阅NPC雇佣事件");
+            Debug.Log("[NPCSpawner] 已订阅NPC事件");
         }
     }
     
     private void UnsubscribeFromEvents()
     {
         GameEvents.OnNPCHired -= OnNPCHired;
+        GameEvents.OnNPCLoadedFromData -= OnNPCLoadedFromData;
     }
     
     #endregion
@@ -105,18 +117,66 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             return;
         }
         
-        StartCoroutine(SpawnNPCCoroutine(args.npcData));
+        StartCoroutine(SpawnNPCCoroutine(args.npcData, args.inventorySaveData));
     }
-    
-    public void SpawnNPC(NPCData npcData)
+
+    private void OnNPCLoadedFromData(NPCEventArgs args)
     {
-        StartCoroutine(SpawnNPCCoroutine(npcData));
+        // 事件验证
+        if(args.eventType != NPCEventArgs.NPCEventType.LoadedFromData)
+        {
+            Debug.LogWarning("[NPCSpawner] 收到的事件类型不正确");
+            return;
+        }
+        // 数据验证
+        var npcInstancesList = args.npcInstancesList;
+        if (npcInstancesList == null || npcInstancesList.Count == 0)
+        {
+            Debug.LogWarning("[NPCSpawner] 收到空的NPC存储数据加载事件");
+            return;
+        }
+        // 清空缓存
+        ClearSpawnCache();
+        totalNPCsToSpawn = npcInstancesList.Count;
+        // 开始生成NPC
+        StartCoroutine(SpawnNPCsFromLoadList(npcInstancesList));
+
+    }
+    private IEnumerator SpawnNPCsFromLoadList(List<NPCInstanceSaveData> npcInstancesList)
+    {
+        foreach (var npcInstance in npcInstancesList)
+        {
+            SpawnNPC(npcInstance.npcData, npcInstance.inventorySaveData);
+        }
+
+        // 等待所有NPC生成完成
+        while (totalSpawned < totalNPCsToSpawn)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+        if (showDebugInfo)
+        {
+            Debug.Log($"[NPCSpawner] 所有NPC生成完成，总生成数: {totalSpawned}");
+        }
+        // 触发NPC生成完成事件
+        GameEvents.TriggerNPCCreatedFromList(new NPCEventArgs()
+        {
+            npcList = npcList,
+            eventType = NPCEventArgs.NPCEventType.CreatedFromList,
+            timestamp = System.DateTime.Now
+        });
+        // 清空缓存
+        ClearSpawnCache();
+    }
+    public void SpawnNPC(NPCData npcData, InventorySaveData inventorySaveData)
+    {
+        StartCoroutine(SpawnNPCCoroutine(npcData, inventorySaveData));
     }
     
     /// <summary>
     /// 生成NPC的协程
     /// </summary>
-    private IEnumerator SpawnNPCCoroutine(NPCData npcData)
+    private IEnumerator SpawnNPCCoroutine(NPCData npcData, InventorySaveData inventorySaveData)
     {
         Vector3 spawnPosition;
         if (spawnAtSpawnPoint)
@@ -135,7 +195,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         }
 
         // 创建NPC GameObject
-        GameObject npcObject = CreateNPCGameObject(npcData, spawnPosition);
+        GameObject npcObject = CreateNPCGameObject(npcData, inventorySaveData, spawnPosition);
 
         if (npcObject != null)
         {
@@ -151,7 +211,18 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             {
                 Debug.Log($"[NPCSpawner] 成功生成NPC: {npcData.npcName}，总生成数: {totalSpawned}");
             }
+            npcList.Add(npcObject.GetComponent<NPC>());
+            npcObjectList.Add(npcObject);
         }
+    }
+
+    private void ClearSpawnCache()
+    {
+        npcList.Clear();
+        npcObjectList.Clear();
+        totalNPCsToSpawn = 0;
+        totalSpawned = 0;
+        lastValidSpawnPoints.Clear();
     }
     
     /// <summary>
@@ -160,13 +231,13 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     private Vector3 FindValidSpawnPosition()
     {
         lastValidSpawnPoints.Clear();
-        
+
         for (int i = 0; i < maxSpawnAttempts; i++)
         {
             // 在生成半径内生成随机点
             Vector2 randomCircle = Random.insideUnitCircle * spawnRadius;
             Vector3 groundPosition = spawnCenter.position + new Vector3(randomCircle.x, 0, randomCircle.y);
-            
+
             // 检查是否在NavMesh上
             if (NavMesh.SamplePosition(groundPosition, out NavMeshHit hit, 2f, NavMesh.AllAreas))
             {
@@ -175,19 +246,19 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
                 {
                     // 计算屏幕外的生成位置（正上方）
                     Vector3 spawnPosition = hit.position + Vector3.up * spawnHeight;
-                    
+
                     lastValidSpawnPoints.Add(hit.position);
-                    
+
                     if (showDebugInfo)
                     {
                         Debug.Log($"[NPCSpawner] 找到有效生成位置: {hit.position} (尝试 {i + 1} 次)");
                     }
-                    
+
                     return spawnPosition;
                 }
             }
         }
-        
+
         Debug.LogWarning($"[NPCSpawner] 在 {maxSpawnAttempts} 次尝试后无法找到有效生成位置");
         return Vector3.zero;
     }
@@ -252,7 +323,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
     /// <summary>
     /// 创建NPC GameObject
     /// </summary>
-    private GameObject CreateNPCGameObject(NPCData npcData, Vector3 spawnPosition)
+    private GameObject CreateNPCGameObject(NPCData npcData, InventorySaveData inventorySaveData, Vector3 spawnPosition)
     {
         GameObject npcObject;
         
@@ -280,6 +351,7 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         
         NPCEventArgs eventArgs = new NPCEventArgs(){
             npc = npcObject.GetComponent<NPC>(),
+            inventorySaveData = inventorySaveData,
             eventType = NPCEventArgs.NPCEventType.Instantiated,
             timestamp = System.DateTime.Now
         };

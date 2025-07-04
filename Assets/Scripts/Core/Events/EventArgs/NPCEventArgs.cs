@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+
 public class NPCEventArgs 
 {
     public NPC npc;
     public NPCData npcData;
+    public InventorySaveData inventorySaveData;
     public NPCEventType eventType;
     public NPCState oldState;
     public NPCState newState;
@@ -9,6 +12,8 @@ public class NPCEventArgs
     public NPC otherNPC; // 用于社交事件
     public NPCState shouldChangeStateTo;
     public int relationshipChange;
+    public List<NPCInstanceSaveData> npcInstancesList;
+    public List<NPC> npcList;
     public System.DateTime timestamp;
     
     public enum NPCEventType 
@@ -21,7 +26,9 @@ public class NPCEventArgs
         AssignedToBuilding,
         RemovedFromBuilding,
         RelationshipChanged,
-        SocialInteraction
+        SocialInteraction,
+        LoadedFromData,
+        CreatedFromList
     }
 
     // public NPCEventArgs(NPC npc, NPCEventType eventType)

@@ -150,6 +150,11 @@ public class Inventory : ISaveable
 
     private Dictionary<ResourceType, int> hashSetToDict(HashSet<ResourceConfig> hashSet)
     {
+        if (hashSet == null)
+        {
+            Debug.LogWarning("HashSet is null");
+            return null;
+        }
         Dictionary<ResourceType, int> dict = new Dictionary<ResourceType, int>();
         foreach (var config in hashSet)
         {
@@ -561,13 +566,24 @@ public class Inventory : ISaveable
     public void LoadFromData(GameSaveData data)
     {
         var saveData = data as InventorySaveData;
+        if (saveData == null)
+        {
+            Debug.LogWarning($"InventorySaveData is null");
+            return;
+        }
         ownerType = saveData.ownerType;
         currentStacks = saveData.currentStacks.Select(r =>
             new ResourceStack(ResourceManager.Instance.GetConfig(r.type, r.subType), r.amount, r.storageLimit)).ToList();
         acceptMode = saveData.acceptMode;
         filterMode = saveData.filterMode;
-        acceptList = new HashSet<ResourceConfig>(saveData.acceptList.Select(r => ResourceManager.Instance.GetConfig(r.Key, r.Value)));
-        rejectList = new HashSet<ResourceConfig>(saveData.rejectList.Select(r => ResourceManager.Instance.GetConfig(r.Key, r.Value)));
+        if (saveData.acceptList != null)
+        {
+            acceptList = new HashSet<ResourceConfig>(saveData.acceptList.Select(r => ResourceManager.Instance.GetConfig(r.Key, r.Value)));
+        }
+        if (saveData.rejectList != null)
+        {
+            rejectList = new HashSet<ResourceConfig>(saveData.rejectList.Select(r => ResourceManager.Instance.GetConfig(r.Key, r.Value)));
+        }
         defaultMaxValue = saveData.defaultMaxValue;
     }
     #endregion
