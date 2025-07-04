@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using NUnit.Framework;
 using NaughtyAttributes;
+using System.Linq;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -366,22 +368,45 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual GameSaveData GetSaveData()
     {
         InventorySaveData inventorySaveData = inventory.GetSaveData() as InventorySaveData;
-        return new BuildingInstanceSaveData(){
+        return new BuildingInstanceSaveData()
+        {
             buildingId = BuildingId,
             subType = data.subType,
             status = status,
             currentLevel = currentLevel,
             positions = positions,
             inventory = inventorySaveData,
-            // TODO: 添加诸如installedEquipment等数据
+            // TODO: 实现安装的设备保存
+            // installedEquipment = GetEquipmentsSaveData(),
         };
     }
 
     /// <summary>
     /// 从数据加载
     /// </summary>
-    public virtual void LoadFromData(GameSaveData data) { }
-
+    public virtual void LoadFromData(GameSaveData data)
+    {
+        var saveData = data as BuildingInstanceSaveData;
+        BuildingId = saveData.buildingId;
+        SetBuildingData(BuildingManager.Instance.GetBuildingData(saveData.subType));
+        status = saveData.status;
+        currentLevel = saveData.currentLevel;
+        positions = saveData.positions;
+        inventory.LoadFromData(saveData.inventory);
+        // TODO: 实现安装的设备加载
+        // installedEquipment = GetEquipmentsFromData(saveData.installedEquipment);
+    }
+    public virtual List<EquipmentSaveData> GetEquipmentsSaveData()
+    {
+        // 用linq 把installedEquipment 转换为 EquipmentSaveData
+        return installedEquipment.Select(e => e.GetSaveData() as EquipmentSaveData).ToList();
+    }
+    public virtual List<Equipment> GetEquipmentsFromData(List<EquipmentSaveData> saveData)
+    {
+        // TODO: 实现GetEquipmentsFromData
+        // 使用Equipment提供的静态方法CreateEquipmentFromData
+        return saveData.Select(e => Equipment.CreateEquipmentFromData(e)).ToList();
+    }
     /// <summary>
     /// 从存档数据创建建筑实例
     /// </summary>

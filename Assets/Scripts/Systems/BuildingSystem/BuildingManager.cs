@@ -647,15 +647,6 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             var building = CreateBuilding(buildingData.subType, buildingData.positions);
             // 加载建筑数据
             building.LoadFromData(buildingData);
-            // 设置建筑ID
-            building.SetBuildingId(buildingData.buildingId);
-            // 设置建筑状态
-            building.status = buildingData.status;
-            // 设置建筑等级
-            building.currentLevel = buildingData.currentLevel;
-            // 加载背包数据
-            building.inventory.LoadFromData(buildingData.inventory);
-            // TODO: 加载装备
         }
     }
 
