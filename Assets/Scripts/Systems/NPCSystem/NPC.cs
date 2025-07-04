@@ -524,7 +524,20 @@ public class NPC : MonoBehaviour, ISaveable
     // TODO: 这块好像用不到，先留着
     public GameSaveData GetSaveData() { return null; }
 
-    public void LoadFromData(GameSaveData data) { }
+    public void LoadFromData(GameSaveData data)
+    { 
+        var npcInstanceData = data as NPCInstanceSaveData;
+        if(npcInstanceData == null){
+            Debug.LogError("[NPC] 收到的数据不是NPCInstanceSaveData");
+            return;
+        }
+        SetData(npcInstanceData.npcData);
+        SetNpcId(npcInstanceData.npcId);
+        if (npcInstanceData.inventorySaveData != null && inventory != null)
+        {
+            inventory.LoadFromData(npcInstanceData.inventorySaveData);
+        }
+    }
     #endregion
 
     #region 调试

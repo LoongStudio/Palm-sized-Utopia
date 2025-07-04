@@ -22,6 +22,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     private Dictionary<string, NPC> npcIdToNpcMap = new Dictionary<string, NPC>();
     // 用于检测ID冲突
     private HashSet<string> usedNpcIds = new HashSet<string>();
+    private List<NPCInstanceSaveData> npcInstanceDataCache = new List<NPCInstanceSaveData>();
     public SocialSystem socialSystem;
     #region 生命周期
     protected override void Awake()
@@ -125,142 +126,48 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     private void SubscribeToEvents()
     {
         GameEvents.OnNPCInstantiated += OnNPCInstantiate;
-        // 移除社交相关的事件订阅，因为现在由SocialSystem直接处理
-        // GameEvents.OnNPCShouldStartSocialInteraction += HandleNPCShouldStartSocialInteraction;
-        // GameEvents.OnNPCSocialInteractionEnded += HandleSocialInteractionEnded;
+        GameEvents.OnNPCCreatedFromList += OnNPCCreatedFromList;
     }
     private void UnsubscribeFromEvents()
     {
         GameEvents.OnNPCInstantiated -= OnNPCInstantiate;
-        // GameEvents.OnNPCShouldStartSocialInteraction -= HandleNPCShouldStartSocialInteraction;
-        // GameEvents.OnNPCSocialInteractionEnded -= HandleSocialInteractionEnded;
+        GameEvents.OnNPCCreatedFromList -= OnNPCCreatedFromList;
     }
     #endregion
 
     #region 事件处理
-    // 移除社交相关的事件处理方法，因为现在由SocialSystem直接处理
-    /*
-    private void HandleNPCShouldStartSocialInteraction(NPCEventArgs args)
+    private void OnNPCCreatedFromList(NPCEventArgs args)
     {
-        if (args.npc == null || args.otherNPC == null)
+        // 事件验证
+        if (args.eventType != NPCEventArgs.NPCEventType.CreatedFromList)
         {
-            Debug.LogWarning("[NPCManager] 社交事件中的NPC为空");
+            Debug.LogWarning("[NPCManager] 收到的事件类型不正确");
+            return;
+        }
+        // 数据验证
+        var npcList = args.npcList;
+        if (npcList == null || npcList.Count == 0)
+        {
+            Debug.LogWarning("[NPCManager] 收到空的NPC列表");
             return;
         }
 
-        if(showDebugInfo) 
-            Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 准备开始社交互动");
-        NPC npc1 = args.npc;
-        NPC npc2 = args.otherNPC;
-
-        // 验证两个NPC是否在管理列表中
-        if (!allNPCs.Contains(npc1) || !allNPCs.Contains(npc2))
+        if (npcList.Count != npcInstanceDataCache.Count)
         {
-            Debug.LogError($"[NPCManager] NPC {npc1.data.npcName} 或 NPC {npc2.data.npcName} 不在管理列表中，无法处理社交互动");
-            return;
+            Debug.LogError("[NPCManager] 收到的加载完成事件中的NPC数量与保存数据缓存中的NPC数量不一致");
         }
 
-        StartCoroutine(ExecutePrepareForSocialInteraction(npc1, npc2));
+        // 对收到的列表中的NPC应用保存数据
+        for (int i = 0; i < npcList.Count; i++)
+        {
+            var npc = npcList[i];
+            var npcInstanceData = npcInstanceDataCache[i];
+            npc.LoadFromData(npcInstanceData);
+        }
+
+        // 清理临时数据缓存
+        npcInstanceDataCache.Clear();
     }
-
-    private IEnumerator ExecutePrepareForSocialInteraction(NPC npc1, NPC npc2)
-    {
-        // 阶段0: 修改NPC状态为准备社交
-        npc1.ChangeState(NPCState.PrepareForSocial);
-        npc2.ChangeState(NPCState.PrepareForSocial);
-
-        // 转向对方
-        npc1.TurnToPosition(npc2.transform.position);
-        npc2.TurnToPosition(npc1.transform.position);
-
-        // 准备社交执行动画播放，完毕后会自动进入社交移动状态
-        
-        // 等待两个NPC都进入社交移动状态
-        while(npc1.currentState != NPCState.MovingToSocial || npc2.currentState != NPCState.MovingToSocial){
-            yield return new WaitForSeconds(0.3f); // 不能检测过于频繁
-        }
-
-        // 阶段1: 计算社交位置
-        var socialPositions = CalculateSocialPositions(npc1, npc2);
-        
-        if(showDebugInfo) 
-            Debug.Log($"[NPCManager] 计算社交位置为: {socialPositions.npc1Position} 和 {socialPositions.npc2Position}");
-
-        // 阶段2: 让两个NPC移动到社交位置
-        yield return StartCoroutine(MoveNPCsToSocialPositions(npc1, npc2, socialPositions));
-
-    }
-
-    /// <summary>
-    /// 让两个NPC移动到社交位置
-    /// </summary>
-    private IEnumerator MoveNPCsToSocialPositions(NPC npc1, NPC npc2, SocialPositions positions)
-    {
-        if(showDebugInfo) 
-            Debug.Log($"[NPCManager] 开始移动两个NPC到社交位置: {positions.npc1Position} 和 {positions.npc2Position}");
-        // 启动两个NPC的社交移动
-        npc1.MoveToTarget(positions.npc1Position);  
-        npc2.MoveToTarget(positions.npc2Position);
-        
-        // 等待两个移动完成，或者超时
-        float startTime = Time.time;
-        
-        while ((!npc1.isInPosition || !npc2.isInPosition) && (Time.time - startTime) < socialSystem.socialTimeout)
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-        
-        // // 确保两个NPC都面向对方
-        // Vector3 direction1to2 = (positions.npc2Position - positions.npc1Position).normalized;
-        // Vector3 direction2to1 = -direction1to2;
-        
-        // npc1.transform.rotation = Quaternion.LookRotation(direction1to2);
-        // npc2.transform.rotation = Quaternion.LookRotation(direction2to1);
-        
-        // 转向对方
-        npc1.TurnToPosition(npc2.transform.position);
-        npc2.TurnToPosition(npc1.transform.position);
-
-        if (npc1.isInPosition && npc2.isInPosition)
-        {
-            if(showDebugInfo) 
-                Debug.Log($"[NPCManager] 两个NPC已到达社交位置，准备就绪");
-            // 触发事件广播准备就绪
-            var eventArgs = new NPCEventArgs
-            {
-                npc = npc1,
-                otherNPC = npc2,
-                timestamp = System.DateTime.Now
-            };
-            GameEvents.TriggerNPCReadyForSocialInteraction(eventArgs);
-        }
-        else
-        {
-            Debug.LogWarning($"[NPCManager] 社交移动超时或失败, 取消该次社交互动");
-        }
-    }
-
-    private void HandleSocialInteractionEnded(NPCEventArgs args){
-
-        if (args.npc == null || args.otherNPC == null)
-        {
-            Debug.LogWarning("[NPCManager] 社交事件中的NPC为空");
-            return;
-        }
-        if(showDebugInfo) 
-            Debug.Log($"[NPCManager] NPC {args.npc.data.npcName} 和NPC {args.otherNPC.data.npcName} 结束社交互动");
-        NPC npc1 = args.npc;
-        NPC npc2 = args.otherNPC;
-
-        // 验证两个NPC是否在管理列表中
-        if(!allNPCs.Contains(npc1) || !allNPCs.Contains(npc2)){
-            Debug.LogError($"[NPCManager] NPC {npc1.data.npcName} 或 NPC {npc2.data.npcName} 不在管理列表中，无法处理社交互动");
-            return;
-        }
-
-        // TODO：NPC的社交互动结束后的逻辑
-    }
-    */
     #endregion
 
     #region NPC注册和可用判断
@@ -431,7 +338,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     #endregion
 
     #region NPC雇佣和解雇
-    public bool HireNPC(NPCData npcData = null) {
+    public bool HireNPC(NPCData npcData = null, InventorySaveData inventorySaveData = null) {
         // 如果没有传入NPCData，则生成一个随机NPC
         if (npcData == null){
             npcData = GenerateRandomNPCData();
@@ -443,6 +350,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         // 雇佣NPC事件
         var eventArgs = new NPCEventArgs(){
             npcData = npcData,
+            inventorySaveData = inventorySaveData,
             eventType = NPCEventArgs.NPCEventType.Hired,
             timestamp = System.DateTime.Now
         };
@@ -674,9 +582,11 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     /// </summary>
     private List<NPCInstanceSaveData> GetNPCInstancesData()
     {
-        return allNPCs.Select(npc => new NPCInstanceSaveData {
+        return allNPCs.Select(npc => new NPCInstanceSaveData
+        {
             npcId = npc.NpcId,
-            npcData = npc.data
+            npcData = npc.data,
+            inventorySaveData = npc.inventory.GetSaveData() as InventorySaveData
         }).ToList();
     }
     /// <summary>
@@ -691,13 +601,21 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     /// </summary>
     private void LoadNPCsFrom(List<NPCInstanceSaveData> npcInstancesData)
     {
-        foreach (var npcInstanceData in npcInstancesData)
-        {
-            // 注册并生成NPC到场景中
-            HireNPC(npcInstanceData.npcData);
-        }
-        // 将NPC ID加载给NPC们
+        // 触发事件：NPC存储数据加载事件
+        var eventArgs = new NPCEventArgs() {
+            npcInstancesList = npcInstancesData,
+            eventType = NPCEventArgs.NPCEventType.LoadedFromData,
+            timestamp = System.DateTime.Now
+        };
+        GameEvents.TriggerNPCLoadedFromData(eventArgs);
+        // 将读取到的数据临时保存
+        npcInstanceDataCache = npcInstancesData;
+        // foreach (var npcInstanceData in npcInstancesData)
+        // {
 
+        //     // 注册并生成NPC到场景中
+        //     HireNPC(npcInstanceData.npcData, npcInstanceData.inventorySaveData);
+        // }
     }
 
     /// <summary>

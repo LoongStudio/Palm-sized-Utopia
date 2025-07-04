@@ -13,6 +13,7 @@ public class NPCInstanceSaveData : GameSaveData
 {
     public string npcId; // NPC的唯一ID
     public NPCData npcData; // NPC的配置数据
+    public InventorySaveData inventorySaveData; // NPC的背包数据
     // 重写ToString方法，展示ID，叫什么名字
     public override string ToString() { return $"NPCInstanceSaveData: {npcId} {npcData.npcName}"; }
 }
