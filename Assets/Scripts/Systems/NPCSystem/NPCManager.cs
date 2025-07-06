@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 using UnityEngine.AI;
+using Sirenix.OdinInspector;
 
 public class NPCManager : SingletonManager<NPCManager>, ISaveable
 {
@@ -683,7 +684,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
             Debug.LogError("[NPCManager] 请在运行时调用TestHireNPC");
         }
     }
-    [ContextMenu("Print All NPCs")]
+    [Button("打印所有NPC")]
     public void PrintAllNPCs()
     {
         Debug.Log($"[NPCManager] ========================== 输出所有NPC ==========================");
@@ -693,8 +694,18 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         }
         Debug.Log($"[NPCManager] ========================== 输出所有NPC ==========================");
     }
+    [Button("删除所有NPC")]
+    public void DeleteAllNPCs()
+    {
+        // 注意不能在foreach中删除遍历的元素
+        var npcList = FindObjectsByType<NPC>(FindObjectsSortMode.None).ToList();
+        foreach (var npc in npcList)
+        {
+            DestroyNPC(npc);
+        }
+    }
 
-    [ContextMenu("Print Active Interactions")]
+    [Button("打印所有活跃互动")]
     public void PrintActiveInteractions()
     {
         Debug.Log($"[NPCManager] ========================== 输出所有活跃互动 ==========================");
@@ -705,7 +716,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         Debug.Log($"[NPCManager] ========================== 输出所有活跃互动 ==========================");
     }
 
-    [ContextMenu("Print Interaction Cooldowns")]
+    [Button("打印所有互动冷却时间")]
     public void PrintInteractionCooldowns()
     {
         Debug.Log($"[NPCManager] ========================== 输出所有互动冷却时间 ==========================");
@@ -716,7 +727,7 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         Debug.Log($"[NPCManager] ========================== 输出所有互动冷却时间 ==========================");
     }
 
-    [ContextMenu("Print Daily Interaction Counts")]
+    [Button("打印所有每日互动计数")]
     public void PrintDailyInteractionCounts()
     {
         Debug.Log($"[NPCManager] ========================== 输出所有每日互动计数 ==========================");
@@ -743,6 +754,12 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
         
         // 先从管理系统中移除
         UnregisterNPC(npc);
+        
+        // 如果NPC有住房，则从住房中移除
+        if (npc.housing != null)
+        {
+            npc.housing.UnRegisterLivingNPC(npc);
+        }
         
         // 然后销毁GameObject
         if (npc.gameObject != null)
