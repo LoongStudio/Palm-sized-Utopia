@@ -49,8 +49,10 @@ public class SaveManager : SingletonManager<SaveManager>
         };
     }
     private void ApplySaveData(CoreSaveData saveData) {
-        NPCManager.Instance.LoadFromData(saveData.npcSaveData);
-        BuildingManager.Instance.LoadFromData(saveData.buildingSaveData);
         PlaceableManager.Instance.LoadFromData(saveData.placeableSaveData);
+        BuildingManager.Instance.LoadFromData(saveData.buildingSaveData);
+        // 强制更新Navmesh
+        NavMeshIntegration.Instance?.ForceUpdateNavMesh();
+        NPCManager.Instance.LoadFromData(saveData.npcSaveData);
     }
 }
