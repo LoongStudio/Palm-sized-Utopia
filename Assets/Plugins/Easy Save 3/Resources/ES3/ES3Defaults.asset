@@ -35,8 +35,6 @@ MonoBehaviour:
     assemblyNames:
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
-    - NaughtyAttributes.Core
-    - NaughtyAttributes.Test
     - Sirenix.OdinInspector.Modules.Unity.Addressables
     - Sirenix.OdinInspector.Modules.UnityLocalization
     showAdvancedSettings: 0
