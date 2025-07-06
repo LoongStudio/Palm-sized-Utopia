@@ -1,9 +1,13 @@
 using UnityEngine;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
 
 
 [CreateAssetMenu(fileName = "PlacementSettings", menuName = "Utopia/Placement Settings")]
-public class PlacementSettings : ScriptableObject
+public class PlacementSettings : SerializedScriptableObject
 {
+    public Dictionary<PlaceableType, GameObject> placeablePrefabs;
+
     [Header("网格设置")]
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask groundLayer = 1;
@@ -47,4 +51,13 @@ public class PlacementSettings : ScriptableObject
     public KeyCode EditModeKey => editModeKey;
     public KeyCode CancelKey => cancelKey;
     public int DragMouseButton => dragMouseButton;
+    public GameObject GetPlaceablePrefab(PlaceableType type)
+    {
+        if(placeablePrefabs.TryGetValue(type, out var prefab))
+        {
+            return prefab;
+        }
+        Debug.LogError($"没有找到类型为{type}的预制体");
+        return null;
+    }
 }

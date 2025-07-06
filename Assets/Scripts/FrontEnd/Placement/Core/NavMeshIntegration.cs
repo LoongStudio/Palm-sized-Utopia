@@ -15,6 +15,13 @@ public class NavMeshIntegration : SingletonManager<NavMeshIntegration>
     {
         base.Awake();
     }
+    private void OnEnable()
+    {
+        // 订阅事件
+        PlacementEvents.OnObjectPlaced += OnObjectPlaced;
+        PlacementEvents.OnObjectRemoved += OnObjectRemoved;
+        PlacementEvents.OnObjectMoved += OnObjectMoved;
+    }
     private void Start()
     {
         // 自动找到NavMeshSurface
@@ -29,10 +36,6 @@ public class NavMeshIntegration : SingletonManager<NavMeshIntegration>
             return;
         }
         
-        // 订阅事件
-        PlacementEvents.OnObjectPlaced += OnObjectPlaced;
-        PlacementEvents.OnObjectRemoved += OnObjectRemoved;
-        PlacementEvents.OnObjectMoved += OnObjectMoved;
 
         // 初始化NavMesh
         RequestNavMeshUpdate();
