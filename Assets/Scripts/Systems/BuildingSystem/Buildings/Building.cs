@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using NUnit.Framework;
-using NaughtyAttributes;
+using Sirenix.OdinInspector;
 using System.Linq;
 
 
