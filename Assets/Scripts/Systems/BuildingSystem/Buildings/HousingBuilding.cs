@@ -11,6 +11,7 @@ public abstract class HousingBuilding : Building
 		Debug.Log($"[住房] 注册住房NPC {npc.data.npcName}");
 		if (livingNPCs.Contains(npc) || livingNPCs.Count >= maxLivingNPCs) return false;
 		livingNPCs.Add(npc);
+		npc.housing = this;
 		return true;
 	}
 
@@ -19,6 +20,7 @@ public abstract class HousingBuilding : Building
 		Debug.Log($"[住房] 取消注册住房NPC {npc.name}");
 		if (!livingNPCs.Contains(npc)) return false;
 		livingNPCs.Remove(npc);
+		npc.housing = null;
 		return true;
 	}
 
