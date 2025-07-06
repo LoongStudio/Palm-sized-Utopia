@@ -124,3 +124,4 @@ MonoBehaviour:
   anchorGizmoSize: 0.2
   previewPrefab: {fileID: 0}
   renderers: []
+  placeableType: 1

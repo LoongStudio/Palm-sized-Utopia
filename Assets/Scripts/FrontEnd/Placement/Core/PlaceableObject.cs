@@ -2,8 +2,14 @@ using UnityEngine;
 using System.Linq;
 
 /// 可放置物体组件
-public class PlaceableObject : MonoBehaviour, IPlaceable
+public class PlaceableObject : MonoBehaviour, IPlaceable, ISaveable
 {
+    [Header("调试信息")]
+    [SerializeField] private bool showDebugInfo = false;
+
+    [Header("地皮类型")]
+    [SerializeField] private PlaceableType placeableType;
+
     [Header("放置设置")]
     [SerializeField] private Transform[] anchorPoints;
     [SerializeField] private bool autoCalculateAnchors = true;
@@ -24,11 +30,13 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     private GameObject previewInstance;
     private Material[] originalMaterials;
     private PlacementSettings settings;
+
     
     // 属性
     public bool IsPlaced { get; private set; }
     public System.Action<IPlaceable> OnPlaced { get; set; }
     public System.Action<IPlaceable> OnRemoved { get; set; }
+    public bool HasBuilding() => GetComponentInChildren<Building>() != null;
 
     private void Awake()
     {
@@ -55,6 +63,8 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         {
             Debug.LogError("[PlaceableObject] GridSystem not found!");
         }
+
+        PlaceableManager.Instance?.RegisterPlaceableObject(this);
     }
     
     private void OnEnable()
@@ -84,7 +94,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         // 确保在销毁时释放网格占用
         if (IsPlaced && currentPositions != null)
         {
-            Debug.Log($"[PlaceableObject] {name} 被销毁，释放网格占用: {string.Join(", ", currentPositions)}");
+            if(showDebugInfo) Debug.Log($"[PlaceableObject] {name} 被销毁，释放网格占用: {string.Join(", ", currentPositions)}");
             
             // 直接调用网格系统释放，避免重复触发事件
             if (gridSystem != null)
@@ -96,6 +106,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
             OnRemoved?.Invoke(this);
             PlacementEvents.TriggerObjectRemoved(this);
         }
+        PlaceableManager.Instance?.UnregisterPlaceableObject(this);
     }
     
     /// <summary>
@@ -110,18 +121,18 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         // 检查是否有位置数据
         if (args.positions == null || args.positions.Count == 0) return;
         
-        Debug.Log($"[PlaceableObject] 收到建筑创建事件，建筑: {building.name}，位置数量: {args.positions.Count}");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 收到建筑创建事件，建筑: {building.name}，位置数量: {args.positions.Count}");
 
         isSetPositionManually = true;
         // 转换位置格式
         var gridPositions = args.positions.Select(x => new Vector3Int(x.x, 0, x.y)).ToArray();
         
-        Debug.Log($"[PlaceableObject] 转换后的网格位置: {string.Join(", ", gridPositions)}");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 转换后的网格位置: {string.Join(", ", gridPositions)}");
         
         // 检查是否可以放置
         if (CanPlaceAt(gridPositions))
         {
-            Debug.Log($"[PlaceableObject] 可以放置，开始放置建筑");
+            if(showDebugInfo) Debug.Log($"[PlaceableObject] 可以放置，开始放置建筑");
             PlaceAt(gridPositions);
         }
         else
@@ -137,7 +148,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
     {
         if (isSetPositionManually)
         {
-            Debug.Log($"[PlaceableObject] {name} 已手动设置位置，跳过自动注册");
+            if(showDebugInfo) Debug.Log($"[PlaceableObject] {name} 已手动设置位置，跳过自动注册");
             return;
         }
         
@@ -171,7 +182,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
                 this.currentPositions = currentPositions;
                 IsPlaced = true;
 
-                Debug.Log($"[PlaceableObject] {name} 自动注册并对齐到网格，占用 {currentPositions.Length} 个位置");
+                if(showDebugInfo) Debug.Log($"[PlaceableObject] {name} 自动注册并对齐到网格，占用 {currentPositions.Length} 个位置");
 
                 // 同步建筑位置信息
                 SyncPositionsToBuilding();
@@ -255,7 +266,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
             // 触发事件
             TriggerEvents();
 
-            Debug.Log($"[PlaceableObject] {name} placed at {positions.Length} positions");
+            if(showDebugInfo) Debug.Log($"[PlaceableObject] {name} placed at {positions.Length} positions");
         }
         else
         {
@@ -291,7 +302,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         OnRemoved?.Invoke(this);
         PlacementEvents.TriggerObjectRemoved(this);
         
-        Debug.Log($"[PlaceableObject] {name} removed from grid");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] {name} removed from grid");
     }
     
     /// <summary>
@@ -313,7 +324,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         
         transform.position = finalPosition;
         
-        Debug.Log($"[PlaceableObject] 对齐到网格: 基准网格位置 {baseGridPos}, 最终世界位置 {finalPosition}");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 对齐到网格: 基准网格位置 {baseGridPos}, 最终世界位置 {finalPosition}");
     }
     
     /// <summary>
@@ -328,7 +339,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         var gridSize = GetGridSize();
         var parentScale = transform.localScale;
         
-        Debug.Log($"[PlaceableObject] 网格大小: {gridSize}, 父物体缩放: {parentScale}");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 网格大小: {gridSize}, 父物体缩放: {parentScale}");
         
         // 计算锚点数量
         int anchorCountX = customSize.x;
@@ -339,12 +350,12 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         float localSpacingX = gridSize / parentScale.x;
         float localSpacingZ = gridSize / parentScale.z;
         
-        Debug.Log($"[PlaceableObject] 本地空间间距: X={localSpacingX}, Z={localSpacingZ}");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 本地空间间距: X={localSpacingX}, Z={localSpacingZ}");
         
         // 计算锚点的起始偏移（让锚点网格以物体中心为基准）
         Vector3 startOffset = CalculateStartOffset(anchorCountX, anchorCountZ, localSpacingX, localSpacingZ);
         
-        Debug.Log($"[PlaceableObject] 起始偏移: {startOffset}");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 起始偏移: {startOffset}");
         
         int index = 0;
         for (int x = 0; x < anchorCountX; x++)
@@ -367,13 +378,13 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
                 
                 // 验证世界空间位置
                 var worldPos = anchorGO.transform.position;
-                Debug.Log($"[PlaceableObject] 创建锚点 [{x},{z}] 本地位置: {anchorLocalPos}, 世界位置: {worldPos}");
+                if(showDebugInfo) Debug.Log($"[PlaceableObject] 创建锚点 [{x},{z}] 本地位置: {anchorLocalPos}, 世界位置: {worldPos}");
             }
         }
         
         anchorPoints = anchors;
         
-        Debug.Log($"[PlaceableObject] 总共创建了 {anchorPoints.Length} 个锚点");
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 总共创建了 {anchorPoints.Length} 个锚点");
         
         // 验证锚点间的世界距离
         ValidateAnchorSpacing();
@@ -417,11 +428,11 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
                 // 对于网格对齐的锚点，距离应该等于网格大小
                 if (Mathf.Abs(distance - gridSize) < 0.001f)
                 {
-                    Debug.Log($"[PlaceableObject] ✅ 锚点 {i} 到 {i + 1} 距离正确: {distance:F3}");
+                    if(showDebugInfo) Debug.Log($"[PlaceableObject] ✅ 锚点 {i} 到 {i + 1} 距离正确: {distance:F3}");
                 }
                 else if (distance > 0.001f) // 忽略同位置的锚点
                 {
-                    Debug.Log($"[PlaceableObject] ⚠️ 锚点 {i} 到 {i + 1} 距离: {distance:F3}, 期望: {gridSize}");
+                    if(showDebugInfo) Debug.Log($"[PlaceableObject] ⚠️ 锚点 {i} 到 {i + 1} 距离: {distance:F3}, 期望: {gridSize}");
                 }
             }
         }
@@ -491,7 +502,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         if (autoCalculateAnchors)
         {
             CalculateAnchorPoints();
-            Debug.Log($"[PlaceableObject] {name} 的锚点已重新计算");
+            if(showDebugInfo) Debug.Log($"[PlaceableObject] {name} 的锚点已重新计算");
         }
     }
     
@@ -617,5 +628,45 @@ public class PlaceableObject : MonoBehaviour, IPlaceable
         {
             building.SyncPositionsFromPlaceable();
         }
+    }
+
+    public void SetPlaceableType(PlaceableType type){
+        placeableType = type;
+    }
+
+    public GameSaveData GetSaveData()
+    {
+        // 验证一下customSize和CurrentPositions是否一致
+        if(customSize.x * customSize.z != currentPositions.Length)
+        {
+            Debug.LogError($"[PlaceableObject] {name} 的customSize和CurrentPositions不一致");
+        }
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 成功保存地皮{name}，类型为{placeableType}，大小为{customSize}，位置为{currentPositions.Length}");
+        return new PlaceableInstanceSaveData(){
+            placeableType = placeableType,
+            customSize = customSize,
+            positions = currentPositions,
+            isPlaced = IsPlaced
+        };
+    }
+
+    public void LoadFromData(GameSaveData data)
+    {
+        var saveData = data as PlaceableInstanceSaveData;
+        if(saveData == null)
+        {
+            Debug.LogError($"[PlaceableObject] {name} 读取到的SaveData类型错误或为空");
+            return;
+        }
+        placeableType = saveData.placeableType;
+        customSize = saveData.customSize;
+        currentPositions = saveData.positions;
+        IsPlaced = saveData.isPlaced;
+
+        // 放置在对应位置
+        PlaceAt(currentPositions);
+        // 标记已手动设置位置
+        isSetPositionManually = true;
+        if(showDebugInfo) Debug.Log($"[PlaceableObject] 成功加载地皮{name}，类型为{placeableType}，大小为{customSize}，位置为{currentPositions.Length}");
     }
 }

@@ -1,5 +1,5 @@
 using UnityEngine;
-using NaughtyAttributes;
+using Sirenix.OdinInspector;
 
 public class SaveManager : SingletonManager<SaveManager>
 {
@@ -21,6 +21,7 @@ public class SaveManager : SingletonManager<SaveManager>
         ES3.Save("saveData", saveData);
         if(showDebugInfo) Debug.Log("游戏数据保存成功");
     }
+    
     [Button("加载游戏")]
     public bool LoadGame() {
         if(showDebugInfo) Debug.Log("加载游戏数据");
@@ -42,12 +43,14 @@ public class SaveManager : SingletonManager<SaveManager>
     {
         return new CoreSaveData
         {
-            npcSaveData = NPCManager.Instance.GetSaveData() as NPCSaveData,
-            buildingSaveData = BuildingManager.Instance.GetSaveData() as BuildingSaveData
+            npcSaveData = NPCManager.Instance?.GetSaveData() as NPCSaveData,
+            buildingSaveData = BuildingManager.Instance?.GetSaveData() as BuildingSaveData,
+            placeableSaveData = PlaceableManager.Instance?.GetSaveData() as PlacaebleSaveData
         };
     }
     private void ApplySaveData(CoreSaveData saveData) {
         NPCManager.Instance.LoadFromData(saveData.npcSaveData);
         BuildingManager.Instance.LoadFromData(saveData.buildingSaveData);
+        PlaceableManager.Instance.LoadFromData(saveData.placeableSaveData);
     }
 }
