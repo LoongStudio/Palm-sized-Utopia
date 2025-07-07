@@ -1,0 +1,3 @@
+[submodule "Assets/Plugins/URP_ShaderGraphCustomLighting"]
+	path = Assets/Plugins/URP_ShaderGraphCustomLighting
+	url = https://github.com/Cyanilux/URP_ShaderGraphCustomLighting.git
