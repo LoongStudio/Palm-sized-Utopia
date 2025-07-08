@@ -4,12 +4,14 @@ using UnityEngine.UI;
 public class ShopPanel : BasePanel
 {
     [SerializeField] private Button closeButton;
+    [SerializeField] private Button baseBlockButton;
     [SerializeField] private Button buildingButton;
     [SerializeField] private Button seedButton;
     [SerializeField] private Button NPCButton;
     private void OnEnable()
     {
         closeButton.onClick.AddListener(Hide);
+        baseBlockButton.onClick.AddListener(OnBaseBlockButtonClick);
         buildingButton.onClick.AddListener(OnBuildingButtonClick);
         seedButton.onClick.AddListener(OnSeedButtonClick);
         NPCButton.onClick.AddListener(OnNPCButtonClick);
@@ -20,11 +22,17 @@ public class ShopPanel : BasePanel
     private void OnDisable()
     {
         closeButton.onClick.RemoveListener(Hide);
+        baseBlockButton.onClick.RemoveListener(OnBaseBlockButtonClick);
         buildingButton.onClick.RemoveListener(OnBuildingButtonClick);
         seedButton.onClick.RemoveListener(OnSeedButtonClick);
         NPCButton.onClick.RemoveListener(OnNPCButtonClick);
     }
 
+    private void OnBaseBlockButtonClick()
+    {
+        UIManager.Instance.OpenPanel("PlaceableShopPanel");
+        Hide();
+    }
     private void OnBuildingButtonClick()
     {
         BuildingManager.Instance.BuyBuilding(BuildingSubType.Farm);
