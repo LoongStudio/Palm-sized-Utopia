@@ -1,5 +1,24 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8420309657620750744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 260f827ba3ea97446afd0a5145917f28, type: 3}
+  m_Name: LineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  setting:
+    layer:
+      serializedVersion: 2
+      m_Bits: 0
+    normalTexMat: {fileID: 2100000, guid: 39d8ca6c60f189745bdc9aabe7f244b4, type: 2}
+    normalLineMat: {fileID: 2100000, guid: 520d4e3c492ee81499bf3e3e8cb9c624, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24,8 +43,9 @@ MonoBehaviour:
     probeSamplingDebugMesh: {fileID: 0}
     probeSamplingDebugTexture: {fileID: 0}
     probeVolumeBlendStatesCS: {fileID: 0}
-  m_RendererFeatures: []
-  m_RendererFeatureMap: 
+  m_RendererFeatures:
+  - {fileID: -8420309657620750744}
+  m_RendererFeatureMap: 685eb9a6fa0c258b
   m_UseNativeRenderPass: 0
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
