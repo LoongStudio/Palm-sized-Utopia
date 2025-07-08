@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 public class ResourceManager : SingletonManager<ResourceManager>
 {
@@ -11,6 +12,8 @@ public class ResourceManager : SingletonManager<ResourceManager>
     [SerializeField] public List<ResourceStack> resourcesData;      // 当前资源信息, 以类的形式存储
     [SerializeField] private List<ResourceConfig> resourceConfigs;  // 资源配置列表
     private Dictionary<(ResourceType, int), ResourceConfig> configCache; // 配置缓存
+    [ShowInInspector]
+    [DictionaryDrawerSettings(KeyLabel = "键", ValueLabel = "值")]
     private Dictionary<ResourceType, Dictionary<int, int>> resources;      // 当前资源数量
     private Dictionary<ResourceType, int> storageLimit;                   // 存储上限, 同类资源共用一个存储上限
 
