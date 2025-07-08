@@ -145,6 +145,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4830520105570100086}
+  - component: {fileID: 4228582553931112485}
+  - component: {fileID: 1203199713560784864}
   m_Layer: 5
   m_Name: InsufficientResourcePanel
   m_TagString: Untagged
@@ -175,6 +177,31 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &4228582553931112485
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4467858240885347126}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1203199713560784864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4467858240885347126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e99b2c8239663e4cb91d0d41428a5b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  insufficientResourceText: {fileID: 7436749672546575218}
 --- !u!1 &5993250057443134815
 GameObject:
   m_ObjectHideFlags: 0

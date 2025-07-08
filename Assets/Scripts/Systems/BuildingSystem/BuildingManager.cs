@@ -316,7 +316,13 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         if (!ResourceManager.Instance.HasEnoughResource(ResourceType.Coin, CoinSubType.Gold, buildingData.purchasePrice))
         {
             if (showDebugInfo)
-                Debug.LogError($"[BuildingManager] 玩家没有足够资源购买 {buildingData.buildingName}，需要 {buildingData.purchasePrice} 金币");
+                Debug.LogWarning($"[BuildingManager] 玩家没有足够资源购买 {buildingData.buildingName}，需要 {buildingData.purchasePrice} 金币");
+            GameEvents.TriggerResourceInsufficient(new ResourceEventArgs(){
+                resourceType = ResourceType.Coin,
+                subType = (int)CoinSubType.Gold,
+                newAmount = buildingData.purchasePrice,
+                timestamp = DateTime.Now
+            });
             return false;
         }
 

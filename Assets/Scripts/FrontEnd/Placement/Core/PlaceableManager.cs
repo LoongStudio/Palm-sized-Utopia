@@ -51,6 +51,12 @@ public class PlaceableManager : SingletonManager<PlaceableManager>, ISaveable
         {
             // TODO: 比如提示资源不足
             Debug.LogWarning($"[PlaceableManager] 玩家没有足够资源购买 {args.placeableType}，需要 {_settings.GetPurchasePrice(args.placeableType)} 金币，玩家当前有 {ResourceManager.Instance.GetResourceAmount(ResourceType.Coin, CoinSubType.Gold)} 金币");
+            GameEvents.TriggerResourceInsufficient(new ResourceEventArgs(){
+                resourceType = ResourceType.Coin,
+                subType = (int)CoinSubType.Gold,
+                newAmount = _settings.GetPurchasePrice(args.placeableType),
+                timestamp = System.DateTime.Now
+            });
             return;
         }
         
