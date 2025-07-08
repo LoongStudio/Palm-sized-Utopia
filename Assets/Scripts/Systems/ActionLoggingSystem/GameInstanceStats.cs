@@ -18,12 +18,18 @@ public class GameInstanceStats : SingletonManager<GameInstanceStats>
     public Vector2 lastMousePos;
 
     // 3. 后台进程计数
-    public Dictionary<string, int> processCount = new Dictionary<string, int>();
+    [ShowInInspector]
+    private Dictionary<string, int> processCount = new Dictionary<string, int>();
 
     // 4. 当前分钟CPU最高温度
     public float currentMinuteMaxCpuTemp = 0f;
     public float lastCpuTempCheckTime = 0f;
-    
+
+    protected override void Awake()
+    {
+        base.Awake();
+        Application.runInBackground = true;
+    }
     // 1. 记录按键
     public void AddKey(string key)
     {
