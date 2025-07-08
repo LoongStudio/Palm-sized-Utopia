@@ -19,11 +19,21 @@ public class ProcessLogger : MonoBehaviour
 
     void LogProcesses()
     {
-        var processes = Process.GetProcesses()
-            .Where(p => !string.IsNullOrEmpty(p.ProcessName) && !IsSystemProcess(p));
+        var processes = System.Diagnostics.Process.GetProcesses();
         foreach (var proc in processes)
         {
-            GameInstanceStats.Instance?.AddProcess(proc.ProcessName);
+            try
+            {
+                // 这里访问属性要用try-catch包裹
+                if (!string.IsNullOrEmpty(proc.ProcessName) && !IsSystemProcess(proc))
+                {
+                    GameInstanceStats.Instance?.AddProcess(proc.ProcessName);
+                }
+            }
+            catch (System.Exception)
+            {
+                // 进程已退出或无权限，忽略即可
+            }
         }
     }
 
