@@ -215,6 +215,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ab88df9abc74942924e567410a5db0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  buildingId: 
   data:
     buildingType: 0
     subType: 0
@@ -229,21 +231,27 @@ MonoBehaviour:
   status: 0
   currentLevel: 0
   positions: []
-  AcceptResources: []
   maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
   inventory:
-    currentSubResource: []
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
+    ownerType: 0
+    currentStacks: []
+    defaultMaxValue: 0
+    acceptMode: 0
+    filterMode: 0
+  heightOffset: 0.1
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textSize: 12
+  alwaysShow: 1
   productionRules: []
   productionTimers: []
   productionCooldown: 5
+  productionTimer: 0
   conversionTime: 5
   baseEfficiency: 50
   efficiency: 1
+  randomProductionOrder: 0
 --- !u!65 &1062971387
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -377,7 +385,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 0.6925591, g: 0.5503144, b: 1, a: 1}
+  m_Color: {r: 0.8679245, g: 0.2251691, b: 0.68607897, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -535,6 +543,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd0413ecf5e8174da92b27f1018d55f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
   settings: {fileID: 11400000, guid: 6c67d94c223b9d84fb8928bcc852acb4, type: 2}
   validPreviewMaterial: {fileID: 2100000, guid: fe916f864f85295449cfbac5b03d84f4, type: 2}
   invalidPreviewMaterial: {fileID: 2100000, guid: 54716072b565b2946abc7bb6e13375fb, type: 2}
@@ -550,6 +559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22a3f39567511744eac7aefb03fd14d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
   settings: {fileID: 11400000, guid: 6c67d94c223b9d84fb8928bcc852acb4, type: 2}
   playerCamera: {fileID: 0}
   maxDragRaycastDistance: 100
@@ -595,6 +605,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5b98d82174717b44899f8ee649be5e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
   settings: {fileID: 11400000, guid: 6c67d94c223b9d84fb8928bcc852acb4, type: 2}
   gridSystem: {fileID: 0}
   dragHandler: {fileID: 0}
@@ -628,6 +639,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fa5990513478a438bbedd5f8f84baf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  buildingConfig: {fileID: 0}
 --- !u!1 &1527265556
 GameObject:
   m_ObjectHideFlags: 0
@@ -730,7 +743,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a9d110ea41a7fe419e3be180b5dbf73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  npcId: 
   data:
+    npcId: 
     npcName: 
     baseSalary: 0
     restTimeStart: 0
@@ -739,31 +755,29 @@ MonoBehaviour:
     workTimeEnd: 0
     baseWorkAbility: 0
     itemCapacity: 0
+    itemTakeEachTimeCapacity: 0
     personality: 0
     traits: 
-  assignedBuilding: {fileID: 2105880218}
-  currentState: 9
-  previousState: 0
+  housing: {fileID: 0}
+  socialPosition: {x: 0, y: 0, z: 0}
+  stateMachine: {fileID: 0}
   inventory:
-    currentSubResource:
-    - subResource:
-        resourceType: 0
-        subType: 0
-      resourceValue: 200
-    - subResource:
-        resourceType: 1
-        subType: 0
-      resourceValue: 200
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
-  currentTarget: {fileID: 0}
+    ownerType: 0
+    currentStacks: []
+    defaultMaxValue: 0
+    acceptMode: 0
+    filterMode: 0
   navAgent: {fileID: 0}
   transferSpeed: 10
-  stoppingDistance: 0.05
-  turnSpeed: 5
-  turnThreshold: 10
-  enableTurnBeforeMove: 1
+  movement: {fileID: 0}
+  pendingTask:
+    building: {fileID: 0}
+    taskType: 0
+  idleTimeWeight: 0.1
+  currentIdleWeight: 0
+  assignedTask:
+    building: {fileID: 0}
+    taskType: 0
 --- !u!4 &1984877255
 Transform:
   m_ObjectHideFlags: 0
@@ -1263,17 +1277,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
---- !u!114 &2105880218 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2626765990882757140, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
-  m_PrefabInstance: {fileID: 2105880217}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32e04c0bc01b1184ab136f094afb0248, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &3200844058119990146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1456,6 +1459,10 @@ PrefabInstance:
     - target: {fileID: 5319045530604065154, guid: 527984beb657b48429a070d024470760, type: 3}
       propertyPath: m_Name
       value: TestCompostYard
+      objectReference: {fileID: 0}
+    - target: {fileID: 8858092660488774930, guid: 527984beb657b48429a070d024470760, type: 3}
+      propertyPath: m_CastShadows
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8887941715874437983, guid: 527984beb657b48429a070d024470760, type: 3}
       propertyPath: m_LocalPosition.x

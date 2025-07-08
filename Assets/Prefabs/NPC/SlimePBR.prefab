@@ -114,6 +114,7 @@ GameObject:
   - component: {fileID: 6222079410607490007}
   - component: {fileID: -3895718881952932244}
   - component: {fileID: 6802671182719644152}
+  - component: {fileID: 7628788800457839329}
   m_Layer: 11
   m_Name: SlimePBR
   m_TagString: Untagged
@@ -186,7 +187,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugInfo: 0
+  npcId: 
   data:
+    npcId: 
     npcName: 
     baseSalary: 0
     restTimeStart: 0
@@ -204,9 +207,9 @@ MonoBehaviour:
   inventory:
     ownerType: 1
     currentStacks: []
+    defaultMaxValue: 0
     acceptMode: 0
     filterMode: 0
-    defaultMaxValue: 0
   navAgent: {fileID: 0}
   transferSpeed: 10
   movement: {fileID: 0}
@@ -286,6 +289,20 @@ MonoBehaviour:
   showDebugLogs: 1
   initialState: 0
   stateTimer: 0
+--- !u!114 &7628788800457839329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a715d7bae810a4192d4a4204622b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 1
+  centryOffcet: {x: 0, y: 0.21, z: 0}
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0

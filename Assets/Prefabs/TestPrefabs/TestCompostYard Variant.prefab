@@ -55,6 +55,7 @@ GameObject:
   - component: {fileID: 6104685508688178132}
   - component: {fileID: 7060687535274391881}
   - component: {fileID: 6079649003990969790}
+  - component: {fileID: 662653364572479514}
   m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
@@ -110,6 +111,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5229966aea7140f43b35fb4f04732ab0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  buildingId: 
   data:
     buildingType: 0
     subType: 4
@@ -124,21 +127,41 @@ MonoBehaviour:
   status: 0
   currentLevel: 0
   positions: []
-  AcceptResources: []
   maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
   inventory:
-    currentSubResource: []
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
+    ownerType: 0
+    currentStacks: []
+    defaultMaxValue: 0
+    acceptMode: 0
+    filterMode: 0
+  heightOffset: 0.1
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textSize: 12
+  alwaysShow: 1
   productionRules: []
   productionTimers: []
   productionCooldown: 5
+  productionTimer: 0
   conversionTime: 5
   baseEfficiency: 50
   efficiency: 1
+  randomProductionOrder: 0
+--- !u!114 &662653364572479514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701961026916386777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a715d7bae810a4192d4a4204622b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 0.6
+  centryOffcet: {x: 0, y: -0.15, z: 0}
 --- !u!1001 &779292467610550335
 PrefabInstance:
   m_ObjectHideFlags: 0
