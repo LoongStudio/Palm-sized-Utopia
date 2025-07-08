@@ -13,6 +13,7 @@ public static class GameEvents
     #endregion
 
     #region 建筑相关事件
+    public static event System.Action<BuildingEventArgs> OnLandBought;
     public static event System.Action<BuildingEventArgs> OnBuildingBought;
     public static event System.Action<BuildingEventArgs> OnBuildingBuilt;
     public static event System.Action<BuildingEventArgs> OnBuildingPlaced;
@@ -89,6 +90,10 @@ public static class GameEvents
     #endregion
     
     #region 建筑事件触发方法
+    public static void TriggerLandBought(BuildingEventArgs args) 
+    {
+        OnLandBought?.Invoke(args);
+    }
     public static void TriggerBuildingBought(BuildingEventArgs args) 
     {
         OnBuildingBought?.Invoke(args);

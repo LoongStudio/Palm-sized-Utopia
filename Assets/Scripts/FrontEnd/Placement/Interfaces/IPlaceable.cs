@@ -18,9 +18,13 @@ public interface IPlaceable
     
     /// 获取预览位置（拖拽时）
     Vector3Int[] GetPreviewPositions(Vector3 worldPosition);
-    
+
+    /// 获取地皮类型
+    PlaceableType PlaceableType { get; }
+
     /// 是否已放置
     bool IsPlaced { get; }
+
     
     /// 放置事件
     System.Action<IPlaceable> OnPlaced { get; set; }

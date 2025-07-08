@@ -4,7 +4,9 @@ using UnityEngine;
 public class BuildingEventArgs 
 {
     public Building building;
+    public BuildingSubType buildingSubType;
     public IPlaceable placeable;
+    public PlaceableType placeableType;
     public BuildingEventType eventType;
     public List<Vector2Int> positions;
     public int oldLevel;
@@ -14,6 +16,7 @@ public class BuildingEventArgs
     
     public enum BuildingEventType 
     {
+        LandBought,
         Created,
         PlaceSuccess,
         PlaceFailed,

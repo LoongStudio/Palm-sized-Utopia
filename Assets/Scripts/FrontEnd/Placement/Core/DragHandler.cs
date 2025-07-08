@@ -160,6 +160,7 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
                 {
                     building = currentDraggingBuilding,
                     placeable = currentTarget,
+                    placeableType = currentTarget.PlaceableType,
                     eventType = BuildingEventArgs.BuildingEventType.PlaceSuccess,
                     timestamp = System.DateTime.Now
                 });
@@ -182,6 +183,7 @@ public class DragHandler : SingletonManager<DragHandler>, IDragHandler_Utopia
                 GameEvents.TriggerBoughtBuildingPlacedAfterDragging(new BuildingEventArgs(){
                     building = currentDraggingBuilding,
                     placeable = currentTarget,
+                    placeableType = currentTarget.PlaceableType,
                     eventType = BuildingEventArgs.BuildingEventType.PlaceFailed,
                     timestamp = System.DateTime.Now
                 });

@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 [CreateAssetMenu(fileName = "PlacementSettings", menuName = "Utopia/Placement Settings")]
 public class PlacementSettings : SerializedScriptableObject
 {
-    public Dictionary<PlaceableType, GameObject> placeablePrefabs;
+    public List<PlaceableData> placeableDatas;
 
     [Header("网格设置")]
     [SerializeField] private float gridSize = 1f;
@@ -53,11 +53,32 @@ public class PlacementSettings : SerializedScriptableObject
     public int DragMouseButton => dragMouseButton;
     public GameObject GetPlaceablePrefab(PlaceableType type)
     {
-        if(placeablePrefabs.TryGetValue(type, out var prefab))
+        foreach (var data in placeableDatas)
         {
-            return prefab;
+            if (data.type == type)
+            {
+                return data.prefab;
+            }
         }
-        Debug.LogError($"没有找到类型为{type}的预制体");
         return null;
     }
+    public int GetPurchasePrice(PlaceableType type)
+    {
+        foreach (var data in placeableDatas)
+        {
+            if (data.type == type)
+            {
+                return data.purchasePrice;  
+            }
+        }
+        return 0;
+    }
+}
+
+[System.Serializable]
+public struct PlaceableData
+{
+    public PlaceableType type;
+    public GameObject prefab;
+    public int purchasePrice;
 }

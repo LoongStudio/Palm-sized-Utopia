@@ -406,6 +406,11 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// </summary>
     public void HandleBoughtBuildingPlacedAfterDragging(BuildingEventArgs args)
     {
+        if(args.building == null)
+        {
+            Debug.Log($"[BuildingManager] 建筑为空，判断为地皮放置，不做处理");
+            return;
+        }
         Debug.Log($"[BuildingManager] HandleBuildingPlaced called with event type: {args.eventType}, building: {args.building?.name}, timestamp: {args.timestamp}");
 
         if (args.eventType == BuildingEventArgs.BuildingEventType.PlaceSuccess)

@@ -33,6 +33,7 @@ public class PlaceableObject : MonoBehaviour, IPlaceable, ISaveable
 
     
     // 属性
+    public PlaceableType PlaceableType => placeableType;
     public bool IsPlaced { get; private set; }
     public System.Action<IPlaceable> OnPlaced { get; set; }
     public System.Action<IPlaceable> OnRemoved { get; set; }
@@ -106,7 +107,10 @@ public class PlaceableObject : MonoBehaviour, IPlaceable, ISaveable
             OnRemoved?.Invoke(this);
             PlacementEvents.TriggerObjectRemoved(this);
         }
+        
         PlaceableManager.Instance?.UnregisterPlaceableObject(this);
+
+        Destroy(gameObject);
     }
     
     /// <summary>

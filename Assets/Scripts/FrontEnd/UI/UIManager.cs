@@ -67,6 +67,7 @@ public class UIManager : SingletonManager<UIManager>
             if (!EventSystem.current.IsPointerOverGameObject())
             {
                 ClosePanel("ShopPanel");
+                ClosePanel("PlaceableShopPanel");
             }
         }
     }
@@ -79,6 +80,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("TestPanel", UIConst.TestPanel);
         pathDict.Add("ShopPanel", UIConst.ShopPanel);
         pathDict.Add("EditModePanel", UIConst.EditModePanel);
+        pathDict.Add("PlaceableShopPanel", UIConst.PlaceableShopPanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -181,4 +183,5 @@ public class UIConst
     public const string TestPanel = "UI/Panels/TestPanel";
     public const string ShopPanel = "UI/Panels/ShopPanel";
     public const string EditModePanel = "UI/Panels/EditModePanel";
+    public const string PlaceableShopPanel = "UI/Panels/PlaceableShopPanel";
 }
