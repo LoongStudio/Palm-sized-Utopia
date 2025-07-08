@@ -121,6 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a1d77bf20f796141a46bbde84ca8c48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  placeableType: 0
   anchorPoints: []
   autoCalculateAnchors: 1
   customSize: {x: 3, y: 1, z: 2}
