@@ -48,9 +48,21 @@ public class UIManager : SingletonManager<UIManager>
     }
     private void RegisterEvents()
     {
+        GameEvents.OnResourceInsufficient += OnResourceInsufficient;
     }
     private void UnregisterEvents()
     {
+        GameEvents.OnResourceInsufficient -= OnResourceInsufficient;
+    }
+    private void OnResourceInsufficient(ResourceEventArgs args)
+    {
+        OpenPanel("InsufficientResourcePanel");
+        // 设置资源不足文本
+        InsufficientResourcePanel panel = panelDict["InsufficientResourcePanel"] as InsufficientResourcePanel;
+        if(panel != null)
+        {
+            panel.SetInsufficientResourceText(args.newAmount + " " + args.resourceType.ToString());
+        }
     }
 
     private void Start()
@@ -68,6 +80,7 @@ public class UIManager : SingletonManager<UIManager>
             {
                 ClosePanel("ShopPanel");
                 ClosePanel("PlaceableShopPanel");
+                ClosePanel("InsufficientResourcePanel");
             }
         }
     }
@@ -81,6 +94,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("ShopPanel", UIConst.ShopPanel);
         pathDict.Add("EditModePanel", UIConst.EditModePanel);
         pathDict.Add("PlaceableShopPanel", UIConst.PlaceableShopPanel);
+        pathDict.Add("InsufficientResourcePanel", UIConst.InsufficientResourcePanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -184,4 +198,5 @@ public class UIConst
     public const string ShopPanel = "UI/Panels/ShopPanel";
     public const string EditModePanel = "UI/Panels/EditModePanel";
     public const string PlaceableShopPanel = "UI/Panels/PlaceableShopPanel";
+    public const string InsufficientResourcePanel = "UI/Panels/InsufficientResourcePanel";
 }
