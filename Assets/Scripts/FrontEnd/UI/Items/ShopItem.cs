@@ -10,8 +10,12 @@ public class ShopItem : MonoBehaviour{
     [SerializeField] private Image itemIcon;
     [SerializeField] private TextMeshProUGUI itemName;
     [SerializeField] private TextMeshProUGUI price;
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Image buttonImage;
     [SerializeField] private Button buyButton;
 
+    // 其它设置
+    [SerializeField] private Color insufficientColor = new Color(1, 0, 0, 0.5f);
     
     private void OnEnable(){
         buyButton.onClick.AddListener(OnBuyButtonClick);
@@ -25,8 +29,18 @@ public class ShopItem : MonoBehaviour{
         itemIcon.sprite = shopItemData.icon;
         itemName.text = shopItemData.name;
         this.price.text = shopItemData.price.ToString();
+        
+        // 根据是否有足够资源购买设置样式
+        if(ResourceManager.Instance){
+            // 如果资源不足，则禁用按钮，调整颜色
+            if(!ResourceManager.Instance.HasEnoughResource(shopItemData.priceType, shopItemData.priceSubType, shopItemData.price)){
+                buttonImage.color = insufficientColor;
+                canvasGroup.alpha = 0.25f;
+            }
+        }
     }
     private void OnBuyButtonClick(){
+        // TODO：购买逻辑
         // 
         
     }
