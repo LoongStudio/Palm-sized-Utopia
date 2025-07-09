@@ -23,6 +23,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AlbedoMap:
+        m_Texture: {fileID: 2800000, guid: 6552855708a04e84380742d33f9da01b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -74,11 +82,20 @@ Material:
     - _BladeCurve: 2
     - _BladeForward: 0.38
     - _BladeHeight: 1.62
+    - _BladeHeightAutumn: 0.5
     - _BladeHeightRandom: 0.15
+    - _BladeHeightSpring: 0.4
+    - _BladeHeightSummer: 0.6
+    - _BladeHeightWinter: 0.3
     - _BladeRandomAmount: 0.5
     - _BladeSegments: 3
     - _BladeWidth: 0.21
+    - _BladeWidthAutumn: 0.05
     - _BladeWidthRandom: 0.15
+    - _BladeWidthSpring: 0.04
+    - _BladeWidthSummer: 0.06
+    - _BladeWidthWinter: 0.03
+    - _BottomOffset: -0.3
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -93,23 +110,38 @@ Material:
     - _PlayerRadius: 1.51
     - _Rotation: 0
     - _RotationRandom: 0.174
+    - _Season: 0.353
+    - _SeasonFloat: 0.579
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TessellationUniform: 10
     - _TessellationUniform1: 6.8
-    - _TranslucentGain: 0.673
+    - _TranslucentGain: 0.842
     - _UVSec: 0
     - _WindScale: 1
     - _WindStrength: 0.2
     - _ZWrite: 1
     m_Colors:
+    - _AlbedoColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BottomColor: {r: 0.22947541, g: 0.23584908, b: 0.22361162, a: 1}
+    - _BottomColorAutumn: {r: 0.8, g: 0.5, b: 0.19999996, a: 1}
+    - _BottomColorE: {r: 0.8301887, g: 0.29163098, b: 0.05090782, a: 1}
+    - _BottomColorS: {r: 0.1425454, g: 0.46226418, b: 0.11992704, a: 1}
+    - _BottomColorSpring: {r: 0.29999998, g: 0.8, b: 0.29999998, a: 1}
+    - _BottomColorSummer: {r: 0.14999998, g: 0.7, b: 0.14999998, a: 1}
+    - _BottomColorWinter: {r: 0.6, g: 0.6, b: 0.6, a: 1}
     - _Color: {r: 0, g: 0.5754717, b: 0.06694827, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _PlayerPos: {r: -1.82, g: 3.43, b: -0.02, a: 0}
     - _TopColor: {r: 0.5792569, g: 0.84599996, b: 0.3297231, a: 1}
+    - _TopColorAutumn: {r: 1, g: 0.7, b: 0.29999998, a: 1}
+    - _TopColorE: {r: 0.8773585, g: 0.68814075, b: 0.34349412, a: 1}
+    - _TopColorS: {r: 0.50166285, g: 0.8207547, b: 0.36779103, a: 1}
+    - _TopColorSpring: {r: 0.39999998, g: 1, b: 0.39999998, a: 1}
+    - _TopColorSummer: {r: 0.19999996, g: 0.9, b: 0.19999996, a: 1}
+    - _TopColorWinter: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _WindFrequency: {r: 0.05, g: 0.05, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
