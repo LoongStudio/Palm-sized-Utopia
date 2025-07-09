@@ -37,6 +37,22 @@ public class ShopBasePanel : BasePanel{
     }
     #endregion
 
+    protected override void OnShow(){
+        base.OnShow();
+        RefreshItems();
+    }
+    /// <summary>
+    /// 根据游戏状态刷新商店面板中的所有ShopItem组件的样式
+    /// </summary>
+    protected virtual void RefreshItems(){
+        // 获取所有在该商店面板中的ShopItem组件
+        ShopItem[] shopItems = GetComponentsInChildren<ShopItem>();
+        // 遍历所有ShopItem组件，并设置样式
+        foreach(var shopItem in shopItems){
+            shopItem.SetBuyButton();
+        }
+    }
+
     #region 按钮事件
     /// <summary>
     /// 关闭按钮事件，默认隐藏自身并打开商店界面，子类可重写
