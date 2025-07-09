@@ -69,6 +69,7 @@ public class UIManager : SingletonManager<UIManager>
     {
         OpenPanel("TestPanel");
         OpenPanel("EditModePanel");
+        OpenPanel("ResourcePanel");
     }
 
     private void Update()
@@ -95,6 +96,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("EditModePanel", UIConst.EditModePanel);
         pathDict.Add("PlaceableShopPanel", UIConst.PlaceableShopPanel);
         pathDict.Add("InsufficientResourcePanel", UIConst.InsufficientResourcePanel);
+        pathDict.Add("ResourcePanel", UIConst.ResourcePanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -199,4 +201,5 @@ public class UIConst
     public const string EditModePanel = "UI/Panels/EditModePanel";
     public const string PlaceableShopPanel = "UI/Panels/PlaceableShopPanel";
     public const string InsufficientResourcePanel = "UI/Panels/InsufficientResourcePanel";
+    public const string ResourcePanel = "UI/Panels/ResourcePanel";
 }

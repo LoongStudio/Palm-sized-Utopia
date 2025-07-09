@@ -120,6 +120,13 @@ public class ResourceManager : SingletonManager<ResourceManager>
             Debug.Log($"[ResourceManager] 名为 {type} 的资源被添加了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
 
         OnResourceChanged?.Invoke(type, oldAmount, resources[type][subType]);
+        GameEvents.TriggerResourceChanged(new ResourceEventArgs(){
+            resourceType = type,
+            subType = subType,
+            oldAmount = oldAmount,
+            newAmount = resources[type][subType],
+            changeAmount = amount,
+        });
         return true;
 
     }
@@ -152,6 +159,13 @@ public class ResourceManager : SingletonManager<ResourceManager>
             Debug.Log($"[ResourceManager] 名为 {type} 的资源被移除了 {amount} 个, 原本数量为 {oldAmount}, 当前数量为 {resources[type][subType]}");
 
         OnResourceChanged?.Invoke(type, oldAmount, resources[type][subType]);
+        GameEvents.TriggerResourceChanged(new ResourceEventArgs(){
+            resourceType = type,
+            subType = subType,
+            oldAmount = oldAmount,
+            newAmount = resources[type][subType],
+            changeAmount = -amount,
+        });
         return true;
 
     }
