@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 [RequireComponent(typeof(CanvasGroup))]
 public class BasePanel : MonoBehaviour
 {
     protected string panelName;
     protected bool isRemoved = false;
     protected bool isShow = false;
+    [Required("CanvasGroup组件不能为空")]
     protected CanvasGroup canvasGroup;
     protected virtual void Awake()
     {
