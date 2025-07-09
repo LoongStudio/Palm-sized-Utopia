@@ -83,7 +83,11 @@ public class ShopItem : MonoBehaviour{
         BuildingManager.Instance.BuyBuilding(shopItemData.buildingSubType);
     }
     private void TriggerLandBought(){
-
+        var eventArgs = new BuildingEventArgs(){
+            placeableType = shopItemData.placeableType,
+            eventType = BuildingEventArgs.BuildingEventType.LandBought,
+        };
+        GameEvents.TriggerLandBought(eventArgs);
     }
     private void TriggerNPCBought(){
 
