@@ -5,6 +5,8 @@ using TMPro;
 public class ShopItem : MonoBehaviour{
     // 数据
     private ShopItemData shopItemData;
+    // 父面板
+    private BasePanel panel;
 
     // UI组件
     [SerializeField] private Image itemIcon;
@@ -26,14 +28,14 @@ public class ShopItem : MonoBehaviour{
         buyButton.onClick.RemoveListener(OnBuyButtonClick);
     }
     
-    public void SetUp(ShopItemData shopItemData){
+    public void SetUp(BasePanel panel, ShopItemData shopItemData){
         this.shopItemData = shopItemData;
+        this.panel = panel;
         itemIcon.sprite = shopItemData.icon;
         itemName.text = shopItemData.name;
         this.price.text = shopItemData.price.ToString();
 
         SetBuyButton();
-
     }
     public void SetBuyButton(){
         // 根据是否有足够资源购买设置样式
@@ -54,8 +56,40 @@ public class ShopItem : MonoBehaviour{
     }
     private void OnBuyButtonClick(){
         // TODO：购买逻辑
-        Debug.Log("购买物品：" + shopItemData.name);
+        // 总体逻辑：根据shopItemData执行不同的购买逻辑
+        // 1. 如果是建筑，则购买建筑
+        if(shopItemData.itemType == ItemType.Building){
+            TriggerBuildingBought();
+        }
+        // 2. 如果是土地，则购买土地
+        else if(shopItemData.itemType == ItemType.Land){
+            TriggerLandBought();
+        }
+        // 3. 如果是NPC，则雇佣NPC
+        else if(shopItemData.itemType == ItemType.NPC){
+            TriggerNPCBought();
+        }
+        // 4. 如果是资源，则购买资源
+        else if(shopItemData.itemType == ItemType.Resource){
+            TriggerResourceBought();
+        }
+        // 5. TODO: 其他购买逻辑，比如奖励券
         
+        // 关闭所在商店面板
+        panel.Hide();
+    }
+
+    private void TriggerBuildingBought(){
+        BuildingManager.Instance.BuyBuilding(shopItemData.buildingSubType);
+    }
+    private void TriggerLandBought(){
+
+    }
+    private void TriggerNPCBought(){
+
+    }
+    private void TriggerResourceBought(){
+
     }
 }
 
