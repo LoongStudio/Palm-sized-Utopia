@@ -79,6 +79,9 @@ public class PlacementSettings : SerializedScriptableObject
 public struct PlaceableData
 {
     public PlaceableType type;
+    public string name;
+    public string description;
+    public Sprite icon;
     public GameObject prefab;
     public int purchasePrice;
 }
