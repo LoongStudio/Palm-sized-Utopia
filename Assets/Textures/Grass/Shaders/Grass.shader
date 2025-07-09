@@ -62,18 +62,7 @@ Shader "Toon/Grass"
                 float4 _TopColorE;
                 float4 _BottomColorE;
                 float _SeasonFloat; // 季节权重（0=夏季，1=秋季）
-                // float _TranslucentGain;
-                // float _BendRotationRandom;
-                // float _BladeWidth;
-                // float _BladeWidthRandom;
-                // float _BladeHeight;
-                // float _BladeHeightRandom;
-                // float _TessellationUniform1;
-                // float4 _WindDistortionMap_ST;
-                // float2 _WindFrequency;
-                // float _WindStrength;
             CBUFFER_END
-
             // 采样器声明
             // TEXTURE2D(_WindDistortionMap);
             SAMPLER(sampler_WindDistortionMap);
