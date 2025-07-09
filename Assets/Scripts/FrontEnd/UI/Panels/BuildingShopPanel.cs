@@ -8,7 +8,6 @@ public class BuildingShopPanel : ShopBasePanel{
     private void Start(){
         GenerateBuildingItems();
     }
-
     #region 生成建筑购买项
     /// <summary>
     /// 从配置表中获取建筑数据，并在自己的content中生成建筑购买项
@@ -57,6 +56,7 @@ public class BuildingShopPanel : ShopBasePanel{
         }
         return shopItem;
     }
+
     [Button("生成建筑购买项")]
     private void GenerateOneBuildingItems(){
         // 从配置表中获取建筑数据
