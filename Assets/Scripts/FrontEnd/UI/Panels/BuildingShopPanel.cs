@@ -44,6 +44,7 @@ public class BuildingShopPanel : ShopBasePanel{
         int priceSubType = 0;
         Sprite icon = buildingPrefabData.buildingDatas.icon;
         ShopItemData shopItemData = new ShopItemData(name, description, itemType, price, priceType, priceSubType, icon);
+        // 建筑数据的特殊设置
         shopItemData.SetUpItem(buildingPrefabData.subType);
 
         // 设置item的数据

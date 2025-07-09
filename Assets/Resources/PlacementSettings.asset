@@ -23,18 +23,33 @@ MonoBehaviour:
     SerializationNodes: []
   placeableDatas:
   - type: 0
+    name: 1x1
+    description: 
+    icon: {fileID: 21300000, guid: 28267b0d91b42ad46ac222e4ff8bc6ed, type: 3}
     prefab: {fileID: 2927679483004542493, guid: 6edbb22bc1b4bc94795ef4b304b48d05, type: 3}
     purchasePrice: 10
   - type: 1
+    name: 2x2
+    description: 
+    icon: {fileID: 21300000, guid: 134a55c04edf7524e9a0aee7fcd01b02, type: 3}
     prefab: {fileID: 2927679483004542493, guid: 96341357a8b99a9469d5a4821dbdd2e7, type: 3}
     purchasePrice: 40
   - type: 2
+    name: 3x3
+    description: 
+    icon: {fileID: 21300000, guid: c7b28adac2851024a82d993f91a22868, type: 3}
     prefab: {fileID: 2927679483004542493, guid: fa217eb967afb3444b9c950773e17b4f, type: 3}
     purchasePrice: 90
   - type: 3
+    name: 1x3
+    description: 
+    icon: {fileID: 21300000, guid: 2d938772eae648a439668b4ef48d4048, type: 3}
     prefab: {fileID: 277472724480685958, guid: 82222429614c00e49b24144b3bd4d5f6, type: 3}
     purchasePrice: 30
   - type: 4
+    name: 3x1
+    description: 
+    icon: {fileID: 21300000, guid: ced439a482aa55e4a88299e032ce48f7, type: 3}
     prefab: {fileID: 3986986537163778754, guid: bdea073425199014fa7a8f977cac1b2c, type: 3}
     purchasePrice: 30
   gridSize: 1

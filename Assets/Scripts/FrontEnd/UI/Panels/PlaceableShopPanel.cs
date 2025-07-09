@@ -2,62 +2,61 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Sirenix.OdinInspector;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 
-public class PlaceableShopPanel : BasePanel
+public class PlaceableShopPanel : ShopBasePanel
 {
-    [SerializeField] private Button _1x1Button;
-    [SerializeField] private Button _2x2Button;
-    [SerializeField] private Button _3x3Button;
-    [SerializeField] private Button _1x3Button;
-    [SerializeField] private Button _3x1Button;
+    private void Start(){
+        GeneratePlaceableItems();
+    }
+    #region 生成土地购买项
+    private void GeneratePlaceableItems(){
+        // 有效性检测
+        if(PlacementManager.Instance == null){
+            Debug.LogError("PlaceableManager.Instance is null");
+            return;
+        }
+        if(PlacementManager.Instance.Settings == null){
+            Debug.LogError("PlacementManager.Instance.Settings is null");
+            return;
+        }
 
-    private void OnEnable()
-    {
-        _1x1Button.onClick.AddListener(On1x1ButtonClick);
-        _2x2Button.onClick.AddListener(On2x2ButtonClick);
-        _3x3Button.onClick.AddListener(On3x3ButtonClick);
-        _1x3Button.onClick.AddListener(On1x3ButtonClick);
-        _3x1Button.onClick.AddListener(On3x1ButtonClick);
+        // 从PlacementManager中获取土地数据
+        List<PlaceableData> placeableDatas = PlacementManager.Instance.Settings.placeableDatas;
+
+        // 根据土地数据生成土地购买项
+        foreach(var placeableData in placeableDatas){
+            GenerateOnePlaceableItems(placeableData);
+        }
     }
-    private void OnDisable()
-    {
-        _1x1Button.onClick.RemoveListener(On1x1ButtonClick);
-        _2x2Button.onClick.RemoveListener(On2x2ButtonClick);
-        _3x3Button.onClick.RemoveListener(On3x3ButtonClick);
-        _1x3Button.onClick.RemoveListener(On1x3ButtonClick);
-        _3x1Button.onClick.RemoveListener(On3x1ButtonClick);
+    private ShopItem GenerateOnePlaceableItems(PlaceableData placeableData){
+        // 生成一个土地购买项
+        GameObject placeableItem = Instantiate(shopItemPrefab, content.transform);
+        // 数据准备
+        string name = placeableData.name;
+        string description = placeableData.description;
+        ItemType itemType = ItemType.Land;
+        int price = placeableData.purchasePrice;
+        ResourceType priceType = ResourceType.Coin;
+        int priceSubType = 0;
+        Sprite icon = placeableData.icon;
+        ShopItemData shopItemData = new ShopItemData(name, description, itemType, price, priceType, priceSubType, icon);
+        shopItemData.SetUpItem(placeableData.type);
+
+        // 设置item的数据
+        ShopItem shopItem = placeableItem.GetComponent<ShopItem>();
+        if(shopItem != null){
+            shopItem.SetUp(this, shopItemData);
+        }else{
+            Debug.LogError("ShopItem预制体没有ShopItem脚本组件");
+            return null;
+        }
+        return shopItem;
     }
-    private void On1x1ButtonClick()
-    {
-        TriggerLandBoughtEvent(PlaceableType.NormalLand_1x1);
-        Hide();
+    [Button("生成一个土地购买项")]
+    private void GenerateOnePlaceableItems(){
+        // 从配置表中获取土地数据
+        Instantiate(shopItemPrefab, content.transform);
     }
-    private void On2x2ButtonClick()
-    {
-        TriggerLandBoughtEvent(PlaceableType.NormalLand_2x2);
-        Hide();
-    }
-    private void On3x3ButtonClick()
-    {
-        TriggerLandBoughtEvent(PlaceableType.NormalLand_3x3);
-        Hide();
-    }
-    private void On1x3ButtonClick()
-    {
-        TriggerLandBoughtEvent(PlaceableType.NormalLand_1x3);
-        Hide();
-    }
-    private void On3x1ButtonClick()
-    {
-        TriggerLandBoughtEvent(PlaceableType.NormalLand_3x1);
-        Hide();
-    }
-    private void TriggerLandBoughtEvent(PlaceableType type){
-        var eventArgs = new BuildingEventArgs(){
-            placeableType = type,
-            eventType = BuildingEventArgs.BuildingEventType.LandBought,
-        };
-        GameEvents.TriggerLandBought(eventArgs);
-    }
+    #endregion
 }
