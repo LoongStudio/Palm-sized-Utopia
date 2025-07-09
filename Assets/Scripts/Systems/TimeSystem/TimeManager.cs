@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Sirenix.OdinInspector;
 
 /// <summary>
 /// 时间管理器 - 负责游戏时间的推进和管理
@@ -28,7 +29,7 @@ public class TimeManager : SingletonManager<TimeManager>
     
     // 属性
     public GameTime CurrentTime => currentTime;
-    public Season CurrentSeason => currentTime.Season;
+    [ShowInInspector] public Season CurrentSeason => currentTime.Season;
     public bool IsPaused => isPaused;
     public float TimeScale => currentTimeScale;
     public TimeSettings Settings => settings;
