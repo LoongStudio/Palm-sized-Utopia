@@ -28,6 +28,9 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
 
     [Header("Buff系统")]
     public Dictionary<BuildingSubType, Dictionary<BuffEnums, int>> AppliedBuffs;
+
+    // 属性
+    public BuildingConfig BuildingConfig{get{return buildingConfig;}}
     #endregion
 
     #region 事件声明
