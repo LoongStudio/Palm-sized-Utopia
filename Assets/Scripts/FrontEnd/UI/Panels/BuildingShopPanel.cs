@@ -44,11 +44,13 @@ public class BuildingShopPanel : ShopBasePanel{
         ResourceType priceType = ResourceType.Coin;
         int priceSubType = 0;
         Sprite icon = buildingPrefabData.buildingDatas.icon;
+        ShopItemData shopItemData = new ShopItemData(name, description, itemType, price, priceType, priceSubType, icon);
+        shopItemData.SetUpItem(buildingPrefabData.subType);
 
         // 设置item的数据
         ShopItem shopItem = item.GetComponent<ShopItem>();
         if(shopItem != null){
-            shopItem.SetUp(new ShopItemData(name, description, itemType, price, priceType, priceSubType, icon));
+            shopItem.SetUp(this, shopItemData);
         }else{
             Debug.LogError("ShopItem预制体没有ShopItem脚本组件");
             return null;
