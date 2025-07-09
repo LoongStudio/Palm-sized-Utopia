@@ -11,9 +11,13 @@ public class BasePanel : MonoBehaviour
     protected CanvasGroup canvasGroup;
     protected virtual void Awake()
     {
-        InitializeCanvasGroup();
+        Initialize();
     }
-    
+    private void Initialize(){
+        InitializeCanvasGroup();
+
+        OnInitialize();
+    }
     /// <summary>
     /// 初始化CanvasGroup组件
     /// </summary>
@@ -82,4 +86,5 @@ public class BasePanel : MonoBehaviour
     protected virtual void OnClose() { }
     protected virtual void OnShow() { }
     protected virtual void OnHide() { }
+    protected virtual void OnInitialize() { }
 }

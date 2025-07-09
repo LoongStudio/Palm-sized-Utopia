@@ -35,7 +35,7 @@ public class ShopPanel : BasePanel
     }
     private void OnBuildingButtonClick()
     {
-        BuildingManager.Instance.BuyBuilding(BuildingSubType.Farm);
+        UIManager.Instance.OpenPanel("BuildingShopPanel");
         Hide();
     }
     private void OnSeedButtonClick()

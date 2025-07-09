@@ -18,6 +18,8 @@ MonoBehaviour:
       buildingType: 0
       subType: 0
       buildingName: Farm
+      description: Farm consumes seeds and converts them into crop.
+      icon: {fileID: 21300000, guid: 860ae0bd629cc6d40a98bc251b1ae47e, type: 3}
       purchasePrice: 100
       upgradePrices: 64000000640000006400000064000000
       maxLevel: 5
@@ -31,6 +33,8 @@ MonoBehaviour:
       buildingType: 0
       subType: 2
       buildingName: Trade Market
+      description: It can sell stuffs and get coin.
+      icon: {fileID: 21300000, guid: 1e7cafa71a5835f438e6f255c730bc88, type: 3}
       purchasePrice: 100
       upgradePrices: 64000000640000006400000064000000
       maxLevel: 5
@@ -44,6 +48,9 @@ MonoBehaviour:
       buildingType: 3
       subType: 7
       buildingName: Apartment
+      description: NPCs need a house to live in. An apartment is what they want at
+        least.
+      icon: {fileID: 21300000, guid: 33ed99360e7e59f40b709d5292b8b51f, type: 3}
       purchasePrice: 50
       upgradePrices: 6400000064000000
       maxLevel: 3
@@ -57,6 +64,8 @@ MonoBehaviour:
       buildingType: 4
       subType: 5
       buildingName: Warehouse
+      description: It stores stuffs, period.
+      icon: {fileID: 21300000, guid: f67b21693aa3da84e96bb6382376e82b, type: 3}
       purchasePrice: 100
       upgradePrices: 64000000640000006400000064000000
       maxLevel: 5
