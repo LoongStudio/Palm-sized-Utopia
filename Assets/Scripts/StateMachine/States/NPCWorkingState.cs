@@ -17,6 +17,8 @@ public class NPCWorkingState : NPCStateBase
     protected override void OnEnterState()
     {
         base.OnEnterState();
+
+        animator.SetBool("isWorking", true);
         
         if (showDebugInfo)
         {
@@ -136,6 +138,7 @@ public class NPCWorkingState : NPCStateBase
     protected override void OnExitState()
     {
         base.OnExitState();
+        animator.SetBool("isWorking", false);
         
         // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
         if (showDebugInfo)
