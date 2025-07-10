@@ -29,7 +29,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public HashSet<ResourceConfig> AcceptResources;
     
     [Header("槽位管理")] 
-    public int maxSlotAmount = 3;
+    public int maxSlotAmount = 3;  // 这里被我替换为了NPCSlotAmount，因为它在data中被定义了
     public List<NPC> assignedNPCs;
     public List<NPC> tempAssignedNPCs;
     public List<Equipment> installedEquipment;
@@ -86,6 +86,29 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         }
     }
 
+    public float BaseEfficiency {
+        get {
+            return data.baseEfficiency;
+        }
+    }
+    
+    public int NPCSlotAmount {
+        get {
+            return data.npcSlots;
+        }
+        set {
+            data.npcSlots = value;
+        }
+    }
+    
+    public int EquipmentSlotAmount {
+        get {
+            return data.equipmentSlots;
+        }
+        set {
+            data.equipmentSlots = value;
+        }
+    }
     #endregion
 
     #region Unity生命周期
@@ -298,7 +321,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if (!assignedNPCs.Contains(npc) 
             && npc.assignedTask.building == this
             && npc.assignedTask.taskType == TaskType.Production
-            && assignedNPCs.Count < maxSlotAmount)
+            && assignedNPCs.Count < NPCSlotAmount)
         {
             assignedNPCs.Add(npc);
             return true;
@@ -439,7 +462,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         Debug.Log($"状态: {status}");
         Debug.Log($"等级: {currentLevel}");
         Debug.Log($"位置: {string.Join(" ", positions)}");
-        Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{maxSlotAmount}");
+        Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{NPCSlotAmount}");
         Debug.Log($"临时NPC数量: {tempAssignedNPCs?.Count ?? 0}");
         Debug.Log($"[Building] ====================================================");
     }
@@ -458,7 +481,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         List<string> displayLines = new List<string>();
         
         // NPC信息
-        displayLines.Add($"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]");
+        displayLines.Add($"[A:{assignedNPCs.Count}/{NPCSlotAmount}][T:{tempAssignedNPCs.Count}]");
         
         // Inventory资源信息
         if (inventory != null && inventory.currentStacks != null)
