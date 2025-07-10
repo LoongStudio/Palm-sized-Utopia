@@ -74,6 +74,7 @@ public class NPCMovingToSocialState : NPCStateBase
         // 初始化值
         isInSocialPosition = false;
         isPartnerInSocialPosition = false;
+        inSocialPositionTrigger = false;
         // 注册事件
         RegisterEvent();
     }
