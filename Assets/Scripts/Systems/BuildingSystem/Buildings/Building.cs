@@ -449,17 +449,40 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     #region 编辑器调试
 
 #if UNITY_EDITOR
+    // 在对象上方显示分配NPC和临时NPC数量，以及背包资源数量
     private void DrawDebugTextWithHandles()
     {
         if (assignedNPCs == null || tempAssignedNPCs == null) return;
+        
+        // 构建显示文本
+        List<string> displayLines = new List<string>();
+        
+        // NPC信息
+        displayLines.Add($"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]");
+        
+        // Inventory资源信息
+        if (inventory != null && inventory.currentStacks != null)
+        {
+            foreach (var resourceStack in inventory.currentStacks)
+            {
+                if (resourceStack.amount > 0) // 只显示有资源的项目
+                {
+                    displayLines.Add($"[{resourceStack.displayName}] {resourceStack.amount}/{resourceStack.storageLimit}");
+                }
+            }
+        }
+        
         // 计算文本位置（在对象上方）
         Vector3 textPosition = transform.position + Vector3.up * heightOffset;
+        
         // 设置文本样式
         GUIStyle style = new GUIStyle();
         style.normal.textColor = textColor;
         style.fontSize = (int)textSize;
         style.alignment = TextAnchor.UpperCenter;
-        string displayText = $"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]";
+        
+        // 绘制多行文本
+        string displayText = string.Join("\n", displayLines);
         Handles.Label(textPosition, displayText, style);
     }
 #endif
