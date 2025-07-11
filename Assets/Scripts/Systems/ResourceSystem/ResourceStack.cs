@@ -9,7 +9,7 @@ public class ResourceStack : ISaveable
     
     [Header("动态数据")]
     public int amount = 0;
-    public int storageLimit = 999;
+    public int storageLimit = 100;
     public int purchasePrice;
     public int sellPrice;
     
