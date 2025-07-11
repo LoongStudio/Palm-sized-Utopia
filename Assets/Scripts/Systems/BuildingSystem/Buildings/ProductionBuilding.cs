@@ -24,7 +24,16 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     {
         UpdateProduction();
     }
+    // TODO: 重写Building的SetBuildingData方法，设置生产数据, 不用SetupProductionRule
     protected virtual void SetupProductionRule() { }
+
+    public override void SetBuildingData(BuildingPrefabData data)
+    {
+        base.SetBuildingData(data);
+        // 设置转换规则
+        productionRules = data.productionBuildingDatas.conversionRules;
+    }
+
     protected virtual void UpdateProduction()
     {
         if (!_canProduce) return;
@@ -79,7 +88,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         foreach (int idx in indices)
         {
             var rule = productionRules[idx];
-            bool exchanged = inventory.SelfExchange(rule.inputs, rule.outputs);
+            bool exchanged = inventory.InternalProductionExchange(rule.inputs, rule.outputs);
             if (exchanged)
             {
                 productionTimer = 0f; // 重置全局cd

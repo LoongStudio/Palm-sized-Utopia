@@ -373,7 +373,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             return null;
         }
         // 设置建筑数据
-        building.SetBuildingData(GetBuildingData(type));
+        building.SetBuildingData(GetBuildingOverallData(type));
         if (showDebugInfo)
             Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已创建在 {worldPosition}");
 
@@ -449,9 +449,27 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 根据subType从配置中获取建筑数据
     /// </summary>
+    public BuildingPrefabData GetBuildingOverallData(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType);
+    }
+    /// <summary>
+    /// 根据subType从配置中获取建筑基本数据
+    /// </summary>
     public BuildingData GetBuildingData(BuildingSubType subType)
     {
         return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).buildingDatas;
+    }
+    /// <summary>
+    /// 根据subType从配置中获取建筑生产数据
+    /// </summary>
+    public ProductionBuildingData GetProductionBuildingData(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).productionBuildingDatas;
+    }
+    public GameObject GetBuildingPrefab(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).prefab;
     }
     #endregion
 
