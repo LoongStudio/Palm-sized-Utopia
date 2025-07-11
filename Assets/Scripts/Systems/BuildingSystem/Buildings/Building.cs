@@ -26,6 +26,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
+    [ShowInInspector]
     public HashSet<ResourceConfig> AcceptResources;
     
     [Header("槽位管理")] 
@@ -162,9 +163,31 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     /// <summary>
     /// 设置建筑数据
     /// </summary>
-    public void SetBuildingData(BuildingData data)
+    public virtual void SetBuildingData(BuildingPrefabData data)
     {
-        this.data = data;
+        // 设置基础数据
+        this.data = data.buildingDatas;
+
+        // 设置可放入资源，转换为HashSet
+        if(data.productionBuildingDatas.acceptResources != null){
+            AcceptResources = new HashSet<ResourceConfig>(data.productionBuildingDatas.acceptResources);
+        }
+
+        // 设置Inventory
+        if(inventory != null){
+            if(data.productionBuildingDatas.defaultResources != null){
+                inventory.currentStacks = data.productionBuildingDatas.defaultResources;
+            }
+            inventory.acceptMode = data.productionBuildingDatas.defaultAcceptMode;
+            inventory.filterMode = data.productionBuildingDatas.defaultFilterMode;
+            if(data.productionBuildingDatas.defaultAcceptList != null){
+                inventory.acceptList = new HashSet<ResourceConfig>(data.productionBuildingDatas.defaultAcceptList);
+            }
+            if(data.productionBuildingDatas.defaultRejectList != null){
+                inventory.rejectList = new HashSet<ResourceConfig>(data.productionBuildingDatas.defaultRejectList);
+            }
+            inventory.defaultMaxValue = data.productionBuildingDatas.defaultMaxValue;
+        }
     }
 
     /// <summary>
@@ -410,8 +433,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual void LoadFromData(GameSaveData data)
     {
         var saveData = data as BuildingInstanceSaveData;
+        // 1. 先设置建筑数据
+        SetBuildingData(BuildingManager.Instance.GetBuildingOverallData(saveData.subType));
+        
+        // 2. 再恢复存档数据
         BuildingId = saveData.buildingId;
-        SetBuildingData(BuildingManager.Instance.GetBuildingData(saveData.subType));
         status = saveData.status;
         currentLevel = saveData.currentLevel;
         positions = saveData.positions;
