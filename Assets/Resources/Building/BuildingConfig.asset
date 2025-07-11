@@ -15,11 +15,11 @@ MonoBehaviour:
   buildingPrefabDatas:
   - subType: 0
     buildingDatas:
-      buildingType: 0
-      subType: 0
       buildingName: Farm
       description: Farm consumes seeds and converts them into crop.
       icon: {fileID: 21300000, guid: 860ae0bd629cc6d40a98bc251b1ae47e, type: 3}
+      buildingType: 0
+      subType: 0
       purchasePrice: 100
       upgradePrices: 64000000640000006400000064000000
       maxLevel: 5
@@ -27,14 +27,43 @@ MonoBehaviour:
       npcSlots: 3
       equipmentSlots: 3
       baseEfficiency: 1
+    productionBuildingDatas:
+      defaultResources:
+      - resourceConfig: {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+        amount: 5
+        storageLimit: 0
+        purchasePrice: 0
+        sellPrice: 0
+      defaultMaxValue: 100
+      acceptResources:
+      - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+      conversionRules:
+      - inputs:
+        - resourceConfig: {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+          amount: 1
+          storageLimit: 999
+          purchasePrice: 0
+          sellPrice: 0
+        outputs:
+        - resourceConfig: {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+          amount: 10
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+      defaultAcceptMode: 1
+      defaultFilterMode: 1
+      defaultAcceptList:
+      - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      defaultRejectList: []
     prefab: {fileID: 3491214700092412604, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
   - subType: 2
     buildingDatas:
+      buildingName: Trade Market
+      description: It can automatically sell crops and livestock and get coin.
+      icon: {fileID: 21300000, guid: 1e7cafa71a5835f438e6f255c730bc88, type: 3}
       buildingType: 0
       subType: 2
-      buildingName: Trade Market
-      description: It can sell stuffs and get coin.
-      icon: {fileID: 21300000, guid: 1e7cafa71a5835f438e6f255c730bc88, type: 3}
       purchasePrice: 100
       upgradePrices: 64000000640000006400000064000000
       maxLevel: 5
@@ -42,15 +71,32 @@ MonoBehaviour:
       npcSlots: 1
       equipmentSlots: 1
       baseEfficiency: 1
+    productionBuildingDatas:
+      defaultResources: []
+      defaultMaxValue: 1000
+      acceptResources:
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+      - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+      - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
+      conversionRules: []
+      defaultAcceptMode: 0
+      defaultFilterMode: 1
+      defaultAcceptList:
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+      - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+      - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
+      defaultRejectList: []
     prefab: {fileID: 8842694713244571849, guid: f01d58811061e6d42ba88ca3c62303b2, type: 3}
   - subType: 7
     buildingDatas:
-      buildingType: 3
-      subType: 7
       buildingName: Apartment
       description: NPCs need a house to live in. An apartment is what they want at
         least.
       icon: {fileID: 21300000, guid: 33ed99360e7e59f40b709d5292b8b51f, type: 3}
+      buildingType: 3
+      subType: 7
       purchasePrice: 50
       upgradePrices: 6400000064000000
       maxLevel: 3
@@ -58,14 +104,23 @@ MonoBehaviour:
       npcSlots: 5
       equipmentSlots: 1
       baseEfficiency: 1
+    productionBuildingDatas:
+      defaultResources: []
+      defaultMaxValue: 0
+      acceptResources: []
+      conversionRules: []
+      defaultAcceptMode: 0
+      defaultFilterMode: 0
+      defaultAcceptList: []
+      defaultRejectList: []
     prefab: {fileID: 5590697140018055236, guid: 692dce5962f41ba48a678ac3a582bc2a, type: 3}
   - subType: 5
     buildingDatas:
-      buildingType: 4
-      subType: 5
       buildingName: Warehouse
       description: It stores stuffs, period.
       icon: {fileID: 21300000, guid: f67b21693aa3da84e96bb6382376e82b, type: 3}
+      buildingType: 4
+      subType: 5
       purchasePrice: 100
       upgradePrices: 64000000640000006400000064000000
       maxLevel: 5
@@ -73,4 +128,13 @@ MonoBehaviour:
       npcSlots: 1
       equipmentSlots: 1
       baseEfficiency: 1
+    productionBuildingDatas:
+      defaultResources: []
+      defaultMaxValue: 0
+      acceptResources: []
+      conversionRules: []
+      defaultAcceptMode: 0
+      defaultFilterMode: 0
+      defaultAcceptList: []
+      defaultRejectList: []
     prefab: {fileID: 1429137967068105344, guid: a9a6deaddcd6be942ab2e03ed0b31fb7, type: 3}

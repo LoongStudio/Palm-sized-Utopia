@@ -131,8 +131,10 @@ public class Inventory : ISaveable
     private bool CanAddItem(ResourceConfig config, int amount)
     {
         // 先检查过滤规则
-        if (!PassesFilter(config))
+        if (!PassesFilter(config)){
+            Debug.LogWarning($"资源{config.name}无法通过过滤");
             return false;
+        }
 
         var cur = GetCurrent(config);
         if (cur == null)
@@ -192,7 +194,7 @@ public class Inventory : ISaveable
 
     public bool HasEnough(ResourceStack required)
     {
-        var current = currentStacks.FirstOrDefault(r => r.Equals(required));
+        var current = currentStacks.FirstOrDefault(r => r.resourceConfig.Equals(required.resourceConfig));
         return current != null && current.amount >= required.amount;
     }
 
@@ -424,18 +426,24 @@ public class Inventory : ISaveable
     {
         // 检查所有资源是否都能通过过滤
         foreach (var item in consume.Concat(produce))
-            if (!PassesFilter(item.resourceConfig))
+            if (!PassesFilter(item.resourceConfig)){
+                Debug.LogWarning($"资源{item.resourceConfig.name}无法通过过滤");
                 return false;
+            }
 
         // 检查是否有足够的消耗资源
         foreach (var item in consume)
-            if (!HasEnough(item))
+            if (!HasEnough(item)){
+                Debug.LogWarning($"资源{item.resourceConfig.name}数量不足");
                 return false;
+            }
 
         // 检查是否有足够的空间存放产出
         foreach (var item in produce)
-            if (!CanAddItem(item.resourceConfig, item.amount))
+            if (!CanAddItem(item.resourceConfig, item.amount)){
+                Debug.LogWarning($"资源{item.resourceConfig.name}空间不足");
                 return false;
+            }
 
         // 执行交换
         foreach (var item in consume)
@@ -444,6 +452,64 @@ public class Inventory : ISaveable
             AddItem(item.resourceConfig, item.amount);
 
         return true;
+    }
+
+    /// <summary>
+    /// 内部生产交换（绕过过滤规则，用于生产建筑）
+    /// </summary>
+    public bool InternalProductionExchange(List<ResourceStack> consume, List<ResourceStack> produce)
+    {
+        // 检查是否有足够的消耗资源
+        foreach (var item in consume)
+            if (!HasEnough(item)){
+                Debug.LogWarning($"资源{item.resourceConfig.name}数量不足");
+                return false;
+            }
+
+        // 检查是否有足够的空间存放产出（使用内部添加方法）
+        foreach (var item in produce)
+            if (!CanAddItemInternal(item.resourceConfig, item.amount)){
+                Debug.LogWarning($"资源{item.resourceConfig.name}空间不足");
+                return false;
+            }
+
+        // 执行交换
+        foreach (var item in consume)
+            RemoveItem(item.resourceConfig, item.amount);
+        foreach (var item in produce)
+            AddItemInternal(item.resourceConfig, item.amount);
+
+        return true;
+    }
+
+    /// <summary>
+    /// 内部添加物品（绕过过滤规则）
+    /// </summary>
+    private bool CanAddItemInternal(ResourceConfig config, int amount)
+    {
+        var cur = GetCurrent(config);
+        if (cur == null)
+        {
+            // 内部生产时，总是允许创建新的资源堆栈
+            currentStacks.Add(new ResourceStack(config, 0, defaultMaxValue));
+            cur = GetCurrent(config);
+        }
+        return cur.CanAdd(amount);
+    }
+
+    /// <summary>
+    /// 内部添加物品（绕过过滤规则）
+    /// </summary>
+    private void AddItemInternal(ResourceConfig config, int amount)
+    {
+        var cur = GetCurrent(config);
+        if (cur == null)
+        {
+            // 内部生产时，总是允许创建新的资源堆栈
+            currentStacks.Add(new ResourceStack(config, 0, defaultMaxValue));
+            cur = GetCurrent(config);
+        }
+        cur.AddAmount(amount);
     }
     #endregion
 

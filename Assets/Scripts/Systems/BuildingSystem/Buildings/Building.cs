@@ -26,10 +26,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public BuildingStatus status;
     public int currentLevel;
     public List<Vector2Int> positions;
+    [ShowInInspector]
     public HashSet<ResourceConfig> AcceptResources;
     
     [Header("槽位管理")] 
-    public int maxSlotAmount = 3;
+    public int maxSlotAmount = 3;  // 这里被我替换为了NPCSlotAmount，因为它在data中被定义了
     public List<NPC> assignedNPCs;
     public List<NPC> tempAssignedNPCs;
     public List<Equipment> installedEquipment;
@@ -86,6 +87,29 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         }
     }
 
+    public float BaseEfficiency {
+        get {
+            return data.baseEfficiency;
+        }
+    }
+    
+    public int NPCSlotAmount {
+        get {
+            return data.npcSlots;
+        }
+        set {
+            data.npcSlots = value;
+        }
+    }
+    
+    public int EquipmentSlotAmount {
+        get {
+            return data.equipmentSlots;
+        }
+        set {
+            data.equipmentSlots = value;
+        }
+    }
     #endregion
 
     #region Unity生命周期
@@ -139,9 +163,31 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     /// <summary>
     /// 设置建筑数据
     /// </summary>
-    public void SetBuildingData(BuildingData data)
+    public virtual void SetBuildingData(BuildingPrefabData data)
     {
-        this.data = data;
+        // 设置基础数据
+        this.data = data.buildingDatas;
+
+        // 设置可放入资源，转换为HashSet
+        if(data.productionBuildingDatas.acceptResources != null){
+            AcceptResources = new HashSet<ResourceConfig>(data.productionBuildingDatas.acceptResources);
+        }
+
+        // 设置Inventory
+        if(inventory != null){
+            if(data.productionBuildingDatas.defaultResources != null){
+                inventory.currentStacks = data.productionBuildingDatas.defaultResources;
+            }
+            inventory.acceptMode = data.productionBuildingDatas.defaultAcceptMode;
+            inventory.filterMode = data.productionBuildingDatas.defaultFilterMode;
+            if(data.productionBuildingDatas.defaultAcceptList != null){
+                inventory.acceptList = new HashSet<ResourceConfig>(data.productionBuildingDatas.defaultAcceptList);
+            }
+            if(data.productionBuildingDatas.defaultRejectList != null){
+                inventory.rejectList = new HashSet<ResourceConfig>(data.productionBuildingDatas.defaultRejectList);
+            }
+            inventory.defaultMaxValue = data.productionBuildingDatas.defaultMaxValue;
+        }
     }
 
     /// <summary>
@@ -298,7 +344,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if (!assignedNPCs.Contains(npc) 
             && npc.assignedTask.building == this
             && npc.assignedTask.taskType == TaskType.Production
-            && assignedNPCs.Count < maxSlotAmount)
+            && assignedNPCs.Count < NPCSlotAmount)
         {
             assignedNPCs.Add(npc);
             return true;
@@ -387,8 +433,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public virtual void LoadFromData(GameSaveData data)
     {
         var saveData = data as BuildingInstanceSaveData;
+        // 1. 先设置建筑数据
+        SetBuildingData(BuildingManager.Instance.GetBuildingOverallData(saveData.subType));
+        
+        // 2. 再恢复存档数据
         BuildingId = saveData.buildingId;
-        SetBuildingData(BuildingManager.Instance.GetBuildingData(saveData.subType));
         status = saveData.status;
         currentLevel = saveData.currentLevel;
         positions = saveData.positions;
@@ -439,7 +488,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         Debug.Log($"状态: {status}");
         Debug.Log($"等级: {currentLevel}");
         Debug.Log($"位置: {string.Join(" ", positions)}");
-        Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{maxSlotAmount}");
+        Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{NPCSlotAmount}");
         Debug.Log($"临时NPC数量: {tempAssignedNPCs?.Count ?? 0}");
         Debug.Log($"[Building] ====================================================");
     }
@@ -449,17 +498,40 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     #region 编辑器调试
 
 #if UNITY_EDITOR
+    // 在对象上方显示分配NPC和临时NPC数量，以及背包资源数量
     private void DrawDebugTextWithHandles()
     {
         if (assignedNPCs == null || tempAssignedNPCs == null) return;
+        
+        // 构建显示文本
+        List<string> displayLines = new List<string>();
+        
+        // NPC信息
+        displayLines.Add($"[A:{assignedNPCs.Count}/{NPCSlotAmount}][T:{tempAssignedNPCs.Count}]");
+        
+        // Inventory资源信息
+        if (inventory != null && inventory.currentStacks != null)
+        {
+            foreach (var resourceStack in inventory.currentStacks)
+            {
+                if (resourceStack.amount > 0) // 只显示有资源的项目
+                {
+                    displayLines.Add($"[{resourceStack.displayName}] {resourceStack.amount}/{resourceStack.storageLimit}");
+                }
+            }
+        }
+        
         // 计算文本位置（在对象上方）
         Vector3 textPosition = transform.position + Vector3.up * heightOffset;
+        
         // 设置文本样式
         GUIStyle style = new GUIStyle();
         style.normal.textColor = textColor;
         style.fontSize = (int)textSize;
         style.alignment = TextAnchor.UpperCenter;
-        string displayText = $"[A:{assignedNPCs.Count}/{maxSlotAmount}][T:{tempAssignedNPCs.Count}]";
+        
+        // 绘制多行文本
+        string displayText = string.Join("\n", displayLines);
         Handles.Label(textPosition, displayText, style);
     }
 #endif

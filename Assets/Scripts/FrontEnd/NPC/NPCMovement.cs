@@ -143,6 +143,7 @@ public class NPCMovement : MonoBehaviour
         minWaitTime = npcMovementConfig.minWaitTime;
         maxWaitTime = npcMovementConfig.maxWaitTime;
         movementSpeed = npcMovementConfig.moveSpeed;
+        isInPosition = false;
 
         // 设置转向属性
         turnSpeed = npcMovementConfig.turnSpeed;
@@ -189,6 +190,7 @@ public class NPCMovement : MonoBehaviour
         
         isMoving = false;
         isWaiting = false;
+        isInPosition = false;  // 重置位置状态
         
         if (showDebugInfo)
             Debug.Log($"[NPCMovement] {name} 停止随机移动");
@@ -296,6 +298,7 @@ public class NPCMovement : MonoBehaviour
             if (navAgent.pathStatus == NavMeshPathStatus.PathInvalid)
             {
                 Debug.LogWarning($"[NPCMovement] {name} 路径无效，停止移动");
+                isInPosition = false; // 重置状态
                 break;
             }
             
