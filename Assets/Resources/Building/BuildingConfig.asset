@@ -28,6 +28,13 @@ MonoBehaviour:
       equipmentSlots: 3
       baseEfficiency: 1
     productionBuildingDatas:
+      defaultResources:
+      - resourceConfig: {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+        amount: 5
+        storageLimit: 0
+        purchasePrice: 0
+        sellPrice: 0
+      defaultMaxValue: 100
       acceptResources:
       - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
       conversionRules:
@@ -43,7 +50,6 @@ MonoBehaviour:
           storageLimit: 0
           purchasePrice: 0
           sellPrice: 0
-      defaultMaxValue: 100
       defaultAcceptMode: 1
       defaultFilterMode: 1
       defaultAcceptList:
@@ -54,7 +60,7 @@ MonoBehaviour:
   - subType: 2
     buildingDatas:
       buildingName: Trade Market
-      description: It can sell stuffs and get coin.
+      description: It can automatically sell crops and livestock and get coin.
       icon: {fileID: 21300000, guid: 1e7cafa71a5835f438e6f255c730bc88, type: 3}
       buildingType: 0
       subType: 2
@@ -66,12 +72,21 @@ MonoBehaviour:
       equipmentSlots: 1
       baseEfficiency: 1
     productionBuildingDatas:
-      acceptResources: []
+      defaultResources: []
+      defaultMaxValue: 1000
+      acceptResources:
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+      - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+      - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
       conversionRules: []
-      defaultMaxValue: 0
       defaultAcceptMode: 0
-      defaultFilterMode: 0
-      defaultAcceptList: []
+      defaultFilterMode: 1
+      defaultAcceptList:
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+      - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+      - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
       defaultRejectList: []
     prefab: {fileID: 8842694713244571849, guid: f01d58811061e6d42ba88ca3c62303b2, type: 3}
   - subType: 7
@@ -90,9 +105,10 @@ MonoBehaviour:
       equipmentSlots: 1
       baseEfficiency: 1
     productionBuildingDatas:
+      defaultResources: []
+      defaultMaxValue: 0
       acceptResources: []
       conversionRules: []
-      defaultMaxValue: 0
       defaultAcceptMode: 0
       defaultFilterMode: 0
       defaultAcceptList: []
@@ -113,9 +129,10 @@ MonoBehaviour:
       equipmentSlots: 1
       baseEfficiency: 1
     productionBuildingDatas:
+      defaultResources: []
+      defaultMaxValue: 0
       acceptResources: []
       conversionRules: []
-      defaultMaxValue: 0
       defaultAcceptMode: 0
       defaultFilterMode: 0
       defaultAcceptList: []
