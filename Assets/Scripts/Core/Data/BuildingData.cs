@@ -24,10 +24,10 @@ public class BuildingData
 [System.Serializable]
 public class ProductionBuildingData
 {
-    [LabelText("可放入资源")] public List<ResourceConfig> acceptResources;
-    [LabelText("默认资源数量")] public List<ResourceStack> defaultResources;
+    [FoldoutGroup("资源相关"),LabelText("默认资源数量")] public List<ResourceStack> defaultResources;
+    [FoldoutGroup("资源相关"),LabelText("默认最大值")] public int defaultMaxValue;
+    [FoldoutGroup("资源相关"),LabelText("可放入资源")] public List<ResourceConfig> acceptResources;
     [FoldoutGroup("转换规则"),LabelText("生产规则")] public List<ConversionRule> conversionRules;
-    [FoldoutGroup("转换规则"),LabelText("默认最大值")] public int defaultMaxValue;
     [FoldoutGroup("转换规则"),LabelText("默认接收模式")] public Inventory.InventoryAcceptMode defaultAcceptMode;
     [FoldoutGroup("转换规则"),LabelText("默认过滤模式")] public Inventory.InventoryListFilterMode defaultFilterMode;
     [FoldoutGroup("转换规则"),LabelText("默认白名单")] public List<ResourceConfig> defaultAcceptList;
