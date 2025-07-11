@@ -11,6 +11,14 @@ public class NPC : MonoBehaviour, ISaveable
     #region 字段声明
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
+    
+    [Header("调试设置")]
+    public float heightOffset = 0.1f;  // 文本显示高度
+    public Color textColor = Color.white;
+    public float textSize = 12;
+    public bool alwaysShow = true;  // 是否始终显示，否则仅在选中时显示
+    private GUIStyle textStyle;
+    
     [Header("唯一标识")]
     [SerializeField] private string npcId;
 
@@ -90,6 +98,14 @@ public class NPC : MonoBehaviour, ISaveable
     private void Update()
     {
         UpdateMovement();
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!alwaysShow) return;
+#if UNITY_EDITOR
+        DrawDebugTextWithHandles();
+#endif
     }
     private void OnDestroy()
     {
@@ -552,6 +568,57 @@ public class NPC : MonoBehaviour, ISaveable
         }
         Debug.Log($"[NPC] {data.npcName} ====================================================");
     }
+    #endregion
+
+    #region 编辑器调试
+
+#if UNITY_EDITOR
+    // 在对象上方显示NPC状态、任务和背包信息
+    private void DrawDebugTextWithHandles()
+    {
+        // 构建显示文本
+        List<string> displayLines = new List<string>();
+        
+        // NPC基本信息
+        displayLines.Add($"[{data?.npcName}] {currentState}");
+        
+        // 任务信息
+        if (assignedTask != null && assignedTask.building != null)
+        {
+            displayLines.Add($"[任务] {assignedTask.taskType} -> {assignedTask.building.data?.buildingName}");
+        }
+        else if (pendingTask != null && pendingTask.building != null)
+        {
+            displayLines.Add($"[待处理] {pendingTask.taskType} -> {pendingTask.building.data?.buildingName}");
+        }
+        
+        // Inventory资源信息
+        if (inventory != null && inventory.currentStacks != null)
+        {
+            foreach (var resourceStack in inventory.currentStacks)
+            {
+                if (resourceStack.amount > 0) // 只显示有资源的项目
+                {
+                    displayLines.Add($"[{resourceStack.displayName}] {resourceStack.amount}/{resourceStack.storageLimit}");
+                }
+            }
+        }
+        
+        // 计算文本位置（在对象上方）
+        Vector3 textPosition = transform.position + Vector3.up * heightOffset;
+        
+        // 设置文本样式
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = textColor;
+        style.fontSize = (int)textSize;
+        style.alignment = TextAnchor.UpperCenter;
+        
+        // 绘制多行文本
+        string displayText = string.Join("\n", displayLines);
+        Handles.Label(textPosition, displayText, style);
+    }
+#endif
+
     #endregion
 
     public TaskInfo GetPendingTask()

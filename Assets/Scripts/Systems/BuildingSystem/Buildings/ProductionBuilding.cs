@@ -11,7 +11,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public float productionCooldown = 5f;
     public float productionTimer = 0f; // 全局cd
     public float conversionTime = 5f;
-    public float baseEfficiency = 50f;
+    public float baseEfficiency = 50f;  // 这里被我替换为了BaseEfficiency，因为它在data中被定义了
     public float efficiency = 1f;
     private bool _canProduce = true; 
     public bool randomProductionOrder = false; // 新增：是否随机生产顺序
@@ -24,7 +24,16 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     {
         UpdateProduction();
     }
+    // TODO: 重写Building的SetBuildingData方法，设置生产数据, 不用SetupProductionRule
     protected virtual void SetupProductionRule() { }
+
+    public override void SetBuildingData(BuildingPrefabData data)
+    {
+        base.SetBuildingData(data);
+        // 设置转换规则
+        productionRules = data.productionBuildingDatas.conversionRules;
+    }
+
     protected virtual void UpdateProduction()
     {
         if (!_canProduce) return;
@@ -61,6 +70,9 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             productionTimer += Time.deltaTime;
             return;
         }
+        
+        // 重置计时器, 防止短时间内多次运行复杂逻辑
+        productionTimer = 0f;
 
         // 新增：根据开关决定生产顺序
         List<int> indices = new List<int>();
@@ -79,7 +91,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         foreach (int idx in indices)
         {
             var rule = productionRules[idx];
-            bool exchanged = inventory.SelfExchange(rule.inputs, rule.outputs);
+            bool exchanged = inventory.InternalProductionExchange(rule.inputs, rule.outputs);
             if (exchanged)
             {
                 productionTimer = 0f; // 重置全局cd
@@ -92,13 +104,13 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public virtual float UpdateCurrentEfficiency()
     {
         float levelBonus = 0.1f * currentLevel;
-        float npcEfficiencyPerNPC = 1f / maxSlotAmount; 
+        float npcEfficiencyPerNPC = 1f / NPCSlotAmount; 
         float npcBonus = assignedNPCs != null ? assignedNPCs.Count * npcEfficiencyPerNPC : 0f;
         float deviceBonus = 0;
         if (installedEquipment != null)
             foreach (var equipment in installedEquipment)
                 deviceBonus += equipment.deviceBonus;
-        float totalEfficiency = baseEfficiency + levelBonus + npcBonus + deviceBonus;
+        float totalEfficiency = BaseEfficiency + levelBonus + npcBonus + deviceBonus;
         // float totalEfficiency = baseEfficiency;
         // 按产出规则数量分摊效率（防止多个规则时过快）
         if (productionRules != null && productionRules.Count > 0)

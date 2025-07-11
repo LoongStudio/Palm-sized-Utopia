@@ -373,7 +373,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             return null;
         }
         // 设置建筑数据
-        building.SetBuildingData(GetBuildingData(type));
+        building.SetBuildingData(GetBuildingOverallData(type));
         if (showDebugInfo)
             Debug.Log($"[BuildingManager] 建筑 {building.name} (ID: {building.BuildingId}) 已创建在 {worldPosition}");
 
@@ -449,9 +449,27 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     /// <summary>
     /// 根据subType从配置中获取建筑数据
     /// </summary>
+    public BuildingPrefabData GetBuildingOverallData(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType);
+    }
+    /// <summary>
+    /// 根据subType从配置中获取建筑基本数据
+    /// </summary>
     public BuildingData GetBuildingData(BuildingSubType subType)
     {
         return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).buildingDatas;
+    }
+    /// <summary>
+    /// 根据subType从配置中获取建筑生产数据
+    /// </summary>
+    public ProductionBuildingData GetProductionBuildingData(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).productionBuildingDatas;
+    }
+    public GameObject GetBuildingPrefab(BuildingSubType subType)
+    {
+        return buildingConfig.buildingPrefabDatas.Find(x => x.subType == subType).prefab;
     }
     #endregion
 
@@ -520,7 +538,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         foreach (var building in _buildings)
         {
             // 检查是否有空余槽位
-            if (building.assignedNPCs.Count < building.maxSlotAmount)
+            if (building.assignedNPCs.Count < building.NPCSlotAmount)
             {
                 result.Add(building);
                 continue;
@@ -554,7 +572,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         // 按优先级排序：空余槽位 > 需要输入资源 > 需要转移资源
         return result.OrderBy(b =>
         {
-            if (b.assignedNPCs.Count < b.maxSlotAmount) return 0;
+            if (b.assignedNPCs.Count < b.NPCSlotAmount) return 0;
             if (b.AcceptResources.Any()) return 1;
             return 2;
         }).ToList();
@@ -582,8 +600,8 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
 
             // 缺人程度
             float slotRatio = 0f;
-            if (building.maxSlotAmount > 0)
-                slotRatio = (float)(building.maxSlotAmount - building.assignedNPCs?.Count ?? 0) / building.maxSlotAmount;
+            if (building.NPCSlotAmount > 0)
+                slotRatio = (float)(building.NPCSlotAmount - building.assignedNPCs?.Count ?? 0) / building.NPCSlotAmount;
 
             float resourceRatioAgainst =
                 building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);

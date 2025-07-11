@@ -46,12 +46,11 @@ public class NPCMovingToSocialState : NPCStateBase
         // 自己到达社交位置，通知伙伴
         if(npc.isInPosition){
             isInSocialPosition = true; // 标记自己已到达社交地点
-            if (showDebugInfo)
-                Debug.Log($"[NPCMovingToSocialState] {npc.data.npcName} 已到达社交地点");
-
+            
             // 如果还没有通知社交伙伴，则通知社交伙伴
             if (!inSocialPositionTrigger)
             {
+                if (showDebugInfo) Debug.Log($"[NPCMovingToSocialState] {npc.data.npcName} 已到达社交地点");
                 inSocialPositionTrigger = true;
                 GameEvents.TriggerNPCInSocialPosition(new NPCEventArgs { npc = npc });
             }
@@ -75,6 +74,7 @@ public class NPCMovingToSocialState : NPCStateBase
         // 初始化值
         isInSocialPosition = false;
         isPartnerInSocialPosition = false;
+        inSocialPositionTrigger = false;
         // 注册事件
         RegisterEvent();
     }

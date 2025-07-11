@@ -3,47 +3,19 @@ using UnityEngine;
 
 public class TradeMarket : ProductionBuilding
 {
+    [Header("贸易市场专属")]
+    public float tradeEfficiencyMultiplier = 1.0f;
+    
     public override void InitialSelfStorage()
     {
-        AcceptResources = new HashSet<ResourceConfig>()
-        {
-            ResourceManager.Instance.GetConfig(ResourceType.Coin, (int)CoinSubType.Gold)
-        };
-        inventory = new Inventory(
-            new List<ResourceStack>(),
-            Inventory.InventoryAcceptMode.AllowAll,
-            Inventory.InventoryListFilterMode.None,
-            AcceptResources,
-            null,
-            Inventory.InventoryOwnerType.Building
-        );
+
     }
 
     protected override void SetupProductionRule()
     {
         base.SetupProductionRule();
-        productionRules = new List<ConversionRule>()
-        {
-            new ConversionRule()
-            {
-                inputs = new List<ResourceStack>(),
-                outputs = new List<ResourceStack>
-                {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 1)
-                }
-            },
-            new ConversionRule()
-            {
-                inputs = new List<ResourceStack>(),
-                outputs = new List<ResourceStack>
-                {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn), 1)
-                }
-            },
-        };
+        // 贸易市场不需要生产规则，它只是自动售卖
     }
-    [Header("贸易市场专属")]
-    public float tradeEfficiencyMultiplier = 1.0f;
     
     public new void OnTryBuilt()
     {
