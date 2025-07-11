@@ -70,6 +70,9 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             productionTimer += Time.deltaTime;
             return;
         }
+        
+        // 重置计时器, 防止短时间内多次运行复杂逻辑
+        productionTimer = 0f;
 
         // 新增：根据开关决定生产顺序
         List<int> indices = new List<int>();
