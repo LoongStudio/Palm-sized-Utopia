@@ -639,16 +639,16 @@ public class Inventory : ISaveable
         }
         ownerType = saveData.ownerType;
         currentStacks = saveData.currentStacks.Select(r =>
-            new ResourceStack(ResourceManager.Instance.GetConfig(r.type, r.subType), r.amount, r.storageLimit)).ToList();
+            new ResourceStack(ResourceManager.Instance.GetResourceConfig(r.type, r.subType), r.amount, r.storageLimit)).ToList();
         acceptMode = saveData.acceptMode;
         filterMode = saveData.filterMode;
         if (saveData.acceptList != null)
         {
-            acceptList = new HashSet<ResourceConfig>(saveData.acceptList.Select(r => ResourceManager.Instance.GetConfig(r.Key, r.Value)));
+            acceptList = new HashSet<ResourceConfig>(saveData.acceptList.Select(r => ResourceManager.Instance.GetResourceConfig(r.Key, r.Value)));
         }
         if (saveData.rejectList != null)
         {
-            rejectList = new HashSet<ResourceConfig>(saveData.rejectList.Select(r => ResourceManager.Instance.GetConfig(r.Key, r.Value)));
+            rejectList = new HashSet<ResourceConfig>(saveData.rejectList.Select(r => ResourceManager.Instance.GetResourceConfig(r.Key, r.Value)));
         }
         defaultMaxValue = saveData.defaultMaxValue;
     }

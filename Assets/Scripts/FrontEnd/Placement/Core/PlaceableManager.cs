@@ -47,13 +47,13 @@ public class PlaceableManager : SingletonManager<PlaceableManager>, ISaveable
             return;
         }
         // 2. 检测玩家是否拥有足够资源
-        if(!ResourceManager.Instance.HasEnoughResource(ResourceType.Coin, CoinSubType.Gold, _settings.GetPurchasePrice(args.placeableType)))
+        if(!ResourceManager.Instance.HasEnoughResource(ResourceManager.Instance.Gold, _settings.GetPurchasePrice(args.placeableType)))
         {
             // TODO: 比如提示资源不足
-            Debug.LogWarning($"[PlaceableManager] 玩家没有足够资源购买 {args.placeableType}，需要 {_settings.GetPurchasePrice(args.placeableType)} 金币，玩家当前有 {ResourceManager.Instance.GetResourceAmount(ResourceType.Coin, CoinSubType.Gold)} 金币");
+            Debug.LogWarning($"[PlaceableManager] 玩家没有足够资源购买 {args.placeableType}，需要 {_settings.GetPurchasePrice(args.placeableType)} 金币，玩家当前有 {ResourceManager.Instance.GetResourceAmount(ResourceManager.Instance.Gold)} 金币");
             GameEvents.TriggerResourceInsufficient(new ResourceEventArgs(){
-                resourceType = ResourceType.Coin,
-                subType = (int)CoinSubType.Gold,
+                resourceType = ResourceManager.Instance.Gold.type,
+                subType = ResourceManager.Instance.Gold.subType,
                 newAmount = _settings.GetPurchasePrice(args.placeableType),
                 timestamp = System.DateTime.Now
             });
@@ -84,7 +84,7 @@ public class PlaceableManager : SingletonManager<PlaceableManager>, ISaveable
             RegisterPlaceableObject(args.placeable as PlaceableObject);
             // 消耗资源
             var price = _settings.GetPurchasePrice(args.placeableType); 
-            ResourceManager.Instance.RemoveResource(ResourceType.Coin, CoinSubType.Gold, price);
+            ResourceManager.Instance.RemoveResource(ResourceManager.Instance.Gold, price);
             Debug.Log($"[PlaceableManager] 地皮放置成功 {args.placeableType}，消耗资源: {price} 金币");
         }
         else if(args.eventType == BuildingEventArgs.BuildingEventType.PlaceFailed){

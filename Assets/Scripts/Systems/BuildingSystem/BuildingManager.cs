@@ -316,7 +316,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         }
 
         // 检查玩家是否拥有足够资源
-        if (!ResourceManager.Instance.HasEnoughResource(ResourceType.Coin, CoinSubType.Gold, buildingData.purchasePrice))
+        if (!ResourceManager.Instance.HasEnoughResource(ResourceManager.Instance.Gold, buildingData.purchasePrice))
         {
             if (showDebugInfo)
                 Debug.LogWarning($"[BuildingManager] 玩家没有足够资源购买 {buildingData.buildingName}，需要 {buildingData.purchasePrice} 金币");
@@ -428,7 +428,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             RegisterBuilding(args.building);
             // 消耗资源
             Debug.Log($"[BuildingManager] About to remove {args.building.data.purchasePrice} coins for building {args.building.name}");
-            ResourceManager.Instance.RemoveResource(ResourceType.Coin, CoinSubType.Gold, args.building.data.purchasePrice);
+            ResourceManager.Instance.RemoveResource(ResourceManager.Instance.Gold, args.building.data.purchasePrice);
             if (showDebugInfo)
                 Debug.Log($"[BuildingManager] 建筑 {args.building.name} (ID: {args.building.BuildingId}) 已放置并注册, 消耗资源: {args.building.data.purchasePrice}");
         }

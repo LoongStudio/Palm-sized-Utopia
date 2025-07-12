@@ -10,13 +10,13 @@ public class Warehouse : FunctionalBuilding
         inventory = new Inventory(
             new List<ResourceStack>()
             {
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Seed, (int)SeedSubType.Corn), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Coin, (int)CoinSubType.Gold), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Ticket, (int)TicketSubType.Ticket), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Seed, (int)SeedSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Coin, (int)CoinSubType.Gold), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Ticket, (int)TicketSubType.Ticket), 0),
             },
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,
@@ -53,11 +53,11 @@ public class Warehouse : FunctionalBuilding
         int capacityIncrease = storageCapacity * currentLevel;
         
         // 增加所有资源类型的存储上限
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        foreach (ResourceStack resource in ResourceManager.Instance.ResourceSettings)
         {
-            int currentLimit = ResourceManager.Instance.GetStorageLimit(type);
-            ResourceManager.Instance.SetStorageLimit(type, currentLimit + capacityIncrease);
+            ResourceManager.Instance.SetResourceLimit(resource.resourceConfig, ResourceManager.Instance.GetResourceLimit(resource.resourceConfig) + capacityIncrease);
         }
+        
     }
     
     private void DecreaseStorageCapacity()
@@ -65,11 +65,9 @@ public class Warehouse : FunctionalBuilding
         int capacityDecrease = storageCapacity * currentLevel;
         
         // 减少所有资源类型的存储上限
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        foreach (ResourceStack resource in ResourceManager.Instance.ResourceSettings)
         {
-            int currentLimit = ResourceManager.Instance.GetStorageLimit(type);
-            int newLimit = Mathf.Max(100, currentLimit - capacityDecrease); // 最小保留100容量
-            ResourceManager.Instance.SetStorageLimit(type, newLimit);
+            ResourceManager.Instance.SetResourceLimit(resource.resourceConfig, ResourceManager.Instance.GetResourceLimit(resource.resourceConfig) - capacityDecrease);
         }
     }
 } 

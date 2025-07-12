@@ -1,16 +1,20 @@
 using UnityEngine;
 using UnityEngine.Serialization;
+using Sirenix.OdinInspector;
 
 [System.Serializable]
 public class ResourceStack : ISaveable
 {
-    [Header("资源数据")]
+    [LabelText("资源数据")]
     public ResourceConfig resourceConfig;
     
-    [Header("动态数据")]
+    [FoldoutGroup("动态数据"),LabelText("数量")]
     public int amount = 0;
+    [FoldoutGroup("动态数据"),LabelText("存储上限")]
     public int storageLimit = 100;
+    [FoldoutGroup("动态数据"),LabelText("购买价格")]
     public int purchasePrice;
+    [FoldoutGroup("动态数据"),LabelText("出售价格")]
     public int sellPrice;
     
     // 构造函数 - 使用ResourceData
@@ -119,7 +123,11 @@ public class ResourceStack : ISaveable
     }
     public ResourceStack Clone()
     {
-        return new ResourceStack(this.resourceConfig, this.amount);
+        return new ResourceStack(this.resourceConfig, this.amount, this.storageLimit)
+        {
+            purchasePrice = this.purchasePrice,
+            sellPrice = this.sellPrice
+        };
     }
 
     #region 便捷的创建方法 - 现在需要ResourceData资产

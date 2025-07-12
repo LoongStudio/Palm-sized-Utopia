@@ -20,15 +20,15 @@ public class CompostYard : ProductionBuilding
     {
         AcceptResources = new HashSet<ResourceConfig>()
         {
-            ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat),
-            ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn),
+            ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Wheat),
+            ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Corn),
         };
         inventory = new Inventory(
             new List<ResourceStack>()
             {
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
             },
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,
@@ -47,11 +47,11 @@ public class CompostYard : ProductionBuilding
             {
                 inputs = new List<ResourceStack>
                 {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Crop, (int)CropSubType.Wheat), 2)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Wheat), 2)
                 },
                 outputs = new List<ResourceStack>
                 {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 3)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 3)
                 }
             }
         };

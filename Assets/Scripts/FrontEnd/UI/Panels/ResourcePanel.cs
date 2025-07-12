@@ -14,7 +14,7 @@ public class ResourcePanel : BasePanel{
     private void Start()
     {
         // 显示初始金币数量
-        coinAmountText.text = ResourceManager.Instance.GetResourceAmount(ResourceType.Coin, CoinSubType.Gold).ToString();
+        coinAmountText.text = ResourceManager.Instance.GetResourceAmount(ResourceManager.Instance.Gold).ToString();
     }
     private void OnEnable()
     {

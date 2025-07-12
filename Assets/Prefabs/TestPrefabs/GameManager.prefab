@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 466735253428417986}
   - component: {fileID: 6244039052927694145}
-  - component: {fileID: 6646767867260665608}
+  - component: {fileID: 6573108147115481696}
   - component: {fileID: 3208167426066385514}
   - component: {fileID: 7978545962071571111}
   - component: {fileID: 4934184660110837233}
@@ -55,15 +55,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95f504e5d4d538540afb84649ad1eaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: gameStartTime
+      Entry: 7
+      Data: System.DateTime, mscorlib
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: currentGameTime
+      Entry: 7
+      Data: System.DateTime, mscorlib
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
   showDebugInfo: 0
-  resourceManager: {fileID: 6646767867260665608}
+  resourceManager: {fileID: 6573108147115481696}
   buildingManager: {fileID: 3208167426066385514}
   npcManager: {fileID: 7978545962071571111}
   reportManager: {fileID: 4934184660110837233}
   saveManager: {fileID: 8638073070980839400}
   timeManager: {fileID: 5858811565940781886}
   isGamePaused: 0
---- !u!114 &6646767867260665608
+--- !u!114 &6573108147115481696
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -72,28 +99,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 5428421577693897143}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 327fa8a602e820f49a5466ef7a86d97b, type: 3}
+  m_Script: {fileID: 11500000, guid: d9fb19dc4cb77064288e5aca2b182b21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
   showDebugInfo: 1
-  resourcesData:
-  - resourceConfig: {fileID: 11400000, guid: 32e735617941a4725959fab4ee653db6, type: 2}
-    amount: 500
-    storageLimit: 999
-    purchasePrice: 1
-    sellPrice: 1
-  resourceConfigs:
-  - {fileID: 11400000, guid: 36965366908b844b18c3ffb26ef3b292, type: 2}
-  - {fileID: 11400000, guid: d9e01d1e0dae35c45a5f04ccbd6ada88, type: 2}
-  - {fileID: 11400000, guid: 32e735617941a4725959fab4ee653db6, type: 2}
-  - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
-  - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
-  - {fileID: 11400000, guid: 5758a5f05edca4f6ca40bc3fe58e4eb9, type: 2}
-  - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
-  - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
-  - {fileID: 11400000, guid: af7276cf2fa0a4cec9d398327d8da65f, type: 2}
-  - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
-  - {fileID: 11400000, guid: 6fb3758ac602c4d4d94af9c0c3dc4965, type: 2}
+  resourceOverallConfig: {fileID: 11400000, guid: 8a3a900844da5c145a12c3657259c0a8, type: 2}
+  resourceStacks: []
 --- !u!114 &3208167426066385514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,6 +126,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fa5990513478a438bbedd5f8f84baf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: AppliedBuffs
+      Entry: 6
+      Data: 
   showDebugInfo: 1
   buildingConfig: {fileID: 11400000, guid: 190ccfdc3f97b4fef8397ed025de7dfe, type: 2}
 --- !u!114 &7978545962071571111
@@ -120,6 +152,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 291a9382b6a32ec4e8096f710665f2e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: socialSystem
+      Entry: 6
+      Data: 
   showDebugInfo: 1
   enableSocialSystem: 1
   defaultSocialSystemConfig: {fileID: 11400000, guid: 214f546d0bcabdf4a9f5d7ebc39ca02f, type: 2}
@@ -137,6 +181,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54a00b33ef236eb4b8b60e73ed32ba4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
   showDebugInfo: 0
 --- !u!114 &8638073070980839400
 MonoBehaviour:
@@ -150,6 +203,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482aaabc21ade374d95efd5d6e48bb7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
   showDebugInfo: 0
 --- !u!114 &5858811565940781886
 MonoBehaviour:
@@ -163,6 +225,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d04250b04f6f4ad46b36568af40a5bba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
   showDebugInfo: 0
   settings: {fileID: 11400000, guid: c052b63becbc4d240b830e7e29924876, type: 2}
   currentTime:
@@ -208,6 +279,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 121e9ec2c38a2493bb895dbfc60d8afe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
   showDebugInfo: 1
 --- !u!114 &2455720424397961525
 MonoBehaviour:
@@ -221,6 +301,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 199b73b851346d14dbce6c64b98dff41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
 --- !u!114 &501591074474647100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -233,4 +322,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc13f34e97e40618199c9b3dacf9403, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
   isSubprocessRunning: 0

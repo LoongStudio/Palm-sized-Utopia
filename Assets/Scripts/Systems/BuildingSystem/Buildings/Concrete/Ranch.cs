@@ -20,18 +20,18 @@ public class Ranch : ProductionBuilding
     {
         AcceptResources = new HashSet<ResourceConfig>()
         {
-            ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed),
-            ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle),
-            ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep),
+            ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed),
+            ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle),
+            ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep),
         };
         inventory = new Inventory(
             new List<ResourceStack>()
             {
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Livestock, (int)LivestockSubType.Cattle), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Livestock, (int)LivestockSubType.Sheep), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Cattle), 0),
+                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Sheep), 0),
             },
             Inventory.InventoryAcceptMode.OnlyDefined,
             Inventory.InventoryListFilterMode.AcceptList,
@@ -49,24 +49,24 @@ public class Ranch : ProductionBuilding
             {
                 inputs = new List<ResourceStack>
                 {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 2),
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle), 1)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 2),
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle), 1)
                 },
                 outputs = new List<ResourceStack>
                 {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Livestock, (int)LivestockSubType.Cattle), 1)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Cattle), 1)
                 }
             },
             new ConversionRule()
             {
                 inputs = new List<ResourceStack>
                 {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Feed, (int)FeedSubType.Feed), 2),
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep), 1)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 2),
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep), 1)
                 },
                 outputs = new List<ResourceStack>
                 {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetConfig(ResourceType.Livestock, (int)LivestockSubType.Sheep), 1)
+                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Sheep), 1)
                 }
             }
         };

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
+namespace Utopia.Systems.ResourceSystem_Legacy{
 public class ResourceManager : SingletonManager<ResourceManager>
 {
     [Header("调试信息")]
@@ -273,4 +274,6 @@ public class ResourceManager : SingletonManager<ResourceManager>
         int subTypeInt = ResourceSubTypeHelper.ToInt(subTypeEnum);
         return GetConfig(type, subTypeInt);
     }
+}
+
 }
