@@ -1,0 +1,11 @@
+
+# ActionMonitor 配置文件
+interval=30
+process_realtime=false
+temperature_realtime=false
+max_fps=30 # 弃用
+day_overwrite=true
+http_port=18080 # 默认端口为 18080，测试效果可在终端中输入 Invoke-WebRequest -Uri http://127.0.0.1:18080/current | Select-Object -ExpandProperty Content
+debug=true
+process_keywords=cargo,Cursor,code
+            
