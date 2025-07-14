@@ -40,7 +40,8 @@ public class ShopPanel : BasePanel
     }
     private void OnSeedButtonClick()
     {
-        throw new System.NotImplementedException("种子购买按钮功能尚未实现");
+        UIManager.Instance.OpenPanel("ResourceShopPanel");
+        Hide();
     }
     private void OnNPCButtonClick()
     {

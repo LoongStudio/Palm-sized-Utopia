@@ -83,6 +83,7 @@ public class UIManager : SingletonManager<UIManager>
                 ClosePanel("PlaceableShopPanel");
                 ClosePanel("InsufficientResourcePanel");
                 ClosePanel("BuildingShopPanel");
+                ClosePanel("ResourceShopPanel");
             }
         }
     }
@@ -99,6 +100,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("InsufficientResourcePanel", UIConst.InsufficientResourcePanel);
         pathDict.Add("ResourcePanel", UIConst.ResourcePanel);
         pathDict.Add("BuildingShopPanel", UIConst.BuildingShopPanel);
+        pathDict.Add("ResourceShopPanel", UIConst.ResourceShopPanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -205,4 +207,5 @@ public class UIConst
     public const string InsufficientResourcePanel = "UI/Panels/InsufficientResourcePanel";
     public const string ResourcePanel = "UI/Panels/ResourcePanel";
     public const string BuildingShopPanel = "UI/Panels/BuildingShopPanel";
+    public const string ResourceShopPanel = "UI/Panels/ResourceShopPanel";
 }
