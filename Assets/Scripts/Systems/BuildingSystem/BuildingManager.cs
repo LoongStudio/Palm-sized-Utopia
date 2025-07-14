@@ -545,15 +545,18 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             }
 
             // 检查是否需要输入资源
-            foreach (var res in building.AcceptResources)
+            if (building.AcceptResources != null)
             {
-                var stack = building.inventory.currentStacks
-                    .FirstOrDefault(r => r.resourceConfig.Equals(res));
-
-                if (stack == null || stack.amount < stack.storageLimit)
+                foreach (var res in building.AcceptResources)
                 {
-                    result.Add(building);
-                    break;
+                    var stack = building.inventory.currentStacks
+                        .FirstOrDefault(r => r.resourceConfig.Equals(res));
+
+                    if (stack == null || stack.amount < stack.storageLimit)
+                    {
+                        result.Add(building);
+                        break;
+                    }
                 }
             }
 

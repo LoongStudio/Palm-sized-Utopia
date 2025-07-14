@@ -187,6 +187,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugInfo: 0
+  heightOffset: 0.1
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textSize: 12
+  alwaysShow: 1
   npcId: 
   data:
     npcId: 
@@ -301,8 +305,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7a715d7bae810a4192d4a4204622b40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 1
-  centryOffcet: {x: 0, y: 0.21, z: 0}
+  radius: 0.34
+  centerOffset: {x: 0, y: 0.24, z: 0}
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0

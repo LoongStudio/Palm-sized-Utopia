@@ -17,7 +17,7 @@ public class NPCMovingToWorkState : NPCStateBase
         if (!npc.HasPendingTask())
         {
             var nextWork = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
-            Debug.Log($"[Work] 查找最适合NPC的建筑 {nextWork.building.data.subType}");
+            // Debug.Log($"[Work] 查找最适合NPC的建筑 {nextWork.building.data.subType}");
             npc.assignedTask = nextWork;
             // 改为找到时立刻注册
             if (nextWork.building != null && nextWork.building.TryAssignNPC(npc))
