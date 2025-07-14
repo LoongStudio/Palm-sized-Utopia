@@ -23,6 +23,9 @@ public class NPCMovement : MonoBehaviour
     [SerializeField] private float maxWaitTime = 2f;              // 最长等待时间
     [SerializeField] private float movementSpeed = 2f;          // 移动速度
     [SerializeField] private float stoppingDistance = 0.5f;       // 到达目标的停止距离
+    [SerializeField] private int walkableAreaMask;
+    [SerializeField] private int flyableAreaMask;
+    [SerializeField] public GameObject portalPrefab;
     
     [Header("转向设置")]
     [SerializeField] public float turnSpeed = 5f;              // 转向速度
@@ -96,7 +99,9 @@ public class NPCMovement : MonoBehaviour
     {
         // 等待NavMeshAgent准备好
         yield return new WaitForEndOfFrame();
-        
+        // 初始化 mask 索引
+        walkableAreaMask = 1 << NavMesh.GetAreaFromName("Walkable");
+        flyableAreaMask = 1 << NavMesh.GetAreaFromName("Flyable");
         // 检查NavMeshAgent是否有效且启用
         while (navAgent == null || !navAgent.enabled || !navAgent.isActiveAndEnabled)
         {
@@ -244,9 +249,8 @@ public class NPCMovement : MonoBehaviour
             // 在移动半径内生成随机点
             Vector2 randomCircle = Random.insideUnitCircle * moveRadius;
             Vector3 randomPoint = transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
-            
             // 检查是否在NavMesh上
-            if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, moveRadius, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, moveRadius, walkableAreaMask))
             {
                 // 确保路径可达 - 再次检查NavMeshAgent状态
                 if (navAgent.enabled && navAgent.isActiveAndEnabled && navAgent.isOnNavMesh)
@@ -291,9 +295,31 @@ public class NPCMovement : MonoBehaviour
         if (showDebugInfo)
             Debug.Log($"[NPCMovement] {name} 开始移动到 {target}");
         
+        // 判断当前实际所在的区域类型（而非代理允许的区域）
+        bool isWalking = false;
+        bool isFlying = false;
+        bool wasWalking = false;
+        bool wasFlying = false;
         // 等待到达目标
         while (navAgent.pathPending || navAgent.remainingDistance > stoppingDistance)
         {
+            wasFlying = isFlying;
+            wasWalking = isWalking;
+            // 采样当前位置的区域类型
+            if (NavMesh.SamplePosition(navAgent.transform.position, out NavMeshHit hit, 0.001f, NavMesh.AllAreas))
+            {
+                isWalking = (hit.mask & walkableAreaMask) != 0;
+                if (isWalking) 
+                    isFlying = false;
+                else 
+                    isFlying = (hit.mask & flyableAreaMask) != 0;
+            }
+            
+            if (wasWalking && isFlying)
+                yield return EnterFlying(speed);
+            if (wasFlying && isWalking)
+                yield return ExitFlying(speed);
+
             // 检查是否卡住或路径失败
             if (navAgent.pathStatus == NavMeshPathStatus.PathInvalid)
             {
@@ -324,6 +350,47 @@ public class NPCMovement : MonoBehaviour
         if (showDebugInfo)
             Debug.Log($"[NPCMovement] {name} 到达目标点 {target}，移动次数: {totalMoves}");
     }
+    private IEnumerator EnterFlying(float speed)
+    {
+        Debug.Log($"[NPCMovement] {name} 进入飞行模式");
+        // 在目标位置生成并设置朝向
+        GameObject portal = Instantiate(
+            portalPrefab, 
+            transform.position + Vector3.up * 0.1f, 
+            transform.rotation);
+        Destroy(portal, 1f);
+        
+        navAgent.isStopped = true;
+        yield return new WaitForSeconds(0.5f); // 等待半秒准备起飞
+        navAgent.isStopped = false;
+        
+        navAgent.acceleration = 40;
+        navAgent.speed = speed * 5; // 芜湖起飞
+
+        foreach (var meshRenderer in gameObject.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            meshRenderer.enabled = false;
+    }
+
+    private IEnumerator ExitFlying(float speed)
+    {
+        Debug.Log($"[NPCMovement] {name} 退出飞行模式");
+        // 在目标位置生成并设置朝向
+        GameObject portal = Instantiate(
+            portalPrefab, 
+            transform.position + Vector3.up * 0.1f, 
+            transform.rotation);
+        Destroy(portal, 0.6f);
+        
+        navAgent.acceleration = 8;
+        navAgent.velocity = Vector3.zero; // 前列腺刹车
+        navAgent.speed = speed;
+        
+        foreach (var meshRenderer in gameObject.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            meshRenderer.enabled = true;
+
+        yield return null;
+    }
+    
     public void MoveToRandomPosition(){
         Vector3 randomTarget = GenerateRandomTarget();
         if(randomTarget != Vector3.zero){
@@ -470,43 +537,6 @@ public class NPCMovement : MonoBehaviour
     }
     
     /// <summary>
-    /// 移动到指定Transform目标
-    /// </summary>
-    /// <param name="target">目标Transform</param>
-    // public void MoveToTarget(Transform target) {
-    //     if(navAgent == null || target == null) return;
-        
-    //     currentTarget = target;
-        
-    //     if (enableTurnBeforeMove)
-    //     {
-    //         // 先转向目标，转向完成后再开始移动
-    //         Vector3 direction = (target.position - transform.position).normalized;
-    //         direction.y = 0; // 忽略Y轴，只在水平面转向
-            
-    //         // 检查是否需要转向
-    //         float angle = Vector3.Angle(transform.forward, direction);
-    //         if (angle > turnThreshold)
-    //         {
-    //             Debug.Log($"[NPCMovement] {name} 需要转向 {angle:F1}度，开始转向");
-    //             TurnToDirection(direction);
-    //         }
-    //         else
-    //         {
-    //             // 角度差很小，直接移动
-    //             Debug.Log($"[NPCMovement] {name} 角度差较小({angle:F1}度)，直接移动");
-    //             navAgent.SetDestination(target.position);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         // 直接移动，不转向
-    //         navAgent.SetDestination(target.position);
-    //     }
-    // }
-    
-    
-    /// <summary>
     /// 移动到社交位置的协程方法
     /// </summary>
     /// <param name="position">目标位置</param>
@@ -629,11 +659,6 @@ public class NPCMovement : MonoBehaviour
         {
             navAgent.speed = movementSpeed;
         }
-    }
-    
-    private void OnDisable()
-    {
-        // StopRandomMovement();
     }
     
     private void OnDestroy()

@@ -247,6 +247,9 @@ MonoBehaviour:
   maxWaitTime: 2
   movementSpeed: 2
   stoppingDistance: 0.5
+  walkableAreaMask: 0
+  flyableAreaMask: 0
+  portalPrefab: {fileID: 3665052492994919834, guid: fffeb8f8f9c52894a995837326918d89, type: 3}
   turnSpeed: 5
   turnThreshold: 10
   enableTurnBeforeMove: 1
@@ -275,7 +278,7 @@ NavMeshAgent:
   m_AutoRepath: 1
   m_Height: 1.09
   m_BaseOffset: 0
-  m_WalkableMask: 4294967295
+  m_WalkableMask: 9
   m_ObstacleAvoidanceType: 4
 --- !u!114 &6802671182719644152
 MonoBehaviour:
