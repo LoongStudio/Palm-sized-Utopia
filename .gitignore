@@ -87,3 +87,6 @@ crashlytics-build.properties
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
 /[Aa]ssets/Toby Fredson/The Toby Foliage Engine/(TTFE)_Demo
+
+# ignore database files
+*.db
