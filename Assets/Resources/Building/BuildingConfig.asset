@@ -30,8 +30,13 @@ MonoBehaviour:
     productionBuildingDatas:
       defaultResources:
       - resourceConfig: {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
-        amount: 5
-        storageLimit: 0
+        amount: 2
+        storageLimit: 100
+        purchasePrice: 0
+        sellPrice: 0
+      - resourceConfig: {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+        amount: 30
+        storageLimit: 100
         purchasePrice: 0
         sellPrice: 0
       defaultMaxValue: 100
