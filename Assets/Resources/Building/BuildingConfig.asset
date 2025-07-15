@@ -28,20 +28,11 @@ MonoBehaviour:
       equipmentSlots: 3
       baseEfficiency: 1
     productionBuildingDatas:
-      defaultResources:
-      - resourceConfig: {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
-        amount: 2
-        storageLimit: 100
-        purchasePrice: 0
-        sellPrice: 0
-      - resourceConfig: {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
-        amount: 30
-        storageLimit: 100
-        purchasePrice: 0
-        sellPrice: 0
+      defaultResources: []
       defaultMaxValue: 100
       acceptResources:
       - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+      - {fileID: 11400000, guid: af7276cf2fa0a4cec9d398327d8da65f, type: 2}
       conversionRules:
       - inputs:
         - resourceConfig: {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
@@ -143,5 +134,9 @@ MonoBehaviour:
       - {fileID: 11400000, guid: 5758a5f05edca4f6ca40bc3fe58e4eb9, type: 2}
       - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
       - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
+      - {fileID: 11400000, guid: af7276cf2fa0a4cec9d398327d8da65f, type: 2}
+      - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+      - {fileID: 11400000, guid: 36965366908b844b18c3ffb26ef3b292, type: 2}
+      - {fileID: 11400000, guid: d9e01d1e0dae35c45a5f04ccbd6ada88, type: 2}
       defaultRejectList: []
     prefab: {fileID: 1429137967068105344, guid: a9a6deaddcd6be942ab2e03ed0b31fb7, type: 3}
