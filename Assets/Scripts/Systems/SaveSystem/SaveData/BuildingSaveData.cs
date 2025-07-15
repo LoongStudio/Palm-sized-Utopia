@@ -16,6 +16,7 @@ public class BuildingInstanceSaveData : GameSaveData
     public BuildingStatus status;                // 建筑状态
     public int currentLevel;                     // 当前等级
     public List<Vector2Int> positions;           // 建筑位置
+    public List<ResourceStackSaveData> acceptResources; // 建筑接受的资源
 
     // 背包系统
     public InventorySaveData inventory;          // 建筑背包数据

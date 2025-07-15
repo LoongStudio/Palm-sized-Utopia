@@ -426,6 +426,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
             status = status,
             currentLevel = currentLevel,
             positions = positions,
+            acceptResources = GetAcceptResourcesSaveData(),
             inventory = inventorySaveData,
             // TODO: 实现安装的设备保存
             // installedEquipment = GetEquipmentsSaveData(),
@@ -446,6 +447,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         status = saveData.status;
         currentLevel = saveData.currentLevel;
         positions = saveData.positions;
+        AcceptResources = AcceptResourcesFromSaveData(saveData.acceptResources);
         inventory.LoadFromData(saveData.inventory);
         // TODO: 实现安装的设备加载
         // installedEquipment = GetEquipmentsFromData(saveData.installedEquipment);
@@ -461,20 +463,19 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         // 使用Equipment提供的静态方法CreateEquipmentFromData
         return saveData.Select(e => Equipment.CreateEquipmentFromData(e)).ToList();
     }
-    /// <summary>
-    /// 从存档数据创建建筑实例
-    /// </summary>
-    /// <param name="buildingInstanceData">建筑实例存档数据</param>
-    /// <returns>建筑实例</returns>
-    public static Building CreateBuildingFromData(BuildingInstanceSaveData buildingInstanceData)
-    {
-        // 这里需要根据buildingInstanceData.subType创建对应的建筑类型
-        // 由于Building是抽象类，具体的创建逻辑应该在子类中实现
-        // 或者通过工厂模式来实现
-        Debug.LogWarning("[Building] CreateBuildingFromData方法需要在具体实现中重写");
-        return null;
+    public List<ResourceStackSaveData> GetAcceptResourcesSaveData(){
+        return AcceptResources.Select(r => new ResourceStackSaveData(){
+            type = r.type,
+            subType = r.subType,
+        }).ToList();
     }
-
+    public HashSet<ResourceConfig> AcceptResourcesFromSaveData(List<ResourceStackSaveData> saveData){
+        if(saveData == null){
+            return new HashSet<ResourceConfig>();
+        }
+        var acceptResources = new HashSet<ResourceConfig>(saveData.Select(r => ResourceManager.Instance.GetResourceConfig(r.type, r.subType)));
+        return acceptResources;
+    }
     #endregion
 
     #region 调试和工具方法
