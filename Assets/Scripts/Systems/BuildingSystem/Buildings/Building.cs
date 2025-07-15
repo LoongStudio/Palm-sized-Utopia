@@ -172,6 +172,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if(data.productionBuildingDatas.acceptResources != null){
             AcceptResources = new HashSet<ResourceConfig>(data.productionBuildingDatas.acceptResources);
         }
+        else
+        {
+            // 即使内容不存在也需要添加一个空列表
+            AcceptResources = new HashSet<ResourceConfig>();
+        }
 
         // 设置Inventory
         if(inventory != null){

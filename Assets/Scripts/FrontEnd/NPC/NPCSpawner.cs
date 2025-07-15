@@ -237,25 +237,22 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
             // 在生成半径内生成随机点
             Vector2 randomCircle = Random.insideUnitCircle * spawnRadius;
             Vector3 groundPosition = spawnCenter.position + new Vector3(randomCircle.x, 0, randomCircle.y);
-
-            // 检查是否在NavMesh上
-            if (NavMesh.SamplePosition(groundPosition, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            
+            // 假设 "Walkable" 是你的可行走区域名称
+            int walkableAreaMask = 1 << NavMesh.GetAreaFromName("Walkable");
+            // 仅采样 Walkable 区域
+            if (NavMesh.SamplePosition(groundPosition, out NavMeshHit hit, 2f, walkableAreaMask))
             {
-                // 验证这个位置是否真的可以用于导航
-                if (IsPositionNavigable(hit.position))
+                // 无需额外检查，该位置必定在 Walkable 区域内
+                Vector3 spawnPosition = hit.position + Vector3.up * spawnHeight;
+                lastValidSpawnPoints.Add(hit.position);
+    
+                if (showDebugInfo)
                 {
-                    // 计算屏幕外的生成位置（正上方）
-                    Vector3 spawnPosition = hit.position + Vector3.up * spawnHeight;
-
-                    lastValidSpawnPoints.Add(hit.position);
-
-                    if (showDebugInfo)
-                    {
-                        Debug.Log($"[NPCSpawner] 找到有效生成位置: {hit.position} (尝试 {i + 1} 次)");
-                    }
-
-                    return spawnPosition;
+                    Debug.Log($"[NPCSpawner] 找到有效生成位置: {hit.position} (尝试 {i + 1} 次)");
                 }
+    
+                return spawnPosition;
             }
         }
 
@@ -486,8 +483,8 @@ public class NPCSpawner : SingletonManager<NPCSpawner>
         // 计算目标地面位置
         Vector3 groundPosition = npcObject.transform.position;
         groundPosition.y = 0;
-        
-        if (NavMesh.SamplePosition(groundPosition, out NavMeshHit hit, spawnHeight, NavMesh.AllAreas))
+        int walkableAreaMask = 1 << NavMesh.GetAreaFromName("Walkable");
+        if (NavMesh.SamplePosition(groundPosition, out NavMeshHit hit, spawnHeight, walkableAreaMask))
         {
             groundPosition = hit.position;
         }
