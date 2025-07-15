@@ -863,14 +863,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2455720424397961525, guid: 8c08ab979d700a141a389b975924faff, type: 3}
     - target: {fileID: 3208167426066385514, guid: 8c08ab979d700a141a389b975924faff, type: 3}
-      propertyPath: buildingConfig
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 3208167426066385514, guid: 8c08ab979d700a141a389b975924faff, type: 3}
-      propertyPath: originalBuildingConfig
-      value: 
-      objectReference: {fileID: 11400000, guid: 190ccfdc3f97b4fef8397ed025de7dfe, type: 2}
-    - target: {fileID: 3208167426066385514, guid: 8c08ab979d700a141a389b975924faff, type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 3208167426066385514, guid: 8c08ab979d700a141a389b975924faff, type: 3}
