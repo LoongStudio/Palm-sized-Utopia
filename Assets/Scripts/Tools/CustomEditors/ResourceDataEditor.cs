@@ -1,4 +1,6 @@
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
 [CustomEditor(typeof(ResourceConfig))]
@@ -46,3 +48,4 @@ public class ResourceDataEditor : Editor
         }
     }
 }
+#endif
