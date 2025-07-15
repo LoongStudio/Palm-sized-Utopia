@@ -7,6 +7,8 @@ public class QuantitySelectPanel : BasePanel{
     public TMP_InputField quantityInputField;
     public Slider quantitySlider;
     public Button confirmButton;
+    public TextMeshProUGUI costText;
+    public Image costSprite;
 
     private int maxQuantity = 0;
     // 为要触发的资源购买事件准备的参数
@@ -23,6 +25,9 @@ public class QuantitySelectPanel : BasePanel{
         int playerResourceAmount = ResourceManager.Instance.GetResourceAmount(args.costType, args.costSubType);
         int price = args.cost;
         this.maxQuantity = Mathf.FloorToInt(playerResourceAmount / price);
+
+        // 设置资源图标
+        costSprite.sprite = ResourceManager.Instance.GetResourceConfig(args.costType, args.costSubType).icon;
 
         // 设置slider的值
         quantitySlider.minValue = 1;
@@ -46,7 +51,9 @@ public class QuantitySelectPanel : BasePanel{
     }
 
     private void OnSliderChanged(float value){
-        quantityInputField.text = Mathf.RoundToInt(value).ToString();
+        int val = Mathf.RoundToInt(value);
+        quantityInputField.text = val.ToString();
+        UpdateCostText(val);
     }
 
     private void OnInputChanged(string value){
@@ -54,6 +61,7 @@ public class QuantitySelectPanel : BasePanel{
             quantity = Mathf.Clamp(quantity, 1, maxQuantity);
             quantitySlider.SetValueWithoutNotify(quantity);
             quantityInputField.text = quantity.ToString();
+            UpdateCostText(quantity);
         }
     }
 
@@ -81,5 +89,9 @@ public class QuantitySelectPanel : BasePanel{
 
         // 隐藏面板
         Hide();
+    }
+    private void UpdateCostText(int quantity){
+        int total = quantity * cost;
+        costText.text = $"{total}";
     }
 }

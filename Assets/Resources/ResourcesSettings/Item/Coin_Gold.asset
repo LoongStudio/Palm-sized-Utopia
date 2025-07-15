@@ -16,6 +16,6 @@ MonoBehaviour:
   subType: 0
   displayName: Gold
   description: blah
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: c5f50f7c424aeba4783f26284d3d26b9, type: 3}
   canBePurchased: 0
   canBeSold: 0
