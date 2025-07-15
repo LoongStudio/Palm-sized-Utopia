@@ -70,7 +70,7 @@ public class QuantitySelectPanel : BasePanel{
             newAmount = resourceAmountToBuy,
 
             // 花了多少
-            cost = cost,
+            cost = costAmount,
             costType = costType,
             costSubType = costSubType,
         });
