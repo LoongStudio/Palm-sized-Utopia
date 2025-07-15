@@ -1,4 +1,5 @@
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 public class FunctionTester : MonoBehaviour
 {
@@ -37,5 +38,15 @@ public class FunctionTester : MonoBehaviour
     public void TestHireNPC(){
         // TODO: 测试雇佣NPC
         NPCManager.Instance.HireNPC();
+    }
+    [Button("小麦售价涨为5块1个")]
+    public void TestResourcePriceChanged(){
+        GameEvents.TriggerResourceSellPriceChanged(new ResourceEventArgs(){
+            resourceType = ResourceType.Crop,
+            subType = (int)SeedSubType.Wheat,
+            price = 5,
+            priceType = ResourceType.Coin,
+            priceSubType = (int)CoinSubType.Gold
+        });
     }
 }

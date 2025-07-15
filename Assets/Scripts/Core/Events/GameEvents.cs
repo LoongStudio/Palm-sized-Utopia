@@ -9,6 +9,9 @@ public static class GameEvents
     public static event System.Action<ResourceEventArgs> OnResourceInsufficient;
     public static event System.Action<ResourceEventArgs> OnResourceBoughtClicked;
     public static event System.Action<ResourceEventArgs> OnResourceBoughtConfirmed;
+    public static event System.Action<ResourceEventArgs> OnResourcePurchasePriceChanged;
+    public static event System.Action<ResourceEventArgs> OnResourceSellPriceChanged;
+    
 
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action<ResourceEventArgs> OnResourceAdded;
@@ -101,6 +104,14 @@ public static class GameEvents
     public static void TriggerResourceBoughtConfirmed(ResourceEventArgs args) 
     {
         OnResourceBoughtConfirmed?.Invoke(args);
+    }
+    public static void TriggerResourcePurchasePriceChanged(ResourceEventArgs args) 
+    {
+        OnResourcePurchasePriceChanged?.Invoke(args);
+    }
+    public static void TriggerResourceSellPriceChanged(ResourceEventArgs args) 
+    {
+        OnResourceSellPriceChanged?.Invoke(args);
     }
     #endregion
     

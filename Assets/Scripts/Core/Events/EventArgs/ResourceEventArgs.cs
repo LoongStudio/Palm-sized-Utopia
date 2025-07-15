@@ -10,6 +10,11 @@ public class ResourceEventArgs
     public int cost;
     public ResourceType costType;
     public int costSubType;
+
+    // 以下是出售资源时需要的信息，默认出售获得金币
+    public int price;
+    public ResourceType priceType = ResourceType.Coin;
+    public int priceSubType = 0;
     
     public System.DateTime timestamp;
     

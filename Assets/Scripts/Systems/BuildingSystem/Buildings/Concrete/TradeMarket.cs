@@ -5,16 +5,74 @@ public class TradeMarket : ProductionBuilding
 {
     [Header("贸易市场专属")]
     public float tradeEfficiencyMultiplier = 1.0f;
-    
+    private void OnEnable()
+    {
+        GameEvents.OnResourceSellPriceChanged += OnResourceSellPriceChanged;
+    }
+    private void OnDisable()
+    {
+        GameEvents.OnResourceSellPriceChanged -= OnResourceSellPriceChanged;
+    }
+    private void OnResourceSellPriceChanged(ResourceEventArgs args)
+    {
+        // 更新资源售价
+        Debug.Log($"资源{args.resourceType} {args.subType}售价更新为{args.price}");
+        // 找到生产规则中inputs对应的规则，修改其outputs中的对应资源的转化数量
+        foreach (var rule in productionRules)
+        {
+            foreach (var input in rule.inputs)
+            {
+                if(input.resourceConfig.type == args.resourceType && input.resourceConfig.subType == args.subType){
+                    Debug.Log($"找到输入为资源{input.resourceConfig.type} {input.resourceConfig.subType}的转化规则");
+                    foreach (var output in rule.outputs)
+                    {
+                        if(output.resourceConfig.type == args.priceType && output.resourceConfig.subType == args.priceSubType){
+                            output.amount = args.price;
+                            Debug.Log($"找到输出为资源{output.resourceConfig.type} {output.resourceConfig.subType}的转化规则，修改其转化数量为{output.amount}");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public override void Start()
+    {
+        base.Start();
+        // 设置接受列表和转化规则
+        SetUpAcceptResources();
+    }
     public override void InitialSelfStorage()
     {
 
     }
-
+    private void SetUpAcceptResources()
+    {
+        // 接受一切ResourceManager定义的资源中可以被出售的资源
+        foreach (var resource in ResourceManager.Instance.ResourceSettings)
+        {
+            if(resource.canBeSold){
+                AcceptResources.Add(resource.resourceConfig);
+            }
+        }
+    }
     protected override void SetupProductionRule()
     {
         base.SetupProductionRule();
-        // 贸易市场不需要生产规则，它只是自动售卖
+        // 此处将自动售卖用生产规则实现
+        // 将ResourceManager中可以被出售的资源添加到生产规则中，并根据售价设置生产数量
+        foreach (var resource in ResourceManager.Instance.ResourceSettings)
+        {
+            if(resource.canBeSold){
+                productionRules.Add(new ConversionRule(){
+                    inputs = new List<ResourceStack>(){
+                        new ResourceStack(resource.resourceConfig, 1, 1)
+                    },
+                    outputs = new List<ResourceStack>(){
+                        new ResourceStack(ResourceManager.Instance.Gold, 1, 1)
+                    }
+                });
+            }
+        }
     }
     
     public new void OnTryBuilt()

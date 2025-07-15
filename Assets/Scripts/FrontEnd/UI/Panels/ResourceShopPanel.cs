@@ -16,8 +16,18 @@ public class ResourceShopPanel : ShopBasePanel{
         UIManager.Instance.ClosePanel("QuantitySelectPanel");
     }
 
+    protected override void OnShow(){
+        base.OnShow();
+        GenerateResourceItems();
+    }
+
     #region 生成资源购买项
     private void GenerateResourceItems(){
+        // 清空content
+        foreach(Transform child in content.transform){
+            Destroy(child.gameObject);
+        }
+
         // 有效性检测
         if(ResourceManager.Instance == null){
             Debug.LogError("ResourceManager.Instance is null");
