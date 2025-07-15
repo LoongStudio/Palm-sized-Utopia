@@ -12,7 +12,8 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     [Header("调试信息")]
     [SerializeField] private bool showDebugInfo = false;
     [Header("建筑配置")]
-    [SerializeField] private BuildingConfig buildingConfig;
+    [SerializeField] private BuildingConfig originalBuildingConfig;
+    private BuildingConfig buildingConfig;
     [Header("建筑管理")]
     private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
@@ -76,7 +77,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         _buildingOccupies = new Dictionary<Vector2Int, Building>();
         _buildingsById = new Dictionary<string, Building>();
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
-
+        buildingConfig = Instantiate(originalBuildingConfig);
     }
 
     private void SubscribeEvents()

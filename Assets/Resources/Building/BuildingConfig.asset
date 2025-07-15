@@ -69,7 +69,7 @@ MonoBehaviour:
       baseEfficiency: 1
     productionBuildingDatas:
       defaultResources: []
-      defaultMaxValue: 1000
+      defaultMaxValue: 100
       acceptResources: []
       conversionRules: []
       defaultAcceptMode: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
       baseEfficiency: 1
     productionBuildingDatas:
       defaultResources: []
-      defaultMaxValue: 0
+      defaultMaxValue: 100
       acceptResources:
       - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
       - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
