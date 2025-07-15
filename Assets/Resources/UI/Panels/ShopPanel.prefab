@@ -154,6 +154,7 @@ GameObject:
   - component: {fileID: 4022729875679881965}
   - component: {fileID: 2271317559959633526}
   - component: {fileID: 5766541948927135445}
+  - component: {fileID: 932199462890776242}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -319,6 +320,41 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!114 &932199462890776242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 735329604831975461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba44435051ff4ee7b1d527ebb27de49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localizedTMPFont:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  onFontLoaded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2271317559959633526}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_FontAsset, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3324711166138726494
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,6 +608,7 @@ GameObject:
   - component: {fileID: 3799396432957210584}
   - component: {fileID: 4346818619559133422}
   - component: {fileID: 3541821172957296771}
+  - component: {fileID: 6094283789770009694}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -737,6 +774,41 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!114 &6094283789770009694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4793951580769465049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba44435051ff4ee7b1d527ebb27de49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localizedTMPFont:
+    m_TableReference:
+      m_TableCollectionName: GUID:61cac8234c9212e4ba87e5139a3c7dd8
+    m_TableEntryReference:
+      m_KeyId: 27213628956672
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  onFontLoaded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4346818619559133422}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_FontAsset, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5612061954835738494
 GameObject:
   m_ObjectHideFlags: 0
@@ -870,6 +942,7 @@ GameObject:
   - component: {fileID: 3969979401912456078}
   - component: {fileID: 4060572368090286872}
   - component: {fileID: 3841963406048563423}
+  - component: {fileID: 1480844791867373289}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -1035,6 +1108,41 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!114 &1480844791867373289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6296403468193004979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba44435051ff4ee7b1d527ebb27de49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localizedTMPFont:
+    m_TableReference:
+      m_TableCollectionName: GUID:61cac8234c9212e4ba87e5139a3c7dd8
+    m_TableEntryReference:
+      m_KeyId: 27213628956672
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  onFontLoaded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4060572368090286872}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_FontAsset, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7334339106419948806
 GameObject:
   m_ObjectHideFlags: 0
@@ -1364,6 +1472,7 @@ GameObject:
   - component: {fileID: 5532902016117451078}
   - component: {fileID: 5214731670307478816}
   - component: {fileID: 4791284152857635009}
+  - component: {fileID: 4893636058421981101}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -1529,3 +1638,38 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!114 &4893636058421981101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9183175230092151725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba44435051ff4ee7b1d527ebb27de49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localizedTMPFont:
+    m_TableReference:
+      m_TableCollectionName: GUID:61cac8234c9212e4ba87e5139a3c7dd8
+    m_TableEntryReference:
+      m_KeyId: 27213628956672
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  onFontLoaded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5214731670307478816}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_FontAsset, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

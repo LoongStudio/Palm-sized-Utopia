@@ -424,6 +424,7 @@ GameObject:
   - component: {fileID: 958524454603676210}
   - component: {fileID: 259444723034040164}
   - component: {fileID: 4325288463452189576}
+  - component: {fileID: 1627463054805141951}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -549,3 +550,38 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1627463054805141951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8415478340470589064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba44435051ff4ee7b1d527ebb27de49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localizedTMPFont:
+    m_TableReference:
+      m_TableCollectionName: GUID:61cac8234c9212e4ba87e5139a3c7dd8
+    m_TableEntryReference:
+      m_KeyId: 27213628956672
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  onFontLoaded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4325288463452189576}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_FontAsset, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

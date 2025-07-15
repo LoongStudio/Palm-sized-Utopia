@@ -19,13 +19,14 @@ MonoBehaviour:
     m_Key: Font
     m_Metadata:
       m_Items: []
-  - m_Id: 5718445907968
-    m_Key: Text Fonts
+  - m_Id: 27213628956672
+    m_Key: FontTMP
     m_Metadata:
       m_Items: []
   m_Metadata:
     m_Items:
     - rid: 2642178468668768660
+    - rid: 2642178468668768765
   m_KeyGenerator:
     rid: 2642178468668768658
   references:
@@ -46,12 +47,18 @@ MonoBehaviour:
           - en
           - fr
           - de
-        - m_KeyId: 5718445907968
+        m_TypeString: UnityEngine.Font, UnityEngine.TextRenderingModule, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+    - rid: 2642178468668768765
+      type: {class: AssetTypeMetadata, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries:
+        - m_KeyId: 27213628956672
           m_TableCodes:
           - zh-Hans
           - en
           - fr
           - de
           - ja
-        m_TypeString: UnityEngine.Font, UnityEngine.TextRenderingModule, Version=0.0.0.0,
-          Culture=neutral, PublicKeyToken=null
+        m_TypeString: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
