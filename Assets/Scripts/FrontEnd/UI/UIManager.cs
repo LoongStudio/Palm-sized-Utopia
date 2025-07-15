@@ -49,10 +49,12 @@ public class UIManager : SingletonManager<UIManager>
     private void RegisterEvents()
     {
         GameEvents.OnResourceInsufficient += OnResourceInsufficient;
+        GameEvents.OnResourceBoughtClicked += OnResourceBoughtClicked;
     }
     private void UnregisterEvents()
     {
         GameEvents.OnResourceInsufficient -= OnResourceInsufficient;
+        GameEvents.OnResourceBoughtClicked -= OnResourceBoughtClicked;
     }
     private void OnResourceInsufficient(ResourceEventArgs args)
     {
@@ -64,7 +66,18 @@ public class UIManager : SingletonManager<UIManager>
             panel.SetInsufficientResourceText(args.newAmount + " " + args.resourceType.ToString());
         }
     }
-
+    private void OnResourceBoughtClicked(ResourceEventArgs args)
+    {
+        // 打开并设置数量选择面板
+        OpenPanel("QuantitySelectPanel");
+        QuantitySelectPanel panel = panelDict["QuantitySelectPanel"] as QuantitySelectPanel;
+        if(panel != null)
+        {
+            panel.SetUpPanel(args);
+        }else{
+            Debug.LogError("QuantitySelectPanel 未找到");
+        }
+    }
     private void Start()
     {
         OpenPanel("TestPanel");
@@ -83,7 +96,19 @@ public class UIManager : SingletonManager<UIManager>
                 ClosePanel("PlaceableShopPanel");
                 ClosePanel("InsufficientResourcePanel");
                 ClosePanel("BuildingShopPanel");
-                ClosePanel("ResourceShopPanel");
+                // 如果资源商店打开了
+                if(panelDict.ContainsKey("ResourceShopPanel") && panelDict["ResourceShopPanel"].IsShowing){
+                    // 但是没有打开数量选择面板，则关闭资源商店
+                    if(!panelDict.ContainsKey("QuantitySelectPanel") || !panelDict["QuantitySelectPanel"].IsShowing)
+                    {
+                        ClosePanel("ResourceShopPanel");
+                    }
+                    // 如果打开了数量选择面板，则关闭数量选择面板
+                    else
+                    {
+                        ClosePanel("QuantitySelectPanel");
+                    }
+                } 
             }
         }
     }
@@ -101,6 +126,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("ResourcePanel", UIConst.ResourcePanel);
         pathDict.Add("BuildingShopPanel", UIConst.BuildingShopPanel);
         pathDict.Add("ResourceShopPanel", UIConst.ResourceShopPanel);
+        pathDict.Add("QuantitySelectPanel", UIConst.QuantitySelectPanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -208,4 +234,5 @@ public class UIConst
     public const string ResourcePanel = "UI/Panels/ResourcePanel";
     public const string BuildingShopPanel = "UI/Panels/BuildingShopPanel";
     public const string ResourceShopPanel = "UI/Panels/ResourceShopPanel";
+    public const string QuantitySelectPanel = "UI/Panels/QuantitySelectPanel";
 }

@@ -9,6 +9,12 @@ public class BasePanel : MonoBehaviour
     protected bool isShow = false;
     [Required("CanvasGroup组件不能为空")]
     protected CanvasGroup canvasGroup;
+
+    public bool IsShowing{
+        get{
+            return isShow;
+        }
+    }
     protected virtual void Awake()
     {
         Initialize();

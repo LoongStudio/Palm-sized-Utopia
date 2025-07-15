@@ -72,6 +72,7 @@ public class ShopItem : MonoBehaviour{
         // 4. 如果是资源，则购买资源
         else if(shopItemData.itemType == ItemType.Resource){
             TriggerResourceBought();
+            return;
         }
         // 5. TODO: 其他购买逻辑，比如奖励券
         
@@ -93,6 +94,18 @@ public class ShopItem : MonoBehaviour{
 
     }
     private void TriggerResourceBought(){
+        Debug.Log("购买资源：" + shopItemData.resourceSubType + " 价格：" + shopItemData.price);
+        Debug.Log("触发资源购买点击事件");
+        GameEvents.TriggerResourceBoughtClicked(new ResourceEventArgs(){
+            // 想买什么
+            resourceType = shopItemData.resourceType,
+            subType = shopItemData.resourceSubType,
+
+            // 单个要花多少
+            cost = shopItemData.price,
+            costType = shopItemData.priceType,
+            costSubType = shopItemData.priceSubType,
+        });
 
     }
 }

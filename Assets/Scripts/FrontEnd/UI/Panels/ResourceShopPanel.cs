@@ -6,6 +6,15 @@ public class ResourceShopPanel : ShopBasePanel{
     private void Start(){
         GenerateResourceItems();
     }
+    protected override void OnClose(){
+        base.OnClose();
+        UIManager.Instance.ClosePanel("QuantitySelectPanel");
+    }
+
+    protected override void OnHide(){
+        base.OnHide();
+        UIManager.Instance.ClosePanel("QuantitySelectPanel");
+    }
 
     #region 生成资源购买项
     private void GenerateResourceItems(){
@@ -47,6 +56,8 @@ public class ResourceShopPanel : ShopBasePanel{
         int priceSubType = 0;
         Sprite icon = resourceStack.resourceConfig.icon;
         ShopItemData shopItemData = new ShopItemData(name, description, itemType, price, priceType, priceSubType, icon);
+        // 资源数据的特殊设置
+        shopItemData.SetUpItem(resourceStack.resourceConfig.type, resourceStack.resourceConfig.subType, 1);
         
         // 设置物品组件数据
         ShopItem shopItem = item.GetComponent<ShopItem>();

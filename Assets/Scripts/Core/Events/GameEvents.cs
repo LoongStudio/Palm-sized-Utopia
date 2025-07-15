@@ -7,6 +7,8 @@ public static class GameEvents
     #region 资源相关事件
     public static event System.Action<ResourceEventArgs> OnResourceChanged;
     public static event System.Action<ResourceEventArgs> OnResourceInsufficient;
+    public static event System.Action<ResourceEventArgs> OnResourceBoughtClicked;
+    public static event System.Action<ResourceEventArgs> OnResourceBoughtConfirmed;
 
     // TODO: 处理这些事件的订阅和触发，用GameEvents代替
     // public static event System.Action<ResourceEventArgs> OnResourceAdded;
@@ -91,6 +93,14 @@ public static class GameEvents
     public static void TriggerResourceInsufficient(ResourceEventArgs args) 
     {
         OnResourceInsufficient?.Invoke(args);
+    }
+    public static void TriggerResourceBoughtClicked(ResourceEventArgs args) 
+    {
+        OnResourceBoughtClicked?.Invoke(args);
+    }
+    public static void TriggerResourceBoughtConfirmed(ResourceEventArgs args) 
+    {
+        OnResourceBoughtConfirmed?.Invoke(args);
     }
     #endregion
     
