@@ -23,12 +23,16 @@ public class EditModePanel : BasePanel
     {
         isEditMode = !isEditMode;
         InputManager.Instance.ToggleEditMode();
-        editModeButton.GetComponentInChildren<TextMeshProUGUI>().text = isEditMode ? "EditMode" : "NormalMode";
+        editModeButton.GetComponentInChildren<TextMeshProUGUI>().text = isEditMode ? 
+            UITools.GetLocalizedText("EditMode", "FontText") : 
+            UITools.GetLocalizedText("EditMode", "NormalMode");
     }
 
     public void HandleEditModeChanged(bool isEditMode)
     {
         this.isEditMode = isEditMode;
-        editModeButton.GetComponentInChildren<TextMeshProUGUI>().text = isEditMode ? "EditMode" : "NormalMode";
+        editModeButton.GetComponentInChildren<TextMeshProUGUI>().text = isEditMode ? 
+            UITools.GetLocalizedText("EditMode", "FontText") : 
+            UITools.GetLocalizedText("EditMode", "NormalMode");
     }
 }

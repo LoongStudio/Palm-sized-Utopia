@@ -34,6 +34,62 @@ MonoBehaviour:
     m_Localized: "Entrep\xF4t"
     m_Metadata:
       m_Items: []
+  - m_Id: 18729889947648
+    m_Localized: "B\xE2timents"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18972694011904
+    m_Localized: Mode normal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19012053360640
+    m_Localized: "Mode d'\xE9dition"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20045815078912
+    m_Localized: Pauvre B !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20125838204928
+    m_Localized: Terrains
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20133312454656
+    m_Localized: "Quantit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20312182743040
+    m_Localized: "Entrez la quantit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20372966596608
+    m_Localized: "Veuillez entrer la quantit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20433146470400
+    m_Localized: 'Total :'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20468059856896
+    m_Localized: Confirmer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20472572928000
+    m_Localized: Ressources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21180298813440
+    m_Localized: Blocs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21182328856576
+    m_Localized: PNJs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21575540662272
+    m_Localized: BOUTIQUE
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

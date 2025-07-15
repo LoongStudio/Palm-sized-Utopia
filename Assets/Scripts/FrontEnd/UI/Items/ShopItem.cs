@@ -38,27 +38,11 @@ public class ShopItem : MonoBehaviour{
         itemIcon.sprite = shopItemData.icon;
         
         // 直接从本地化表中获取文本
-        itemName.text = GetLocalizedText(shopItemData.name);
+        itemName.text = UITools.GetLocalizedText(shopItemData.name, tableName);
         
         this.price.text = shopItemData.price.ToString();
 
         SetBuyButton();
-    }
-    
-    private string GetLocalizedText(string key)
-    {
-        // 边界检查
-        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(tableName))
-            return key;
-
-        // 获取当前语言的字符串表格
-        var stringTable = LocalizationSettings.StringDatabase.GetTable(tableName);
-        if (stringTable == null)
-        {
-            Debug.LogWarning($"本地化表格 {tableName} 不存在，使用原始文本");
-            return key;
-        }
-        return stringTable.GetEntry(key)?.Value ?? key;
     }
 
     public void SetBuyButton(){

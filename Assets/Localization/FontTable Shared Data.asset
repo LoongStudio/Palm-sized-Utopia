@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: 61cac8234c9212e4ba87e5139a3c7dd8
   m_Entries:
   - m_Id: 37198225408
-    m_Key: TextFont
+    m_Key: Font
     m_Metadata:
       m_Items: []
   - m_Id: 5718445907968

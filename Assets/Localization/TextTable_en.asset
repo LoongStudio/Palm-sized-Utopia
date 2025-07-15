@@ -34,6 +34,62 @@ MonoBehaviour:
     m_Localized: Warehouse
     m_Metadata:
       m_Items: []
+  - m_Id: 18729889947648
+    m_Localized: Buildings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18972694011904
+    m_Localized: Normal Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19012053360640
+    m_Localized: Edit Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20045815078912
+    m_Localized: Poor B!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20125838204928
+    m_Localized: Lands
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20133312454656
+    m_Localized: Quantity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20312182743040
+    m_Localized: Enter Quantity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20372966596608
+    m_Localized: Please Enter Quantity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20433146470400
+    m_Localized: 'Total:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20468059856896
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20472572928000
+    m_Localized: Resources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21180298813440
+    m_Localized: Blocks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21182328856576
+    m_Localized: NPCs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21575540662272
+    m_Localized: SHOP
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

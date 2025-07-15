@@ -34,6 +34,62 @@ MonoBehaviour:
     m_Localized: Lagerhaus
     m_Metadata:
       m_Items: []
+  - m_Id: 18729889947648
+    m_Localized: "Geb\xE4ude"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18972694011904
+    m_Localized: Normalmodus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19012053360640
+    m_Localized: Bearbeitungsmodus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20045815078912
+    m_Localized: Armer B!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20125838204928
+    m_Localized: "L\xE4nder"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20133312454656
+    m_Localized: Menge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20312182743040
+    m_Localized: Menge eingeben
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20372966596608
+    m_Localized: Bitte Menge eingeben
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20433146470400
+    m_Localized: 'Gesamt:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20468059856896
+    m_Localized: "Best\xE4tigen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20472572928000
+    m_Localized: Ressourcen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21180298813440
+    m_Localized: "Bl\xF6cke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21182328856576
+    m_Localized: NPCs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21575540662272
+    m_Localized: "GESCH\xC4FT"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
