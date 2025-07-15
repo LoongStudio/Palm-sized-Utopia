@@ -468,11 +468,16 @@ public class Inventory : ISaveable
 
         // 检查是否有足够的空间存放产出（使用内部添加方法）
         foreach (var item in produce)
+        {
+            // 金币不占用空间
+            if(item.resourceConfig.type == ResourceType.Coin){
+                continue;
+            }
             if (!CanAddItemInternal(item.resourceConfig, item.amount)){
                 Debug.LogWarning($"资源{item.resourceConfig.name}空间不足");
                 return false;
             }
-
+        }
         // 执行交换
         foreach (var item in consume)
             RemoveItem(item.resourceConfig, item.amount);
@@ -502,6 +507,13 @@ public class Inventory : ISaveable
     /// </summary>
     private void AddItemInternal(ResourceConfig config, int amount)
     {
+        // 金币和奖励券直接加入ResourceManager的全局资源中
+        if(config.type == ResourceType.Coin || config.type == ResourceType.Ticket){
+            ResourceManager.Instance.AddResource(config, amount);
+            return;
+        }
+
+        // 其他资源加入背包
         var cur = GetCurrent(config);
         if (cur == null)
         {
