@@ -30,11 +30,16 @@ public class ResourceManager : SingletonManager<ResourceManager>, ISaveable
     #region 事件
     private void RegisterEvent()
     {
-
+        GameEvents.OnResourceBoughtConfirmed += OnResourceBoughtConfirmed;
     }
     private void UnregisterEvent()
     {
-
+        GameEvents.OnResourceBoughtConfirmed -= OnResourceBoughtConfirmed;
+    }
+    private void OnResourceBoughtConfirmed(ResourceEventArgs args)
+    {
+        // 扣除花费的资源
+        RemoveResource(args.costType, args.costSubType, args.cost);
     }
     #endregion
     

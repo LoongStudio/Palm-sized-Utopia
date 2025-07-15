@@ -1,29 +1,27 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Warehouse : FunctionalBuilding
 {
 
+    private void OnEnable()
+    {
+        GameEvents.OnResourceBoughtConfirmed += OnResourceBoughtConfirmed;
+    }
+    private void OnDisable()
+    {
+        GameEvents.OnResourceBoughtConfirmed -= OnResourceBoughtConfirmed;
+    }
+    private void OnResourceBoughtConfirmed(ResourceEventArgs args)
+    {
+        var resourceConfig = ResourceManager.Instance.GetResourceConfig(args.resourceType, args.subType);
+        if(inventory != null){
+            inventory.AddItem(resourceConfig, args.newAmount);
+        }
+    }
     public override void InitialSelfStorage()
     {
-        AcceptResources = new HashSet<ResourceConfig>() { };
-        inventory = new Inventory(
-            new List<ResourceStack>()
-            {
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Seed, (int)SeedSubType.Wheat), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Seed, (int)SeedSubType.Corn), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Wheat), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Crop, (int)CropSubType.Corn), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Coin, (int)CoinSubType.Gold), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Ticket, (int)TicketSubType.Ticket), 0),
-            },
-            Inventory.InventoryAcceptMode.OnlyDefined,
-            Inventory.InventoryListFilterMode.AcceptList,
-            AcceptResources,
-            null,
-            Inventory.InventoryOwnerType.Building
-        );
     }
     [Header("仓库专属")]
     public int storageCapacity = 500;
