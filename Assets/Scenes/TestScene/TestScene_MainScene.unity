@@ -2584,6 +2584,14 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 7978545962071571111, guid: 8c08ab979d700a141a389b975924faff, type: 3}
+    - target: {fileID: 7978545962071571111, guid: 8c08ab979d700a141a389b975924faff, type: 3}
+      propertyPath: 'serializationData.PrefabModifications.Array.data[1]'
+      value: '"path":"socialSystem.config","value":null'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7978545962071571111, guid: 8c08ab979d700a141a389b975924faff, type: 3}
+      propertyPath: serializationData.PrefabModificationsReferencedUnityObjects.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8638073070980839400, guid: 8c08ab979d700a141a389b975924faff, type: 3}
       propertyPath: serializationData.Prefab
       value: 

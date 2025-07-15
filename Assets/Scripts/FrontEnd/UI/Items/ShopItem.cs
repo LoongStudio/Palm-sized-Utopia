@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 
 public class ShopItem : MonoBehaviour{
     // 数据
@@ -10,12 +13,13 @@ public class ShopItem : MonoBehaviour{
 
     // UI组件
     [SerializeField] private Image itemIcon;
-    [SerializeField] private TextMeshProUGUI itemName;
+    [SerializeField] private Text itemName;
     [SerializeField] private TextMeshProUGUI price;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Image buttonImage;
     [SerializeField] private Button buyButton;
-
+    // 本地化配置（在Inspector中设置）
+    [SerializeField] public string tableName = "TextTable";
     // 其它设置
     [SerializeField] private Color normalColor = new Color(219, 200, 114, 255);
     
@@ -32,11 +36,31 @@ public class ShopItem : MonoBehaviour{
         this.shopItemData = shopItemData;
         this.panel = panel;
         itemIcon.sprite = shopItemData.icon;
-        itemName.text = shopItemData.name;
+        
+        // 直接从本地化表中获取文本
+        itemName.text = GetLocalizedText(shopItemData.name);
+        
         this.price.text = shopItemData.price.ToString();
 
         SetBuyButton();
     }
+    
+    private string GetLocalizedText(string key)
+    {
+        // 边界检查
+        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(tableName))
+            return key;
+
+        // 获取当前语言的字符串表格
+        var stringTable = LocalizationSettings.StringDatabase.GetTable(tableName);
+        if (stringTable == null)
+        {
+            Debug.LogWarning($"本地化表格 {tableName} 不存在，使用原始文本");
+            return key;
+        }
+        return stringTable.GetEntry(key)?.Value ?? key;
+    }
+
     public void SetBuyButton(){
         // 根据是否有足够资源购买设置样式
         if(ResourceManager.Instance){
