@@ -16,6 +16,7 @@ public class BuildingData
     [FoldoutGroup("建筑信息"),LabelText("最大等级")] public int maxLevel;
     [FoldoutGroup("建筑信息"),LabelText("大小")] public Vector2Int size;
     [FoldoutGroup("建筑信息"),LabelText("NPC槽位数量")] public int npcSlots;
+    [FoldoutGroup("建筑信息"),LabelText("NPC临时槽位数量")] public int npcTempSlots = 3;
     [FoldoutGroup("建筑信息"),LabelText("设备槽位数量")] public int equipmentSlots;
     [FoldoutGroup("建筑信息"),LabelText("基础效率")] public float baseEfficiency;
     [FoldoutGroup("建筑信息"),LabelText("建筑适配权重")] public BuildingFitWeightData fitWeightData;

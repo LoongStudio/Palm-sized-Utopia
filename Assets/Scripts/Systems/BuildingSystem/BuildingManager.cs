@@ -637,12 +637,14 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             float distanceScore = distancePenalty * weightDistance;
 
             float slotScore = slotRatio * weightSlot;
-            float resourceAgainstScore = resourceRatioAgainst * weightResourceAgainst;
-            float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved;
+            float tempSlotRatioSubOne = 1 - building.tempAssignedNPCs.Count / (float) building.data.npcTempSlots;
+            float resourceAgainstScore = resourceRatioAgainst * weightResourceAgainst * tempSlotRatioSubOne;
+            float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved * tempSlotRatioSubOne;
             float score = slotScore + resourceAgainstScore + resourceInvolvingScore + distanceScore;
 
             Debug.Log($"[Work] 建筑: {building.data.subType} "
                       + $"| 插槽需求: {slotScore:F2} "
+                      + $"| 临时插槽数量惩罚: {tempSlotRatioSubOne:F2} "
                       + $"| 资源需求: {resourceInvolvingScore:F2} "
                       + $"| 资源输出: {resourceAgainstScore:F2} "
                       + $"| 距离惩罚: {distanceScore:F2} "

@@ -102,6 +102,15 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         }
     }
     
+    public int NPCTempSlotAmount {
+        get {
+            return data.npcTempSlots;
+        }
+        set {
+            data.npcTempSlots = value;
+        }
+    }
+    
     public int EquipmentSlotAmount {
         get {
             return data.equipmentSlots;
@@ -357,7 +366,8 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if (!tempAssignedNPCs.Contains(npc)
             && npc.assignedTask.building == this
             && (npc.assignedTask.taskType == TaskType.HandlingAccept
-            || npc.assignedTask.taskType == TaskType.HandlingDrop))
+            || npc.assignedTask.taskType == TaskType.HandlingDrop)
+            && tempAssignedNPCs.Count < NPCTempSlotAmount)
         {
             tempAssignedNPCs.Add(npc);
             return true;
