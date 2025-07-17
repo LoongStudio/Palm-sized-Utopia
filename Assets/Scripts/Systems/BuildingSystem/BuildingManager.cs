@@ -591,9 +591,6 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         var buildings = GetBuildingsNeedingWork();
         if (buildings.Count == 0) return TaskInfo.GetNone();
 
-        float weightSlot = 0.5f;
-        float weightResourceAgainst = 0.5f;
-        float weightResourceInvolved = 0.8f;
         List<(Building building, float score, TaskType workType)> scored = new();
 
         foreach (var building in buildings)
@@ -601,6 +598,12 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             // 忽略住房与装饰性建筑
             if (building.data.buildingType == BuildingType.Housing
                 || building.data.buildingType == BuildingType.Decoration) continue;
+
+            // 读取权重
+            var fitWeight = building.data.fitWeightData;
+            float weightSlot = fitWeight.weightSlot;
+            float weightResourceAgainst = fitWeight.weightResourceAgainst;
+            float weightResourceInvolved = fitWeight.weightResourceInvolved;
 
             // 缺人程度
             float slotRatio = 0f;

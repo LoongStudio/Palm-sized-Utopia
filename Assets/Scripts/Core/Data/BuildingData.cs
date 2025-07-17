@@ -18,7 +18,7 @@ public class BuildingData
     [FoldoutGroup("建筑信息"),LabelText("NPC槽位数量")] public int npcSlots;
     [FoldoutGroup("建筑信息"),LabelText("设备槽位数量")] public int equipmentSlots;
     [FoldoutGroup("建筑信息"),LabelText("基础效率")] public float baseEfficiency;
-
+    [FoldoutGroup("建筑信息"),LabelText("建筑适配权重")] public BuildingFitWeightData fitWeightData;
 } 
 
 [System.Serializable]
@@ -32,4 +32,13 @@ public class ProductionBuildingData
     [FoldoutGroup("转换规则"),LabelText("默认过滤模式")] public Inventory.InventoryListFilterMode defaultFilterMode;
     [FoldoutGroup("转换规则"),LabelText("默认白名单")] public List<ResourceConfig> defaultAcceptList;
     [FoldoutGroup("转换规则"),LabelText("默认黑名单")] public List<ResourceConfig> defaultRejectList;
+}
+
+[System.Serializable]
+public class BuildingFitWeightData
+{
+    [FoldoutGroup("权重参数"),LabelText("插槽权重")] public float weightSlot = 0.5f;
+    [FoldoutGroup("权重参数"),LabelText("资源输出权重")] public float weightResourceAgainst = 0.5f;
+    [FoldoutGroup("权重参数"),LabelText("资源需求权重")] public float weightResourceInvolved = 0.8f;
+    [FoldoutGroup("权重参数"),LabelText("权重有效阈值")] public float weightThreshold = 0.1f;
 }
