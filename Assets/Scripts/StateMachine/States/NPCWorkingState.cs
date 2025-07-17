@@ -80,7 +80,7 @@ public class NPCWorkingState : NPCStateBase
     {
         base.UpdateState();
         
-        // 检查是否到了下班时间
+        // 检查是否到了下班时间 
         if (!npc.CanWorkNow() || npc.ShouldRest())
         {
             if (showDebugInfo)
@@ -98,6 +98,13 @@ public class NPCWorkingState : NPCStateBase
                 }
             }
             
+            stateMachine.ChangeState(NPCState.Idle);
+        }
+        // 或者 建筑是否能够继续进行生产 但是不进行 pendingWork 储存
+        if (npc.assignedTask.taskType == TaskType.Production
+            && npc.assignedTask.building.data.buildingType == BuildingType.Production
+            && ((ProductionBuilding)npc.assignedTask.building).CanProduceAnyRule())
+        {
             stateMachine.ChangeState(NPCState.Idle);
         }
         
