@@ -300,26 +300,23 @@ public class Inventory : ISaveable
         }
         return transferredTotal > 0;
     }
-
+    // TODO: 有BUG
     public bool TransferToWithFilter(Inventory target, int maxTransferAmount, HashSet<ResourceConfig> filters)
     {
+        Debug.Log($"[Work] TransferToWithFilter : {target.ownerType} trans amount:{maxTransferAmount} filter:{filters.Count}");
         int transferredTotal = 0;
         foreach (var item in currentStacks)
         {
             if (item.amount <= 0 || !filters.Contains(item.resourceConfig))
                 continue;
+            
             var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
-                    targetCurrent = new ResourceStack(item.resourceConfig, 0, defaultMaxValue);
-                    targetCurrent.amount = 0;
+                    targetCurrent = new ResourceStack(item.resourceConfig, 0, target.defaultMaxValue);
                     target.currentStacks.Add(targetCurrent);
-                }
-                else
-                {
-                    continue;
                 }
             }
             int spaceLeft = targetCurrent.storageLimit - targetCurrent.amount;
@@ -331,6 +328,7 @@ public class Inventory : ISaveable
             item.amount -= transferable;
             targetCurrent.amount += transferable;
             transferredTotal += transferable;
+            Debug.Log($"[Work] 传输过滤: {item.resourceConfig.name} {transferable}/{transferredTotal}");
             if (transferredTotal >= maxTransferAmount)
                 break;
         }
@@ -588,17 +586,21 @@ public class Inventory : ISaveable
         List<ResourceStack> result = new List<ResourceStack>();
         int totalNeeds = 0;
         int totalTransfer = 0;
-        foreach (var stack in currentStacks)
+        foreach (var stack in others.currentStacks)
         {
             if (!filter.Contains(stack.resourceConfig)) continue;
-            int othersAmount = others.GetCurrent(stack.resourceConfig)?.amount ?? 0;
-            if (othersAmount != 0)
+            ResourceStack currentStack = GetCurrent(stack.resourceConfig);
+            int currentAmount = stack.amount;
+            if (currentAmount != 0)
             {
                 result.Add(new ResourceStack(
-                    stack.resourceConfig, Math.Min(stack.storageLimit - stack.amount, othersAmount)));
-                totalTransfer += Math.Min(stack.storageLimit - stack.amount, othersAmount);
+                    stack.resourceConfig, Math.Min(
+                        (currentStack?.storageLimit ?? defaultMaxValue) - 
+                        (currentStack?.amount ?? 0), stack.amount)));
+                totalTransfer += Math.Min(stack.storageLimit - stack.amount, currentAmount);
             }
             totalNeeds += stack.storageLimit - stack.amount;
+            Debug.Log($"[Work][GetResource Filter] {stack.resourceConfig.name} | Total needs: {totalNeeds} Transfer: {totalTransfer}");
         }
         if (totalNeeds == 0) return 0f;
         return MathUtility.FastSqrt(totalTransfer / (float)totalNeeds);

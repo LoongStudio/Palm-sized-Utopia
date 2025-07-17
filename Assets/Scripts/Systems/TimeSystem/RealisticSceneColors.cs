@@ -53,7 +53,7 @@ public class RealisticSceneColors : SingletonManager<RealisticSceneColors>
 		{
 			if (meshRenderer.CompareTag("Grass"))
 			{
-				Debug.Log(meshRenderer.name);
+				// Debug.Log(meshRenderer.name);
 				meshRenderer.material.SetFloat("_SeasonFloat", interval);
 				// break;
 			}

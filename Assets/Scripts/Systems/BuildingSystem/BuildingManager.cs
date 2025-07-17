@@ -642,7 +642,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved * tempSlotRatioSubOne;
             float score = slotScore + resourceAgainstScore + resourceInvolvingScore + distanceScore;
 
-            Debug.Log($"[Work] 建筑: {building.data.subType} "
+            Debug.Log($"[Work][{npc.data.npcName}] 建筑: {building.data.subType} "
                       + $"| 插槽需求: {slotScore:F2} "
                       + $"| 临时插槽数量惩罚: {tempSlotRatioSubOne:F2} "
                       + $"| 资源需求: {resourceInvolvingScore:F2} "

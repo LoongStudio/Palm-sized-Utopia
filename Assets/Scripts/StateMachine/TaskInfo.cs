@@ -16,6 +16,10 @@ public class TaskInfo
 		return (new TaskInfo(null, TaskType.None));
 	}
 
+	public bool IsNone()
+	{
+		return taskType == TaskType.None;
+	}
 	public bool Equals(TaskInfo other)
 	{
 		if (building == other.building 

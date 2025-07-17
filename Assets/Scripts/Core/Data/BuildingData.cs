@@ -40,7 +40,7 @@ public class BuildingFitWeightData
 {
     [FoldoutGroup("权重参数"),LabelText("插槽权重")] public float weightSlot = 0.5f;
     [FoldoutGroup("权重参数"),LabelText("资源输出权重")] public float weightResourceAgainst = 0.5f;
-    [FoldoutGroup("权重参数"),LabelText("资源需求权重")] public float weightResourceInvolved = 0.8f;
+    [FoldoutGroup("权重参数"),LabelText("资源需求权重")] public float weightResourceInvolved = 12.5f;
     [FoldoutGroup("权重参数"),LabelText("距离惩罚权重")] public float weightDistance = 0.2f;
     [FoldoutGroup("权重参数"),LabelText("最大惩罚距离")] public float maxDistance = 20f;
     [FoldoutGroup("权重参数"),LabelText("权重有效阈值")] public float weightThreshold = 0.1f;

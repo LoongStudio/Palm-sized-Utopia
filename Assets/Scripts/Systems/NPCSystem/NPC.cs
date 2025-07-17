@@ -57,12 +57,11 @@ public class NPC : MonoBehaviour, ISaveable
 
     [Header("工作系统")]
     [SerializeField] public TaskInfo pendingTask;       // 待处理的工作建筑
+    [SerializeField] public TaskInfo assignedTask;               // 分配的建筑
+    [SerializeField] public TaskInfo lockedTask = TaskInfo.GetNone();
     [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
-
-    // public Building PendingWork => pendingWork;
-    public Vector3? PendingTaskTarget => pendingTask?.building?.transform.position;
-    [SerializeField] public TaskInfo assignedTask;               // 分配的建筑
+    
     public float CurrentIdleWeight => currentIdleWeight;
 
     #endregion
@@ -324,6 +323,26 @@ public class NPC : MonoBehaviour, ISaveable
     #endregion
 
     #region 工作相关
+
+    [ContextMenu("尝试锁定当前工作")]
+    public bool TryLockCurrentTask()
+    {
+        if (!(currentState.Equals(NPCState.Working)
+              && assignedTask.taskType.Equals(TaskType.Production))) 
+            return false;
+        if (!assignedTask.building.TryLockNPC(this))
+            return false;
+        lockedTask = assignedTask;
+        return true;
+        
+    }
+
+    [ContextMenu("解锁当前工作")]
+    public void UnlockCurrentTask()
+    {
+        lockedTask = TaskInfo.GetNone();
+    }
+    
     public bool CanWorkNow()
     {
         if (TimeManager.Instance == null) return false;

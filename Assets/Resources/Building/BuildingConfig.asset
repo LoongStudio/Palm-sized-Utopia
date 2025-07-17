@@ -25,12 +25,15 @@ MonoBehaviour:
       maxLevel: 5
       size: {x: 2, y: 2}
       npcSlots: 3
+      npcTempSlots: 3
       equipmentSlots: 3
       baseEfficiency: 1
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
-        weightResourceInvolved: 0.8
+        weightResourceInvolved: 12.5
+        weightDistance: 0.2
+        maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
@@ -70,12 +73,15 @@ MonoBehaviour:
       maxLevel: 5
       size: {x: 1, y: 1}
       npcSlots: 1
+      npcTempSlots: 3
       equipmentSlots: 1
       baseEfficiency: 1
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
-        weightResourceInvolved: 0.8
+        weightResourceInvolved: 12.5
+        weightDistance: 0.2
+        maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
@@ -100,12 +106,15 @@ MonoBehaviour:
       maxLevel: 3
       size: {x: 1, y: 1}
       npcSlots: 5
+      npcTempSlots: 3
       equipmentSlots: 1
       baseEfficiency: 1
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
-        weightResourceInvolved: 0.8
+        weightResourceInvolved: 12.5
+        weightDistance: 0.2
+        maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
@@ -129,12 +138,15 @@ MonoBehaviour:
       maxLevel: 5
       size: {x: 1, y: 1}
       npcSlots: 1
+      npcTempSlots: 3
       equipmentSlots: 1
       baseEfficiency: 1
       fitWeightData:
         weightSlot: 0
-        weightResourceAgainst: 0.5
-        weightResourceInvolved: 0.8
+        weightResourceAgainst: 1.3
+        weightResourceInvolved: 12.5
+        weightDistance: 0.2
+        maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []

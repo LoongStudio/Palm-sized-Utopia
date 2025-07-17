@@ -13,6 +13,14 @@ public class NPCMovingToWorkState : NPCStateBase
     {
         base.OnEnterState();
         
+        // 如果存在锁定的工作
+        if (!npc.lockedTask.IsNone())
+        {
+            npc.assignedTask = npc.lockedTask;
+            npc.MoveToTarget(npc.assignedTask.building.transform.position);
+            return;
+        }
+        
         // 如果没有待处理的工作，寻找新的工作
         if (!npc.HasPendingTask())
         {

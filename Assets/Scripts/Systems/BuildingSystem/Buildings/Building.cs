@@ -33,6 +33,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     // public int maxSlotAmount = 3;  // 这里被我替换为了NPCSlotAmount，因为它在data中被定义了
     public List<NPC> assignedNPCs;
     public List<NPC> tempAssignedNPCs;
+    public List<NPC> lockedNPCs;
     public List<Equipment> installedEquipment;
     public Inventory inventory;           // 背包
     
@@ -349,6 +350,13 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
 
     #region NPC管理
 
+    public virtual bool TryLockNPC(NPC npc)
+    {
+        if (!assignedNPCs.Contains(npc)) return false;
+        assignedNPCs.Remove(npc);
+        lockedNPCs.Add(npc);
+        return true;
+    }
     /// <summary>
     /// 尝试分配NPC到建筑
     /// </summary>
@@ -358,7 +366,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         if (!assignedNPCs.Contains(npc) 
             && npc.assignedTask.building == this
             && npc.assignedTask.taskType == TaskType.Production
-            && assignedNPCs.Count < NPCSlotAmount)
+            && assignedNPCs.Count + lockedNPCs.Count < NPCSlotAmount)
         {
             assignedNPCs.Add(npc);
             return true;
@@ -506,6 +514,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         Debug.Log($"位置: {string.Join(" ", positions)}");
         Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{NPCSlotAmount}");
         Debug.Log($"临时NPC数量: {tempAssignedNPCs?.Count ?? 0}");
+        Debug.Log($"锁定NPC数量: {lockedNPCs?.Count ?? 0}");
         Debug.Log($"[Building] ====================================================");
     }
 

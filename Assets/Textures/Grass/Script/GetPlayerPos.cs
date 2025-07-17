@@ -36,10 +36,21 @@ namespace Grass.Script
             if (_poss != null && _poss.Count > 0)
             {
                 
-                _material.SetVectorArray("_Players", _poss.ToArray());
-                _material.SetPass(0);
+                // _material.SetVectorArray("_Players", _poss.ToArray());
+                // _material.SetPass(0);
+                var possArray = _poss.ToArray();
+                foreach (var meshRenderer in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None))
+                {
+                    if (meshRenderer.CompareTag("Grass"))
+                    {
+                        // Debug.Log(meshRenderer.name);
+                        meshRenderer.material.SetVectorArray("_Players",  possArray);
+                        meshRenderer.material.SetPass(0);
+                        // break;
+                    }
+                }
             }
-                
+            
             
         }
     }
