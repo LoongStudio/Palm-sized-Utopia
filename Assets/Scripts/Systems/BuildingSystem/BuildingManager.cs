@@ -606,7 +606,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             float weightResourceInvolved = fitWeight.weightResourceInvolved;
             float weightDistance = fitWeight.weightDistance;
             float maxDistance = fitWeight.maxDistance; // 可根据地图实际情况调整
-            
+
             // 缺人程度
             float slotRatio = 0f;
             if (building.NPCSlotAmount > 0)
@@ -649,7 +649,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
                       + $"| 总分: {score:F2}");
 
             // 如果需求分数没有达到阈值就跳过
-            if (score < 0.1f || !MathUtility.IsValid(score)) continue;
+            if (score < fitWeight.weightThreshold || !MathUtility.IsValid(score)) continue;
             Debug.Log($"[Work] 添加建筑 {building.data.subType} 需求分数：{score}");
 
             // 如果资源产出分数占比最高

@@ -30,7 +30,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     public HashSet<ResourceConfig> AcceptResources;
     
     [Header("槽位管理")] 
-    public int maxSlotAmount = 3;  // 这里被我替换为了NPCSlotAmount，因为它在data中被定义了
+    // public int maxSlotAmount = 3;  // 这里被我替换为了NPCSlotAmount，因为它在data中被定义了
     public List<NPC> assignedNPCs;
     public List<NPC> tempAssignedNPCs;
     public List<Equipment> installedEquipment;
