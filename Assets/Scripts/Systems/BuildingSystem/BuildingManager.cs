@@ -604,7 +604,9 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             float weightSlot = fitWeight.weightSlot;
             float weightResourceAgainst = fitWeight.weightResourceAgainst;
             float weightResourceInvolved = fitWeight.weightResourceInvolved;
-
+            float weightDistance = fitWeight.weightDistance;
+            float maxDistance = fitWeight.maxDistance; // 可根据地图实际情况调整
+            
             // 缺人程度
             float slotRatio = 0f;
             if (building.NPCSlotAmount > 0)
@@ -620,15 +622,30 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
                 building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
             float resourceRatioInvolving = building.inventory.GetResourceMappingWithFilter(npc.inventory, building.AcceptResources);
 
+            // 距离惩罚分数
+            float distancePenalty = 0f;
+            Vector3 npcPos = npc.transform.position;
+            Vector3 buildingPos = building.transform.position;
+            float distance = Vector3.Distance(npcPos, buildingPos);
+            
+            // 尝试用NavMesh计算距离（伪代码，需项目有NavMeshAgent/Path）
+            /*
+            float navDistance = TryGetNavMeshDistance(npcPos, buildingPos);
+            if (navDistance > 0) distance = navDistance;
+            */
+            distancePenalty = Mathf.Clamp(-distance / maxDistance, -1f, 0f);
+            float distanceScore = distancePenalty * weightDistance;
+
             float slotScore = slotRatio * weightSlot;
             float resourceAgainstScore = resourceRatioAgainst * weightResourceAgainst;
             float resourceInvolvingScore = resourceRatioInvolving * weightResourceInvolved;
-            float score = slotScore + resourceAgainstScore + resourceInvolvingScore;
+            float score = slotScore + resourceAgainstScore + resourceInvolvingScore + distanceScore;
 
             Debug.Log($"[Work] 建筑: {building.data.subType} "
                       + $"| 插槽需求: {slotScore:F2} "
                       + $"| 资源需求: {resourceInvolvingScore:F2} "
                       + $"| 资源输出: {resourceAgainstScore:F2} "
+                      + $"| 距离惩罚: {distanceScore:F2} "
                       + $"| 总分: {score:F2}");
 
             // 如果需求分数没有达到阈值就跳过
