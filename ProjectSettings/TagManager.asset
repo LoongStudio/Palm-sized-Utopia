@@ -9,6 +9,7 @@ TagManager:
   - UI_TITLEBAR
   - UI_STACK_TO
   - NPC
+  - Grass
   layers:
   - Default
   - TransparentFX

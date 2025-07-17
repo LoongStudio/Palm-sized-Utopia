@@ -21,6 +21,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2857692135417247829, guid: e9f5963fc4a61ee4b93518a6c6748831, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2857692135417247829, guid: e9f5963fc4a61ee4b93518a6c6748831, type: 3}
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
@@ -110,29 +114,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7700bf428df64a0a9ca3efb28a8ef877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  buildingId: 
   data:
+    buildingName: 
+    description: 
+    icon: {fileID: 0}
     buildingType: 3
     subType: 7
-    buildingName: 
     purchasePrice: 0
     upgradePrices: 
     maxLevel: 0
     size: {x: 0, y: 0}
     npcSlots: 0
+    npcTempSlots: 3
     equipmentSlots: 0
     baseEfficiency: 0
+    fitWeightData:
+      weightSlot: 0.5
+      weightResourceAgainst: 0.5
+      weightResourceInvolved: 0.8
+      weightDistance: 0.2
+      maxDistance: 20
+      weightThreshold: 0.1
   status: 0
   currentLevel: 0
   positions: []
-  AcceptResources: []
-  maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
   inventory:
-    currentSubResource: []
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
+    ownerType: 0
+    currentStacks: []
+    defaultMaxValue: 0
+    acceptMode: 0
+    filterMode: 0
+  heightOffset: 0.1
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textSize: 12
+  alwaysShow: 1
   livingNPCs: []
   maxLivingNPCs: 5
 --- !u!1001 &5224677021679276896

@@ -3,11 +3,16 @@ Shader "Toon/Grass"
     Properties
     {
         [Header(Season Colors)]
-        _TopColorS("夏季顶部颜色（Summer Top）", Color) = (0.3, 1, 0.3, 1) // 夏季绿草顶部
-        _BottomColorS("夏季底部颜色（Summer Bottom）", Color) = (0.2, 0.8, 0.2, 1) // 夏季绿草底部
-        _TopColorE("秋季顶部颜色（Autumn Top）", Color) = (1, 0.7, 0.3, 1) // 秋季枯草顶部
-        _BottomColorE("秋季底部颜色（Autumn Bottom）", Color) = (0.8, 0.5, 0.2, 1) // 秋季枯草底部
-        _SeasonFloat("季节权重（0=夏季，1=秋季）", Range(0, 1)) = 0.5 // 控制季节过渡
+        _TopColorSpring("春季顶部颜色", Color) = (0.6, 1, 0.6, 1)
+        _BottomColorSpring("春季底部颜色", Color) = (0.4, 0.9, 0.4, 1)
+        _TopColorSummer("夏季顶部颜色", Color) = (0.3, 1, 0.3, 1)
+        _BottomColorSummer("夏季底部颜色", Color) = (0.2, 0.8, 0.2, 1)
+        _TopColorAutumn("秋季顶部颜色", Color) = (1, 0.7, 0.3, 1)
+        _BottomColorAutumn("秋季底部颜色", Color) = (0.8, 0.5, 0.2, 1)
+        _TopColorWinter("冬季顶部颜色", Color) = (0.8, 0.9, 1, 1)
+        _BottomColorWinter("冬季底部颜色", Color) = (0.7, 0.8, 1, 1)
+        _SeasonFloat("季节权重（0=春，0.25=夏，0.5=秋，0.75=冬）", Range(0, 1)) = 0.0
+        _SeasonOffset("季节起点偏移", Range(0, 1)) = 0.0
         
         [Header(Shading)]
         _TranslucentGain("半透明增益", Range(0,1)) = 0.5
@@ -57,11 +62,16 @@ Shader "Toon/Grass"
 
             // 声明属性变量（通过CBUFFER统一管理）
             CBUFFER_START(UnityPerMaterial)
-                float4 _TopColorS;
-                float4 _BottomColorS;
-                float4 _TopColorE;
-                float4 _BottomColorE;
-                float _SeasonFloat; // 季节权重（0=夏季，1=秋季）
+                float4 _TopColorSpring;
+                float4 _BottomColorSpring;
+                float4 _TopColorSummer;
+                float4 _BottomColorSummer;
+                float4 _TopColorAutumn;
+                float4 _BottomColorAutumn;
+                float4 _TopColorWinter;
+                float4 _BottomColorWinter;
+                float _SeasonFloat;
+                float _SeasonOffset;
             CBUFFER_END
             // 采样器声明
             // TEXTURE2D(_WindDistortionMap);
@@ -83,11 +93,17 @@ Shader "Toon/Grass"
                     1.0                                 // Alpha通道：不透明
                 );
 
-                // 插值季节颜色（确保是float4）
-                float4 currentTopColor = lerp(_TopColorS, _TopColorE, _SeasonFloat);
-                float4 currentBottomColor = lerp(_BottomColorS, _BottomColorE, _SeasonFloat);
+                // 四季颜色插值
+                float season = frac(_SeasonFloat + _SeasonOffset);
+                float4 topColors[4] = {_TopColorSpring, _TopColorSummer, _TopColorAutumn, _TopColorWinter};
+                float4 bottomColors[4] = {_BottomColorSpring, _BottomColorSummer, _BottomColorAutumn, _BottomColorWinter};
+                float seasonStep = season * 4.0;
+                int seasonIndex = (int)seasonStep;
+                int nextSeasonIndex = (seasonIndex + 1) % 4;
+                float t = seasonStep - seasonIndex;
+                float4 currentTopColor = lerp(topColors[seasonIndex], topColors[nextSeasonIndex], t);
+                float4 currentBottomColor = lerp(bottomColors[seasonIndex], bottomColors[nextSeasonIndex], t);
 
-                // 确保所有参与lerp的参数都是float4
                 float4 bottomColor = currentBottomColor * lightIntensity; // 底部颜色（float4）
                 float4 topColor = currentTopColor * lightIntensity;       // 顶部颜色（float4）
 

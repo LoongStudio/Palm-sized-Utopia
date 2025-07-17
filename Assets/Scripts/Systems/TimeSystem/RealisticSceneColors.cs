@@ -49,7 +49,16 @@ public class RealisticSceneColors : SingletonManager<RealisticSceneColors>
 		if (TimeManager.Instance.CurrentTime.Equals(lastUpdateGameTime)) return; 
 		lastUpdateGameTime = TimeManager.Instance.CurrentTime;
 		float interval = (lastUpdateGameTime.month * 30 + lastUpdateGameTime.day) / 360.0f;
-		foreach (var realisticSceneMaterial in materialConfig.materials)
-			realisticSceneMaterial.material.SetFloat("_SeasonFloat", interval);
+		foreach (var meshRenderer in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None))
+		{
+			if (meshRenderer.CompareTag("Grass"))
+			{
+				Debug.Log(meshRenderer.name);
+				meshRenderer.material.SetFloat("_SeasonFloat", interval);
+				// break;
+			}
+		}
+		// foreach (var realisticSceneMaterial in materialConfig.materials)
+		// 	realisticSceneMaterial.material.SetFloat("_SeasonFloat", interval);
 	}
 }
