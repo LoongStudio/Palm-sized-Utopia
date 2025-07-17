@@ -234,6 +234,7 @@ GameObject:
   - component: {fileID: 218098086}
   - component: {fileID: 218098089}
   - component: {fileID: 218098090}
+  - component: {fileID: 218098091}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -368,6 +369,20 @@ Skybox:
   m_GameObject: {fileID: 218098085}
   m_Enabled: 0
   m_CustomSkybox: {fileID: 2100000, guid: e1b106e26a38bd04da192bc6c8da5fa7, type: 2}
+--- !u!114 &218098091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218098085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7235f6feb58887a498646f0da1ea298c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetMaterial: grass
+  materialConfig: {fileID: 11400000, guid: 1f779bb7ef5c7a0479241dd151105960, type: 2}
 --- !u!1 &284292962
 GameObject:
   m_ObjectHideFlags: 0

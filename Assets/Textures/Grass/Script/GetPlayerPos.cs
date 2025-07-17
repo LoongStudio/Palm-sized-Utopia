@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Grass.Script
@@ -8,7 +9,14 @@ namespace Grass.Script
     {
         const int MAX_PLAYERS = 100;
         private List<Vector4> _poss = new List<Vector4>(MAX_PLAYERS);
-        public Material material;
+        public string targetMaterial = "grass";
+        public MaterialConfig materialConfig;
+        [ShowInInspector] private Material _material; 
+        void Start()
+        {
+            // 从 Scriptable Object 中获取原始材质
+            _material = materialConfig.GetMaterial(targetMaterial);
+        }
         void Update()
         {
             _poss.Clear();
@@ -28,8 +36,8 @@ namespace Grass.Script
             if (_poss != null && _poss.Count > 0)
             {
                 
-                material.SetVectorArray("_Players", _poss.ToArray());
-                material.SetPass(0);
+                _material.SetVectorArray("_Players", _poss.ToArray());
+                _material.SetPass(0);
             }
                 
             
