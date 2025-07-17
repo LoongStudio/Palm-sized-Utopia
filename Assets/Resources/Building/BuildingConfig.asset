@@ -27,6 +27,11 @@ MonoBehaviour:
       npcSlots: 3
       equipmentSlots: 3
       baseEfficiency: 1
+      fitWeightData:
+        weightSlot: 0.5
+        weightResourceAgainst: 0.5
+        weightResourceInvolved: 0.8
+        weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
       defaultMaxValue: 100
@@ -67,6 +72,11 @@ MonoBehaviour:
       npcSlots: 1
       equipmentSlots: 1
       baseEfficiency: 1
+      fitWeightData:
+        weightSlot: 0.5
+        weightResourceAgainst: 0.5
+        weightResourceInvolved: 0.8
+        weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
       defaultMaxValue: 100
@@ -92,6 +102,11 @@ MonoBehaviour:
       npcSlots: 5
       equipmentSlots: 1
       baseEfficiency: 1
+      fitWeightData:
+        weightSlot: 0.5
+        weightResourceAgainst: 0.5
+        weightResourceInvolved: 0.8
+        weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
       defaultMaxValue: 0
@@ -116,6 +131,11 @@ MonoBehaviour:
       npcSlots: 1
       equipmentSlots: 1
       baseEfficiency: 1
+      fitWeightData:
+        weightSlot: 0
+        weightResourceAgainst: 0.5
+        weightResourceInvolved: 0.8
+        weightThreshold: 0.1
     productionBuildingDatas:
       defaultResources: []
       defaultMaxValue: 100

@@ -608,7 +608,13 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             // 缺人程度
             float slotRatio = 0f;
             if (building.NPCSlotAmount > 0)
-                slotRatio = (float)(building.NPCSlotAmount - building.assignedNPCs?.Count ?? 0) / building.NPCSlotAmount;
+            {
+                if (building.data.buildingType == BuildingType.Production 
+                    && !((ProductionBuilding) building).CanProduceAnyRule()) // 如果 production 在 插槽内也不能提供生产那就让插槽权重为0
+                    slotRatio = 0f;
+                else 
+                    slotRatio = (float)(building.NPCSlotAmount - building.assignedNPCs?.Count ?? 0) / building.NPCSlotAmount;
+            }
 
             float resourceRatioAgainst =
                 building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);

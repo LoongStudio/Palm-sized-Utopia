@@ -119,4 +119,47 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         efficiency = totalEfficiency;
         return efficiency;
     }
+
+    /// <summary>
+    /// 检查当前库存是否能完整执行指定生产规则（不会因产出溢出导致回滚，且能消耗输入）
+    /// </summary>
+    public bool CanProduceByRule(int ruleIndex)
+    {
+        if (productionRules == null || ruleIndex < 0 || ruleIndex >= productionRules.Count)
+            return false;
+        var rule = productionRules[ruleIndex];
+        // 检查输入资源是否足够
+        foreach (var input in rule.inputs)
+        {
+            var stack = inventory.currentStacks.Find(s => s.resourceConfig.Equals(input.resourceConfig));
+            if (stack == null || stack.amount < input.amount)
+                return false;
+        }
+        // 检查输出资源是否有足够空间
+        foreach (var output in rule.outputs)
+        {
+            var stack = inventory.currentStacks.Find(s => s.resourceConfig.Equals(output.resourceConfig));
+            int current = stack != null ? stack.amount : 0;
+            int limit = stack != null ? stack.storageLimit : inventory.defaultMaxValue;
+            // storageLimit==0 视为无限
+            if (limit > 0 && current + output.amount > limit)
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// 检查当前库存是否能执行任意一个生产规则
+    /// </summary>
+    public bool CanProduceAnyRule()
+    {
+        if (productionRules == null || productionRules.Count == 0)
+            return false;
+        for (int i = 0; i < productionRules.Count; i++)
+        {
+            if (CanProduceByRule(i))
+                return true;
+        }
+        return false;
+    }
 }
