@@ -5,6 +5,7 @@ public class EditModePanel : BasePanel
 {
     [SerializeField] private Button editModeButton;
     private bool isEditMode = false;
+    public Text modeText;
     private void OnEnable()
     {
         GameEvents.OnEditModeChanged += HandleEditModeChanged;
@@ -23,7 +24,7 @@ public class EditModePanel : BasePanel
     {
         isEditMode = !isEditMode;
         InputManager.Instance.ToggleEditMode();
-        editModeButton.GetComponentInChildren<Text>().text = isEditMode ? 
+        modeText.text = isEditMode ? 
             UITools.GetLocalizedText("EditMode", "FontText") : 
             UITools.GetLocalizedText("EditMode", "NormalMode");
     }
@@ -31,7 +32,7 @@ public class EditModePanel : BasePanel
     public void HandleEditModeChanged(bool isEditMode)
     {
         this.isEditMode = isEditMode;
-        editModeButton.GetComponentInChildren<Text>().text = isEditMode ? 
+        modeText.text = isEditMode ? 
             UITools.GetLocalizedText("EditMode", "FontText") : 
             UITools.GetLocalizedText("EditMode", "NormalMode");
     }

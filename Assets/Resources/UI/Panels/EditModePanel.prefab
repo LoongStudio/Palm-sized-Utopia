@@ -169,6 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editModeButton: {fileID: 4000843135584501149}
+  modeText: {fileID: 2136102920129977263}
 --- !u!114 &3679949802272783631
 MonoBehaviour:
   m_ObjectHideFlags: 0
