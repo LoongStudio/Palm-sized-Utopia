@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 public class EditModePanel : BasePanel
 {
     [SerializeField] private Button editModeButton;
@@ -23,7 +23,7 @@ public class EditModePanel : BasePanel
     {
         isEditMode = !isEditMode;
         InputManager.Instance.ToggleEditMode();
-        editModeButton.GetComponentInChildren<TextMeshProUGUI>().text = isEditMode ? 
+        editModeButton.GetComponentInChildren<Text>().text = isEditMode ? 
             UITools.GetLocalizedText("EditMode", "FontText") : 
             UITools.GetLocalizedText("EditMode", "NormalMode");
     }
@@ -31,7 +31,7 @@ public class EditModePanel : BasePanel
     public void HandleEditModeChanged(bool isEditMode)
     {
         this.isEditMode = isEditMode;
-        editModeButton.GetComponentInChildren<TextMeshProUGUI>().text = isEditMode ? 
+        editModeButton.GetComponentInChildren<Text>().text = isEditMode ? 
             UITools.GetLocalizedText("EditMode", "FontText") : 
             UITools.GetLocalizedText("EditMode", "NormalMode");
     }
