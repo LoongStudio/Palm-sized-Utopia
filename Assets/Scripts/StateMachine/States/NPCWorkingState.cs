@@ -137,7 +137,8 @@ public class NPCWorkingState : NPCStateBase
     {
         base.OnExitState();
         animator.SetBool("isWorking", false);
-        
+        WorkingTimer = 0.0f;
+        WorkingTimerTotal = 0.0f;
         // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
         if (showDebugInfo)
         {
