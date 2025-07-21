@@ -30,14 +30,14 @@ public class NPCMovingToWorkState : NPCStateBase
             // 改为找到时立刻注册
             if (nextWork.building != null && nextWork.building.TryAssignNPC(npc))
             {
-                Debug.Log($"[Work] 找到目标工作 {nextWork.building.data.subType}");
+                Debug.Log($"[Work] {npc.data.npcName} 找到目标工作 {nextWork.building.data.subType}");
                 // 使用NPCMovement的MoveToTarget方法，而不是直接设置currentTarget
                 npc.MoveToTarget(nextWork.building.transform.position);
                 
             }
             else
             {
-                Debug.Log($"[Work] 找不到目标工作 进入 Idle");
+                Debug.Log($"[Work] {npc.data.npcName} 找不到目标工作 进入 Idle");
                 npc.assignedTask = null;
                 // 如果没有找到工作，返回空闲状态
                 stateMachine.ChangeState(NPCState.Idle);

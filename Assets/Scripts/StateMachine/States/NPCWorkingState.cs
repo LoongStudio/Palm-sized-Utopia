@@ -23,56 +23,47 @@ public class NPCWorkingState : NPCStateBase
         if (showDebugInfo)
         {
             Debug.Log($"[NPCWorkingState] {npc.data.npcName} 正在 {npc.assignedTask.building} 工作 {npc.assignedTask.taskType}");
-            Collider[] allColliders = npc.GetComponentsInChildren<Collider>();
-            foreach (var colli in allColliders) {
-                Debug.Log($"找到碰撞体: {colli.gameObject.name}");
-            }
-            // 进入工作后取消碰撞体 出来后再关闭
-            if (npc.TryGetComponent(out Collider collider))
-            {
-            
-            }
         }
-        switch (npc.assignedTask.taskType)
-        {
-            case TaskType.Production:
-                // 改为在查找建筑时就assigned，该检查无效，替换为重复校验
-                if (npc.assignedTask.building.assignedNPCs.Contains(npc))
-                {
-                    Debug.Log($"[Work] 工作注册校验 NPC {npc.data.npcName} "
-                              + $"成功到达目标 注册建筑 {npc.assignedTask.building.data.subType} ");
-                }
-                else
-                {
-                    Debug.LogError($"[Work] 工作注册校验 NPC {npc.data.npcName} "
-                              + $"未到达指定目标 注册建筑 {npc.assignedTask.building.data.subType} 退出");
-                    stateMachine.ChangeState(NPCState.Idle);
-                }
-                // if (npc.assignedTask.building.TryAssignNPC(npc))
-                // {
-                //     nextState = NPCState.WorkComplete;
-                // }
-                // else // 如果无法给当前NPC提供工作 重新进入Idle
-                // {
-                //     Debug.LogWarning($"[Work] 发现无法给NPC分配原先已经规划好的工作 "
-                //                      + $"{npc.assignedTask.building.data.subType} "
-                //                      + $"{npc.assignedTask.taskType} 情况，重新进入Idle");
-                //     nextState = NPCState.Idle;
-                //     stateMachine.ChangeState(NPCState.Idle);
-                // }
-                break;
-            case TaskType.HandlingAccept:
-                nextState = NPCState.Idle;
-                break;
-            case TaskType.HandlingDrop:
-                nextState = NPCState.Idle;
-                break;
-            default:
-                Debug.LogWarning($"[Work] 发现 {npc.name} 意料外的进入工作情况，重新进入Idle");
-                nextState = NPCState.Idle;
-                stateMachine.ChangeState(NPCState.Idle);
-                break;
-        }
+        // switch (npc.assignedTask.taskType)
+        // {
+        //     case TaskType.Production:
+        //         // 改为在查找建筑时就assigned，该检查无效，替换为重复校验
+        //         if (npc.assignedTask.building.assignedNPCs.Contains(npc))
+        //         {
+        //             Debug.Log($"[Work] 工作注册校验 NPC {npc.data.npcName} "
+        //                       + $"成功到达目标 注册建筑 {npc.assignedTask.building.data.subType} ");
+        //         }
+        //         else
+        //         {
+        //             Debug.LogError($"[Work] 工作注册校验 NPC {npc.data.npcName} "
+        //                       + $"未到达指定目标 注册建筑 {npc.assignedTask.building.data.subType} 退出");
+        //             stateMachine.ChangeState(NPCState.Idle);
+        //         }
+        //         // if (npc.assignedTask.building.TryAssignNPC(npc))
+        //         // {
+        //         //     nextState = NPCState.WorkComplete;
+        //         // }
+        //         // else // 如果无法给当前NPC提供工作 重新进入Idle
+        //         // {
+        //         //     Debug.LogWarning($"[Work] 发现无法给NPC分配原先已经规划好的工作 "
+        //         //                      + $"{npc.assignedTask.building.data.subType} "
+        //         //                      + $"{npc.assignedTask.taskType} 情况，重新进入Idle");
+        //         //     nextState = NPCState.Idle;
+        //         //     stateMachine.ChangeState(NPCState.Idle);
+        //         // }
+        //         break;
+        //     case TaskType.HandlingAccept:
+        //         nextState = NPCState.Idle;
+        //         break;
+        //     case TaskType.HandlingDrop:
+        //         nextState = NPCState.Idle;
+        //         break;
+        //     default:
+        //         Debug.LogWarning($"[Work] 发现 {npc.name} 意料外的进入工作情况，重新进入Idle");
+        //         nextState = NPCState.Idle;
+        //         stateMachine.ChangeState(NPCState.Idle);
+        //         break;
+        // }
         
     }
 
@@ -88,9 +79,9 @@ public class NPCWorkingState : NPCStateBase
                 Debug.Log($"[NPCWorkingState] {npc.data.npcName} 工作时间结束，准备下班");
             }
             // 将当前AssignedBuilding设为PendingWork，方便下次继续
-            if (!npc.assignedTask.Equals(TaskInfo.GetNone()))
+            if (!npc.assignedTask.IsNone())
             {
-                npc.SetPendingWork(new TaskInfo(npc.assignedTask.building, npc.assignedTask.taskType));
+                npc.SetPendingWork(npc.assignedTask);
                 if (showDebugInfo)
                 {
                     Debug.Log($"[NPCWorkingState] {npc.data.npcName} "
@@ -103,7 +94,7 @@ public class NPCWorkingState : NPCStateBase
         // 或者 建筑是否能够继续进行生产 但是不进行 pendingWork 储存
         if (npc.assignedTask.taskType == TaskType.Production
             && npc.assignedTask.building.data.buildingType == BuildingType.Production
-            && ((ProductionBuilding)npc.assignedTask.building).CanProduceAnyRule())
+            && !((ProductionBuilding)npc.assignedTask.building).CanProduceAnyRule())
         {
             stateMachine.ChangeState(NPCState.Idle);
         }

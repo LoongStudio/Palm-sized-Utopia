@@ -54,7 +54,7 @@ MonoBehaviour:
           storageLimit: 0
           purchasePrice: 0
           sellPrice: 0
-      defaultAcceptMode: 1
+      defaultAcceptMode: 0
       defaultFilterMode: 1
       defaultAcceptList:
       - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}

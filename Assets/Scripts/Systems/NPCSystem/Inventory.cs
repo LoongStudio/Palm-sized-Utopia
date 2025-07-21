@@ -313,6 +313,7 @@ public class Inventory : ISaveable
             var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
+                Debug.Log($"[Work] {target.ownerType} {item.resourceConfig.name} 背包插槽不存在");
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
                     targetCurrent = new ResourceStack(item.resourceConfig, 0, target.defaultMaxValue);
@@ -323,6 +324,7 @@ public class Inventory : ISaveable
             if (spaceLeft <= 0)
                 continue;
             int transferable = Math.Min(item.amount, Math.Min(spaceLeft, maxTransferAmount - transferredTotal));
+            Debug.Log($"[Work] itemAmount {item.amount} | spaceLeft {spaceLeft} | maxTrans-transTotal {transferable} | transferable {maxTransferAmount - transferredTotal}");
             if (transferable <= 0)
                 break;
             item.amount -= transferable;
