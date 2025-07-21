@@ -87,7 +87,55 @@ MonoBehaviour:
       defaultResources: []
       defaultMaxValue: 100
       acceptResources: []
-      conversionRules: []
+      conversionRules:
+      - inputs:
+        - resourceConfig: {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+          amount: 1
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+        outputs:
+        - resourceConfig: {fileID: 11400000, guid: 32e735617941a4725959fab4ee653db6, type: 2}
+          amount: 1
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+      - inputs:
+        - resourceConfig: {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+          amount: 1
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+        outputs:
+        - resourceConfig: {fileID: 11400000, guid: 32e735617941a4725959fab4ee653db6, type: 2}
+          amount: 2
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+      - inputs:
+        - resourceConfig: {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
+          amount: 1
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+        outputs:
+        - resourceConfig: {fileID: 11400000, guid: 32e735617941a4725959fab4ee653db6, type: 2}
+          amount: 5
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+      - inputs:
+        - resourceConfig: {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+          amount: 0
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+        outputs:
+        - resourceConfig: {fileID: 11400000, guid: 32e735617941a4725959fab4ee653db6, type: 2}
+          amount: 10
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
       defaultAcceptMode: 0
       defaultFilterMode: 1
       defaultAcceptList: []
