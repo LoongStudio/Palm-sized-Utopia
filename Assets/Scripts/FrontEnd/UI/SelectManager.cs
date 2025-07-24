@@ -5,8 +5,12 @@ using UnityEngine.EventSystems;
 public class SelectManager : SingletonManager<SelectManager>{
     [SerializeField, LabelText("显示调试信息")]private bool showDebugInfo = false;
     [SerializeField, LabelText("可选择层")]private LayerMask selectableLayers;
-    [SerializeField, LabelText("当前选中"), ReadOnly]private GameObject selected;
-
+    [SerializeField, LabelText("当前选中"), ReadOnly]private GameObject selected = null;
+    public GameObject Selected{
+        get{
+            return selected;
+        }
+    }
     private void OnEnable(){
         
     }
@@ -42,15 +46,18 @@ public class SelectManager : SingletonManager<SelectManager>{
         if(this.selected == selected){
             return;
         }
-        this.selected = selected;
-        if(showDebugInfo){
-            Debug.Log("[SelectManager] 选中物体：" + selected.name);
+        // 取消选中上一个物体
+        if(this.selected != null){
+            ISelectable selectable = this.selected.GetComponentInChildren<ISelectable>();
+            if(selectable != null){
+                selectable.OnDeselect();
+            }
         }
-
-        // 触发选中事件
-        ISelectable selectable = selected.GetComponentInChildren<ISelectable>();
-        if(selectable != null){
-            selectable.OnSelect();
+        // 选中当前物体
+        this.selected = selected;
+        ISelectable newSelectable = selected.GetComponentInChildren<ISelectable>();
+        if(newSelectable != null){
+            newSelectable.OnSelect();
         }else{
             Debug.LogWarning("[SelectManager] 选中物体没有实现ISelectable接口：" + selected.name);
         }
