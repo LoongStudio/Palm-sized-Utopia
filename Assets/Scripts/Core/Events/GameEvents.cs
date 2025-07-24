@@ -71,6 +71,7 @@ public static class GameEvents
     // public static event System.Action OnGameStarted;
     // public static event System.Action OnGamePaused;
     public static event System.Action<bool> OnEditModeChanged;
+    public static event System.Action<ISelectable> OnObjectSelected;
     #endregion
 
     #region 已废弃事件 (向后兼容)
@@ -397,6 +398,10 @@ public static class GameEvents
     {
         OnEditModeChanged?.Invoke(isEditMode);
         Debug.Log($"[GameEvents] Edit Mode Changed: {isEditMode}");
+    }
+    public static void TriggerObjectSelected(ISelectable selected)
+    {
+        OnObjectSelected?.Invoke(selected);
     }
     #endregion
     

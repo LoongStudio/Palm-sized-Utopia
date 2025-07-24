@@ -115,6 +115,7 @@ GameObject:
   - component: {fileID: -3895718881952932244}
   - component: {fileID: 6802671182719644152}
   - component: {fileID: 7628788800457839329}
+  - component: {fileID: -7587831731371656279}
   m_Layer: 11
   m_Name: SlimePBR
   m_TagString: Untagged
@@ -220,11 +221,14 @@ MonoBehaviour:
   pendingTask:
     building: {fileID: 0}
     taskType: 0
-  idleTimeWeight: 0.1
-  currentIdleWeight: 0
   assignedTask:
     building: {fileID: 0}
     taskType: 0
+  lockedTask:
+    building: {fileID: 0}
+    taskType: 0
+  idleTimeWeight: 0.1
+  currentIdleWeight: 0
 --- !u!114 &6222079410607490007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,6 +314,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 0.34
   centerOffset: {x: 0, y: 0.24, z: 0}
+--- !u!136 &-7587831731371656279
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.6
+  m_Height: 0.8
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0
