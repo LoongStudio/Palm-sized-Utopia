@@ -46,15 +46,21 @@ public class UIManager : SingletonManager<UIManager>
     {
         UnregisterEvents();
     }
+
+    #region 事件与处理
     private void RegisterEvents()
     {
         GameEvents.OnResourceInsufficient += OnResourceInsufficient;
         GameEvents.OnResourceBoughtClicked += OnResourceBoughtClicked;
+        GameEvents.OnBuildingSelected += OnBuildingSelected;
+        GameEvents.OnNPCSelected += OnNPCSelected;
     }
     private void UnregisterEvents()
     {
         GameEvents.OnResourceInsufficient -= OnResourceInsufficient;
         GameEvents.OnResourceBoughtClicked -= OnResourceBoughtClicked;
+        GameEvents.OnBuildingSelected -= OnBuildingSelected;
+        GameEvents.OnNPCSelected -= OnNPCSelected;
     }
     private void OnResourceInsufficient(ResourceEventArgs args)
     {
@@ -78,6 +84,17 @@ public class UIManager : SingletonManager<UIManager>
             Debug.LogError("QuantitySelectPanel 未找到");
         }
     }
+    private void OnBuildingSelected(Building building)
+    {
+        if(building != null){
+            OpenPanel("BuildingInfoPanel");
+        }
+    }
+    private void OnNPCSelected(NPC npc)
+    {
+        
+    }
+    #endregion
     private void Start()
     {
         OpenPanel("TestPanel");
@@ -92,25 +109,42 @@ public class UIManager : SingletonManager<UIManager>
             // 如果点击了空白处，关闭商店面板
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                ClosePanel("ShopPanel");
-                ClosePanel("PlaceableShopPanel");
-                ClosePanel("InsufficientResourcePanel");
-                ClosePanel("BuildingShopPanel");
-                // 如果资源商店打开了
-                if(panelDict.ContainsKey("ResourceShopPanel") && panelDict["ResourceShopPanel"].IsShowing){
-                    // 但是没有打开数量选择面板，则关闭资源商店
-                    if(!panelDict.ContainsKey("QuantitySelectPanel") || !panelDict["QuantitySelectPanel"].IsShowing)
-                    {
-                        ClosePanel("ResourceShopPanel");
-                    }
-                    // 如果打开了数量选择面板，则关闭数量选择面板
-                    else
-                    {
-                        ClosePanel("QuantitySelectPanel");
-                    }
-                } 
+                TryClosePanelsOnClick();
+                TryHidePanelsOnClick();
             }
         }
+    }
+
+
+    /// <summary>
+    /// 对于不常驻的面板，如果打开了，则关闭
+    /// </summary>
+    private void TryClosePanelsOnClick()
+    {
+        ClosePanel("ShopPanel");
+        ClosePanel("PlaceableShopPanel");
+        ClosePanel("InsufficientResourcePanel");
+        ClosePanel("BuildingShopPanel");
+        // 如果资源商店打开了
+        if (panelDict.ContainsKey("ResourceShopPanel") && panelDict["ResourceShopPanel"].IsShowing)
+        {
+            // 但是没有打开数量选择面板，则关闭资源商店
+            if (!panelDict.ContainsKey("QuantitySelectPanel") || !panelDict["QuantitySelectPanel"].IsShowing)
+            {
+                ClosePanel("ResourceShopPanel");
+            }
+            // 如果打开了数量选择面板，则关闭数量选择面板
+            else
+            {
+                ClosePanel("QuantitySelectPanel");
+            }
+        }
+    }
+    /// <summary>
+    /// 对于常驻的面板，如果打开了，则隐藏
+    /// </summary>
+    private void TryHidePanelsOnClick(){
+
     }
     private void InitDicts()
     {
@@ -127,6 +161,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("BuildingShopPanel", UIConst.BuildingShopPanel);
         pathDict.Add("ResourceShopPanel", UIConst.ResourceShopPanel);
         pathDict.Add("QuantitySelectPanel", UIConst.QuantitySelectPanel);
+        pathDict.Add("BuildingInfoPanel", UIConst.BuildingInfoPanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -235,4 +270,5 @@ public class UIConst
     public const string BuildingShopPanel = "UI/Panels/BuildingShopPanel";
     public const string ResourceShopPanel = "UI/Panels/ResourceShopPanel";
     public const string QuantitySelectPanel = "UI/Panels/QuantitySelectPanel";
+    public const string BuildingInfoPanel = "UI/Panels/BuildingInfoPanel";
 }

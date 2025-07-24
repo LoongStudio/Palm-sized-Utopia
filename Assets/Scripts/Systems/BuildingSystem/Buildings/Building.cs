@@ -11,7 +11,7 @@ using UnityEditor;
 #endif
 
 [RequireComponent(typeof(Collider))]
-public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
+public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelectable
 {
     #region 字段和属性
 
@@ -357,6 +357,23 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
         lockedNPCs.Add(npc);
         return true;
     }
+
+    public bool IsNPCLocked(NPC npc){
+        if(npc == null){
+            Debug.LogError($"[Building] NPC为空");
+            return false;
+        }
+
+        if(assignedNPCs.Contains(npc)){
+            if(lockedNPCs.Contains(npc)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        Debug.LogWarning($"[Building] NPC {npc.data.npcName} 没有被分配到建筑 {data.buildingName} 中");
+        return false;
+    }
     /// <summary>
     /// 尝试分配NPC到建筑
     /// </summary>
@@ -426,6 +443,19 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable
     /// 获取升级价格
     /// </summary>
     public virtual int GetUpgradePrice() { return 0; }
+
+    #endregion
+
+    #region 选中系统
+
+    public void OnSelect(){
+        Debug.Log($"[Building] 建筑{data.buildingName}被选中");
+        GameEvents.TriggerBuildingSelected(this);
+    }
+    public void OnDeselect(){
+        Debug.Log($"[Building] 建筑{data.buildingName}被取消选中");
+
+    }
 
     #endregion
 
