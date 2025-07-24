@@ -447,14 +447,42 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     #endregion
 
     #region 选中系统
-
+    private Outline _outline;
+    public Outline Outline {
+        get{
+            if(_outline == null){
+                _outline = GetComponent<Outline>();
+            }
+            return _outline;
+        }
+        set{
+            _outline = value;
+        }
+    }
     public void OnSelect(){
         Debug.Log($"[Building] 建筑{data.buildingName}被选中");
         GameEvents.TriggerBuildingSelected(this);
+        // 高亮建筑
+        HighlightSelf();
     }
     public void OnDeselect(){
         Debug.Log($"[Building] 建筑{data.buildingName}被取消选中");
+        UnhighlightSelf();
+    }
+    public void HighlightSelf(){
+        // 没有的话加一个
+        if(Outline == null){
+            Outline = gameObject.AddComponent<Outline>();
+            Outline.OutlineColor = Color.green;
+            Outline.OutlineWidth = 5f;
+        }
 
+        Outline.enabled = true;
+    }
+    public void UnhighlightSelf(){
+        if(Outline != null){
+            Outline.enabled = false;
+        }
     }
 
     #endregion

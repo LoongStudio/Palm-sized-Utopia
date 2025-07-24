@@ -43,9 +43,9 @@ public class SelectManager : SingletonManager<SelectManager>{
             Debug.LogError("[SelectManager] 选中物体为空");
             return;
         }
-        
+
         // 取消选中上一个物体
-        if(this.selected != null){
+        if(this.selected != null && this.selected != selected){
             ISelectable selectable = this.selected.GetComponentInChildren<ISelectable>();
             if(selectable != null){
                 selectable.OnDeselect();
