@@ -24,8 +24,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3399926889200677001}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.22, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -51,7 +51,7 @@ Transform:
   - {fileID: 7597209770524855853}
   - {fileID: 4602426208231673225}
   - {fileID: 4744200455455742440}
-  m_Father: {fileID: 8769676810630073473}
+  m_Father: {fileID: 4329177308475301986}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3438462223476211660
 GameObject:
@@ -83,7 +83,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.22, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4975051148562271865}
   m_Father: {fileID: 8769676810630073473}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4798447522915607518
@@ -119,35 +120,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ab88df9abc74942924e567410a5db0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  buildingId: 
   data:
+    buildingName: 
+    description: 
+    icon: {fileID: 0}
     buildingType: 0
     subType: 1
-    buildingName: 
     purchasePrice: 0
     upgradePrices: 
     maxLevel: 0
     size: {x: 0, y: 0}
     npcSlots: 0
+    npcTempSlots: 3
     equipmentSlots: 0
     baseEfficiency: 0
+    fitWeightData:
+      weightSlot: 0.5
+      weightResourceAgainst: 0.5
+      weightResourceInvolved: 12.5
+      weightDistance: 0.2
+      maxDistance: 20
+      weightThreshold: 0.1
   status: 0
   currentLevel: 0
   positions: []
-  AcceptResources: []
-  maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
+  lockedNPCs: []
   inventory:
-    currentSubResource: []
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
+    ownerType: 0
+    currentStacks: []
+    defaultMaxValue: 0
+    acceptMode: 0
+    filterMode: 0
+  heightOffset: 0.1
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textSize: 12
+  alwaysShow: 1
   productionRules: []
   productionTimers: []
   productionCooldown: 5
+  productionTimer: 0
   conversionTime: 5
   baseEfficiency: 50
   efficiency: 1
+  randomProductionOrder: 0
 --- !u!1001 &17420991327007029
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -378,9 +397,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8343188454398819090, guid: 162e58d9061065a4d83ced124d14f514, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4329177308475301986}
-    - targetCorrespondingSourceObject: {fileID: 8343188454398819090, guid: 162e58d9061065a4d83ced124d14f514, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4975051148562271865}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 162e58d9061065a4d83ced124d14f514, type: 3}
 --- !u!4 &8769676810630073473 stripped

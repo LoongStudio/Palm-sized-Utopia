@@ -473,8 +473,10 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         // 没有的话加一个
         if(Outline == null){
             Outline = gameObject.AddComponent<Outline>();
-            Outline.OutlineColor = Color.green;
-            Outline.OutlineWidth = 5f;
+            Outline.OutlineColor = Color.white;
+            Outline.OutlineWidth = 2f;
+            Outline.OutlineMode = Outline.Mode.OutlineVisible;
+
         }
 
         Outline.enabled = true;

@@ -30,7 +30,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.76, z: 0}
   m_LocalScale: {x: 0.4, y: 0.8, z: 0.4}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 9217135937697271097}
   m_Father: {fileID: 5628461322612331601}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7799451148598593287
@@ -45,29 +46,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 074a2c9b74274d64692b193ccc529cc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugInfo: 0
+  buildingId: 
   data:
+    buildingName: 
+    description: 
+    icon: {fileID: 0}
     buildingType: 1
     subType: 3
-    buildingName: 
     purchasePrice: 0
     upgradePrices: 
     maxLevel: 0
     size: {x: 0, y: 0}
     npcSlots: 0
+    npcTempSlots: 3
     equipmentSlots: 0
     baseEfficiency: 0
+    fitWeightData:
+      weightSlot: 0.5
+      weightResourceAgainst: 0.5
+      weightResourceInvolved: 12.5
+      weightDistance: 0.2
+      maxDistance: 20
+      weightThreshold: 0.1
   status: 0
   currentLevel: 0
   positions: []
-  AcceptResources: []
-  maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
+  lockedNPCs: []
   inventory:
-    currentSubResource: []
-    maximumSubResource: []
-    whiteList: []
-    blackList: []
+    ownerType: 0
+    currentStacks: []
+    defaultMaxValue: 0
+    acceptMode: 0
+    filterMode: 0
+  heightOffset: 0.1
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textSize: 12
+  alwaysShow: 1
   affectedBuildingSubTypes: 
   affectedBuffTypes: 
 --- !u!65 &7127489230392468819
@@ -115,14 +132,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3961888826506398576}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.95, z: 0}
+  m_LocalScale: {x: 2.5, y: 1.25, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6940782681008396657}
   - {fileID: 4484375653471904781}
-  m_Father: {fileID: 5628461322612331601}
+  m_Father: {fileID: 7729595748460938565}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &738911427851304646
 PrefabInstance:
@@ -354,9 +371,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4007826676365775353, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7729595748460938565}
-    - targetCorrespondingSourceObject: {fileID: 4007826676365775353, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 9217135937697271097}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
 --- !u!4 &5628461322612331601 stripped

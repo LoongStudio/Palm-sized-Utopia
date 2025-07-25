@@ -24,9 +24,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 218509605721841002}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.6949999, z: 0}
+  m_LocalScale: {x: 2.5, y: 1.25, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6445026971017804742}
@@ -42,7 +42,7 @@ Transform:
   - {fileID: 4034641990569657695}
   - {fileID: 969591156634148459}
   - {fileID: 22573208400992016}
-  m_Father: {fileID: 8887941715874437983}
+  m_Father: {fileID: 6104685508688178132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &701961026916386777
 GameObject:
@@ -75,7 +75,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.356, z: 0}
   m_LocalScale: {x: 0.4, y: 0.8, z: 0.4}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 9214202194119280527}
   m_Father: {fileID: 8887941715874437983}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &7060687535274391881
@@ -114,22 +115,32 @@ MonoBehaviour:
   showDebugInfo: 0
   buildingId: 
   data:
+    buildingName: 
+    description: 
+    icon: {fileID: 0}
     buildingType: 0
     subType: 4
-    buildingName: 
     purchasePrice: 0
     upgradePrices: 
     maxLevel: 0
     size: {x: 0, y: 0}
     npcSlots: 0
+    npcTempSlots: 3
     equipmentSlots: 0
     baseEfficiency: 0
+    fitWeightData:
+      weightSlot: 0.5
+      weightResourceAgainst: 0.5
+      weightResourceInvolved: 12.5
+      weightDistance: 0.2
+      maxDistance: 20
+      weightThreshold: 0.1
   status: 0
   currentLevel: 0
   positions: []
-  maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
+  lockedNPCs: []
   inventory:
     ownerType: 0
     currentStacks: []
@@ -161,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 0.6
-  centryOffcet: {x: 0, y: -0.15, z: 0}
+  centerOffset: {x: 0, y: 0, z: 0}
 --- !u!1001 &779292467610550335
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -766,9 +777,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4007826676365775353, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6104685508688178132}
-    - targetCorrespondingSourceObject: {fileID: 4007826676365775353, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 9214202194119280527}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20a4927dc5ab8cf489512311ff6f32a6, type: 3}
 --- !u!4 &8887941715874437983 stripped

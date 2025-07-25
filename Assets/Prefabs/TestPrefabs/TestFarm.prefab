@@ -31,7 +31,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.31, z: 0}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1373776502493134563}
   m_Father: {fileID: 1095440152922726859}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4745654130768830259
@@ -70,22 +71,32 @@ MonoBehaviour:
   showDebugInfo: 0
   buildingId: 
   data:
+    buildingName: 
+    description: 
+    icon: {fileID: 0}
     buildingType: 0
     subType: 0
-    buildingName: 
     purchasePrice: 0
     upgradePrices: 
     maxLevel: 0
     size: {x: 0, y: 0}
     npcSlots: 0
+    npcTempSlots: 3
     equipmentSlots: 0
     baseEfficiency: 0
+    fitWeightData:
+      weightSlot: 0.5
+      weightResourceAgainst: 0.5
+      weightResourceInvolved: 12.5
+      weightDistance: 0.2
+      maxDistance: 20
+      weightThreshold: 0.1
   status: 0
   currentLevel: 0
   positions: []
-  maxSlotAmount: 3
   assignedNPCs: []
   tempAssignedNPCs: []
+  lockedNPCs: []
   inventory:
     ownerType: 0
     currentStacks: []
@@ -142,9 +153,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5668819584365249074}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.8714285, z: 0}
+  m_LocalScale: {x: 1.4285715, y: 1.4285715, z: 1.4285715}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7322255665669492561}
@@ -156,7 +167,7 @@ Transform:
   - {fileID: 4892506784943929272}
   - {fileID: 2849753403276254981}
   - {fileID: 4133685883223183744}
-  m_Father: {fileID: 1095440152922726859}
+  m_Father: {fileID: 1321324762517042641}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &581996014638720849
 PrefabInstance:
@@ -894,9 +905,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8343188454398819090, guid: 162e58d9061065a4d83ced124d14f514, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1321324762517042641}
-    - targetCorrespondingSourceObject: {fileID: 8343188454398819090, guid: 162e58d9061065a4d83ced124d14f514, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1373776502493134563}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 162e58d9061065a4d83ced124d14f514, type: 3}
 --- !u!4 &1095440152922726859 stripped
