@@ -639,11 +639,11 @@ public class Inventory : ISaveable
         return new InventorySaveData()
         {
             ownerType = ownerType,
-            currentStacks = currentStacks.Select(r => r.GetSaveData() as ResourceStackSaveData).ToList(),
+            currentStacks = currentStacks?.Select(r => r.GetSaveData() as ResourceStackSaveData).ToList() ?? new List<ResourceStackSaveData>(),
             acceptMode = acceptMode,
             filterMode = filterMode,
-            acceptList = acceptList.Select(r => new ResourceConfigSaveData(r)).ToList(),
-            rejectList = rejectList.Select(r => new ResourceConfigSaveData(r)).ToList(),
+            acceptList = acceptList?.Select(r => new ResourceConfigSaveData(r)).ToList() ?? new List<ResourceConfigSaveData>(),
+            rejectList = rejectList?.Select(r => new ResourceConfigSaveData(r)).ToList() ?? new List<ResourceConfigSaveData>(),
             defaultMaxValue = defaultMaxValue
         };
     }
