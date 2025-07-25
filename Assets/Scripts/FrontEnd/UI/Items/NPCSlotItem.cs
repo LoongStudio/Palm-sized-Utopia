@@ -48,11 +48,20 @@ public class NPCSlotItem : MonoBehaviour{
     }
 
     private void OnLockButtonClick()
-    {
-        isLocked = !isLocked;
+    {   
+        Debug.Log($"[NPCSlotItem] 锁定按钮点击，NPC：{npc.data.npcName}，建筑：{building.data.buildingName}");
+        bool lockSuccess = false;
+        if(building.IsNPCLocked(npc)){
+            // 如果已经锁定，则尝试解锁
+            lockSuccess = npc.TryUnlockCurrentTask();
+        }
+        else{
+            // 如果未锁定，则尝试锁定
+            lockSuccess = npc.TryLockCurrentTask();
+        }
+
+        isLocked = lockSuccess;
         SetLockIcon();
-        // TODO: 锁定NPC逻辑
-        Debug.LogWarning("[NPCSlotItem] 建筑：" + building.data.buildingName + "，NPC：" + npc.data.npcName + "，是否锁定：" + isLocked);
     }
 
     private void SetLockIcon()

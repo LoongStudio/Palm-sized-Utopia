@@ -328,19 +328,33 @@ public class NPC : MonoBehaviour, ISaveable
     public bool TryLockCurrentTask()
     {
         if (!(currentState.Equals(NPCState.Working)
-              && assignedTask.taskType.Equals(TaskType.Production))) 
+              && assignedTask.taskType.Equals(TaskType.Production))){
+            Debug.LogWarning($"[NPC] {data.npcName} 尝试锁定当前工作失败，因为当前不处于工作状态，或者任务类型不是生产");
             return false;
+        }
         if (!assignedTask.building.TryLockNPC(this))
+        {
+            Debug.LogWarning($"[NPC] {data.npcName} 尝试锁定当前工作失败，因为建筑 {assignedTask.building.data.buildingName} 锁定NPC失败");
             return false;
+        }
         lockedTask = assignedTask;
+        Debug.Log($"[NPC] {data.npcName} 成功锁定当前工作");
         return true;
         
     }
 
     [ContextMenu("解锁当前工作")]
-    public void UnlockCurrentTask()
+    public bool TryUnlockCurrentTask()
     {
-        lockedTask = TaskInfo.GetNone();
+        if(lockedTask != null 
+        &&lockedTask.taskType != TaskType.None
+        && lockedTask.building != null){
+            if(lockedTask.building.TryUnlockNPC(this)){
+                lockedTask = TaskInfo.GetNone();
+                return true;
+            }
+        }
+        return false;
     }
     
     public bool CanWorkNow()
