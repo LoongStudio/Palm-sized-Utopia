@@ -16,6 +16,6 @@ MonoBehaviour:
   subType: 0
   displayName: Ticket
   description: blah
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 65ce5a2899f150046b97ea1eb154c275, type: 3}
   canBePurchased: 0
   canBeSold: 0

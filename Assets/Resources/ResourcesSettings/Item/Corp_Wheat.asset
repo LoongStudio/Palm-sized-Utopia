@@ -16,6 +16,6 @@ MonoBehaviour:
   subType: 0
   displayName: Wheat
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 1ed4bc82b4443734d8ecd2206cf79df7, type: 3}
   canBePurchased: 0
   canBeSold: 1

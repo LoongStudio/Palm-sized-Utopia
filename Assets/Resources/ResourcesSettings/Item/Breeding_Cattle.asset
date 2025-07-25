@@ -16,6 +16,6 @@ MonoBehaviour:
   subType: 0
   displayName: Breeding_Cattle
   description: blah
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 2b13283fc140ceb47adbc8ee5552603a, type: 3}
   canBePurchased: 1
   canBeSold: 0

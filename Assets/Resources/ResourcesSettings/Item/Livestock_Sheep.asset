@@ -16,6 +16,6 @@ MonoBehaviour:
   subType: 1
   displayName: Livestock_Sheep
   description: blah
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: e5b57889058d224408da76ee218e65a7, type: 3}
   canBePurchased: 0
   canBeSold: 1

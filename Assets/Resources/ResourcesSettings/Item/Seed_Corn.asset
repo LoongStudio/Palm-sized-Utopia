@@ -16,6 +16,6 @@ MonoBehaviour:
   subType: 1
   displayName: CornSeed
   description: blah
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 28cfc7108c6428e4eaa82afba0d15234, type: 3}
   canBePurchased: 1
   canBeSold: 0
