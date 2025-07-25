@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -45,7 +46,9 @@ public class Inventory : ISaveable
     [Header("过滤策略")]
     public InventoryAcceptMode acceptMode = InventoryAcceptMode.OnlyDefined;
     public InventoryListFilterMode filterMode = InventoryListFilterMode.None;
+    [ShowInInspector]
     public HashSet<ResourceConfig> acceptList = new();
+    [ShowInInspector]
     public HashSet<ResourceConfig> rejectList = new();
 
     // 事件
@@ -639,8 +642,8 @@ public class Inventory : ISaveable
             currentStacks = currentStacks.Select(r => r.GetSaveData() as ResourceStackSaveData).ToList(),
             acceptMode = acceptMode,
             filterMode = filterMode,
-            acceptList = hashSetToDict(acceptList),
-            rejectList = hashSetToDict(rejectList),
+            acceptList = acceptList.Select(r => new ResourceConfigSaveData(r)).ToList(),
+            rejectList = rejectList.Select(r => new ResourceConfigSaveData(r)).ToList(),
             defaultMaxValue = defaultMaxValue
         };
     }
@@ -660,11 +663,11 @@ public class Inventory : ISaveable
         filterMode = saveData.filterMode;
         if (saveData.acceptList != null)
         {
-            acceptList = new HashSet<ResourceConfig>(saveData.acceptList.Select(r => ResourceManager.Instance.GetResourceConfig(r.Key, r.Value)));
+            acceptList = new HashSet<ResourceConfig>(saveData.acceptList.Select(r => ResourceManager.Instance.GetResourceConfig(r.type, r.subType)));
         }
         if (saveData.rejectList != null)
         {
-            rejectList = new HashSet<ResourceConfig>(saveData.rejectList.Select(r => ResourceManager.Instance.GetResourceConfig(r.Key, r.Value)));
+            rejectList = new HashSet<ResourceConfig>(saveData.rejectList.Select(r => ResourceManager.Instance.GetResourceConfig(r.type, r.subType)));
         }
         defaultMaxValue = saveData.defaultMaxValue;
     }
