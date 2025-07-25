@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 442eef638d7a31d4e9d62fc643ecbd00, type: 3}
+  m_Name: BuildingBuffConfig
+  m_EditorClassIdentifier: 
+  buffIcons:
+  - type: 3
+    icon: {fileID: 21300000, guid: 3fb64a89bf704964ba57a44e431fa273, type: 3}
+  - type: 4
+    icon: {fileID: 21300000, guid: e53beb6a3374db94388e97807857993a, type: 3}
+  - type: 6
+    icon: {fileID: 21300000, guid: 2fdbb9895c3035944bd845aec8deee21, type: 3}

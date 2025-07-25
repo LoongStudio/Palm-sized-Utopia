@@ -141,6 +141,7 @@ MonoBehaviour:
       Data: 
   showDebugInfo: 1
   originalBuildingConfig: {fileID: 11400000, guid: 190ccfdc3f97b4fef8397ed025de7dfe, type: 2}
+  originalBuildingBuffConfig: {fileID: 11400000, guid: b9674c483c4b2a84ab9d076a945b57eb, type: 2}
 --- !u!114 &7978545962071571111
 MonoBehaviour:
   m_ObjectHideFlags: 0

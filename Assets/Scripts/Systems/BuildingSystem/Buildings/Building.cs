@@ -11,7 +11,7 @@ using UnityEditor;
 #endif
 
 [RequireComponent(typeof(Collider))]
-public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelectable
+public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelectable, IBuffAffectable
 {
     #region 字段和属性
 
@@ -485,6 +485,75 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         if(Outline != null){
             Outline.enabled = false;
         }
+    }
+
+    #endregion
+
+    #region Buff系统
+    private Dictionary<BuffEnums, int> _buffs;
+    public Dictionary<BuffEnums, int> Buffs{
+        get{
+            if(_buffs == null){
+                _buffs = new Dictionary<BuffEnums, int>();
+            }
+            return _buffs;
+        }
+        set{
+            _buffs = value;
+        }
+    }
+    public void OnBuffAffected(Buff buff){
+        Buffs[buff.type] = buff.intensity;
+    }
+    public void OnBuffAffectedEnd(Buff buff){
+        Buffs.Remove(buff.type);
+    }
+    /// <summary>
+    /// 每个NPC提供1/最大槽位数 的正向Buff, 但不存储在Buffs中
+    /// </summary>
+    public Buff GetNPCSlotBuff(){
+        BuffEnums type = BuffEnums.NPCWorkingInSlot;
+        float intensity = assignedNPCs.Count / NPCSlotAmount;
+        return new Buff(type, intensity);
+    }
+    /// <summary>
+    /// 狗策划老马要求，建筑的NPC槽位不超过两个，所以这里只考虑两个以下NPC的情况
+    /// </summary>
+    /// <returns></returns>
+    public Buff GetFriendWorkTogetherBuff(){
+        BuffEnums type = BuffEnums.FriendWorkTogether;
+        // 仅有2个NPC在槽位时，有可能提供正向Buff
+        if(NPCSlotAmount < 2){
+            return new Buff(type, 0);
+        }
+        if(assignedNPCs.Count != 2){
+            return new Buff(type, 0);
+        }
+        // 从NPCManager中的SocialSystem中获取NPC之间的关系
+        NPC npc1 = assignedNPCs[0];
+        NPC npc2 = assignedNPCs[1];
+        int relationship = NPCManager.Instance.socialSystem.GetRelationship(npc1, npc2);
+        int intensity = 0;
+        // 关系50-100时，加成10%，100时加成25%,50以下没有加成
+        if(relationship >= 50 && relationship < 100){
+            intensity = 10;
+        }
+        else{
+            intensity = 25;
+        }
+        return new Buff(type, intensity);
+    }
+    /// <summary>
+    /// 获取所有在槽位中的NPC自身能力的总加成
+    /// </summary>
+    /// <returns></returns>
+    public Buff GetInSlotNPCBuff(){
+        BuffEnums type = BuffEnums.NPCEfficiency;
+        float intensity = 0;
+        foreach(var npc in assignedNPCs){
+            intensity += npc.GetWorkEfficiency();
+        }
+        return new Buff(type, intensity);
     }
 
     #endregion

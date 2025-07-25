@@ -355,7 +355,10 @@ public class NPC : MonoBehaviour, ISaveable
         // TODO: 后续考虑其他情况 才 Shouldrest
         return IsRestTime();
     }
-
+    /// <summary>
+    /// 获取NPC的工作效率，范围为0-1
+    /// </summary>
+    /// <returns></returns>
     public float GetWorkEfficiency()
     {
         // 不在工作时间工作效率为0

@@ -10,24 +10,30 @@ public class BuildingInfoPanel : BasePanel{
     [SerializeField, ReadOnly, LabelText("建筑")] private Building building;
 
     // 基础信息
-    [SerializeField] private TextMeshProUGUI buildingName;
-    [SerializeField] private TextMeshProUGUI level;
-    [SerializeField] private Button levelUpButton;
-    [SerializeField] private TextMeshProUGUI workInfo;
+    [SerializeField, BoxGroup("基础信息")] private TextMeshProUGUI buildingName;
+    [SerializeField, BoxGroup("基础信息")] private TextMeshProUGUI level;
+    [SerializeField, BoxGroup("基础信息")] private Button levelUpButton;
+    [SerializeField, BoxGroup("基础信息")] private TextMeshProUGUI workInfo;
+
+    [SerializeField, BoxGroup("子面板")] private GameObject NPCSlotInfo;
+    [SerializeField, BoxGroup("子面板")] private GameObject BuffSlotInfo;
+    [SerializeField, BoxGroup("子面板")] private GameObject InventorySlotInfo;
 
     // 各个小面板的父物体
-    [SerializeField] private Transform npcSlotParent;
-    [SerializeField] private Transform BuffSlotParent;
-    [SerializeField] private Transform InventorySlotParent;
+    [SerializeField, BoxGroup("各个小面板的父物体")] private Transform npcSlotParent;
+    [SerializeField, BoxGroup("各个小面板的父物体")] private Transform BuffSlotParent;
+    [SerializeField, BoxGroup("各个小面板的父物体")] private Transform InventorySlotParent;
 
     // 引用
-    [SerializeField] private AmountInfo npcAmountInfo;
-    [SerializeField] private Button closeButton;
+    [SerializeField, BoxGroup("引用")] private AmountInfo npcAmountInfo;
+    [SerializeField, BoxGroup("引用")] private Button closeButton;
+    [SerializeField, BoxGroup("引用")] private TextMeshProUGUI efficiency;
+    [SerializeField, BoxGroup("引用")] private TextMeshProUGUI percentSign;
 
-    // 各个小面板的预制体
-    [SerializeField] private GameObject npcSlotItemPrefab;
-    [SerializeField] private GameObject BuffSlotItemPrefab;
-    [SerializeField] private GameObject InventorySlotItemPrefab;
+
+    [SerializeField, BoxGroup("各个小面板的预制体")] private GameObject npcSlotItemPrefab;
+    [SerializeField, BoxGroup("各个小面板的预制体")] private GameObject BuffSlotItemPrefab;
+    [SerializeField, BoxGroup("各个小面板的预制体")] private GameObject InventorySlotItemPrefab;
 
     protected override void Awake(){
         base.Awake();
@@ -103,7 +109,78 @@ public class BuildingInfoPanel : BasePanel{
         }
     }
     private void RefreshBuffSlotInfo(){
+        // 刷新Buff总百分比和颜色
+        RefreshBuffBaseInfo();
 
+        // 清除所有Buff槽位
+        foreach(Transform child in BuffSlotParent){
+            Destroy(child.gameObject);
+        }
+        // 根据当前建筑的Buff，刷新Buff槽位信息
+        // 1. NPC槽位Buff
+        Buff npcSlotBuff = building.GetNPCSlotBuff();
+        if(npcSlotBuff.intensity > 0){
+            GenerateBuffSlotItem(npcSlotBuff);
+        }
+        // 2. NPC之间的关系Buff
+        Buff friendWorkTogetherBuff = building.GetFriendWorkTogetherBuff();
+        if(friendWorkTogetherBuff.intensity > 0){
+            GenerateBuffSlotItem(friendWorkTogetherBuff);
+        }
+        // 3. NPC自身加成Buff
+        Buff inSlotNPCBuff = building.GetInSlotNPCBuff();
+        if(inSlotNPCBuff.intensity > 0){
+            GenerateBuffSlotItem(inSlotNPCBuff);
+        }
+        // 4. 其他施加的Buff
+        foreach(var buff in building.Buffs){
+            GenerateBuffSlotItem(buff);
+        }
+
+    }
+    private void GenerateBuffSlotItem(Buff buff){
+        GameObject buffSlotItem = Instantiate(BuffSlotItemPrefab, BuffSlotParent);
+        BuffSlotItem itemComponent = buffSlotItem.GetComponent<BuffSlotItem>();
+        if(itemComponent != null){
+            itemComponent.SetUp(buff.type, buff.intensity);
+        }else{
+            Debug.LogError("[BuildingInfoPanel] BuffSlotItem组件为空");
+        }
+    }
+    private void GenerateBuffSlotItem(KeyValuePair<BuffEnums, int> buff){
+        GameObject buffSlotItem = Instantiate(BuffSlotItemPrefab, BuffSlotParent);
+        BuffSlotItem itemComponent = buffSlotItem.GetComponent<BuffSlotItem>();
+        if(itemComponent != null){
+            itemComponent.SetUp(buff.Key, buff.Value);
+        }else{
+            Debug.LogError("[BuildingInfoPanel] BuffSlotItem组件为空");
+        }
+    }
+    private void RefreshBuffBaseInfo(){
+        // 如果建筑不是生产建筑，则隐藏Buff信息
+        if(building is not ProductionBuilding){
+            SetBuffBaseInfoVisible(false);
+            return;
+        }
+        // 如果建筑是生产建筑，则显示Buff信息
+        SetBuffBaseInfoVisible(true);
+        ProductionBuilding productionBuilding = building as ProductionBuilding;
+        int effi = (int)(productionBuilding.efficiency * 100);
+        // 更新效率数字和颜色
+        SetEfficiencyNumber(effi);
+    }
+    private void SetBuffBaseInfoVisible(bool visible){
+        efficiency.color = new Color(1, 1, 1, visible ? 1 : 0);
+        percentSign.color = new Color(1, 1, 1, visible ? 1 : 0);
+    }
+    private void SetEfficiencyNumber(int effi){
+        // 设置数字
+        efficiency.text = effi.ToString();
+        // 设置颜色，0-50为红色，50-100为黄色，100以上为绿色
+        Color color = effi > 50 ? Color.green : Color.red;
+        color = effi > 100 ? Color.yellow : color;
+        efficiency.color = color;
+        percentSign.color = color;  // 百分号颜色与效率颜色相同
     }
     private void RefreshInventorySlotInfo(){
         // 清除所有Inventory槽位

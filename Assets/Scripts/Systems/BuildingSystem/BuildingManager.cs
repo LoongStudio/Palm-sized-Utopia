@@ -13,7 +13,9 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     [SerializeField] private bool showDebugInfo = false;
     [Header("建筑配置")]
     [SerializeField] private BuildingConfig originalBuildingConfig;
+    [SerializeField] private BuildingBuffConfig originalBuildingBuffConfig;
     private BuildingConfig buildingConfig;
+    private BuildingBuffConfig buildingBuffConfig;
     [Header("建筑管理")]
     private List<Building> _buildings;
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
@@ -32,6 +34,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
 
     // 属性
     public BuildingConfig BuildingConfig{get{return buildingConfig;}}
+    public BuildingBuffConfig BuildingBuffConfig{get{return buildingBuffConfig;}}
     #endregion
 
     #region 事件声明
@@ -78,6 +81,7 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         _buildingsById = new Dictionary<string, Building>();
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
         buildingConfig = Instantiate(originalBuildingConfig);
+        buildingBuffConfig = Instantiate(originalBuildingBuffConfig);
     }
 
     private void SubscribeEvents()
