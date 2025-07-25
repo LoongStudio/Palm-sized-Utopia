@@ -448,6 +448,39 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         tempAssignedNPCs.Remove(npc);
         lockedNPCs.Remove(npc);
     }
+    /// <summary>
+    /// 获取分配NPC中正在这个建筑工作的NPC
+    /// </summary>
+    public List<NPC> GetActiveAssignedNPCs(){
+        if(assignedNPCs == null){
+            return new List<NPC>();
+        }
+        return assignedNPCs.Where(npc => npc.currentState == NPCState.Working 
+        && npc.assignedTask.building == this).ToList();
+    }
+    /// <summary>
+    /// 获取分配NPC中正在这个建筑工作的NPC数量
+    /// </summary>
+    [Button("打印活跃NPC数量")]
+    public int ActiveAssignedNPCsCount(){
+        int result = GetActiveAssignedNPCs().Count;
+        Debug.Log($"[Building] 建筑 {data.buildingName} 当前有 {result} 个活跃NPC正在实际工作");
+        return result;
+    }
+    /// <summary>
+    /// 检查NPC是否被分配到建筑中
+    /// </summary>
+    public bool IsNPCAssigned(NPC npc){
+        return assignedNPCs.Contains(npc);
+    }
+    /// <summary>
+    /// 检查NPC是否正在这个建筑中工作
+    /// </summary>
+    public bool IsNPCActiveWorking(NPC npc){
+        return IsNPCAssigned(npc)
+        && npc.currentState == NPCState.Working 
+        && npc.assignedTask.building == this;
+    }
 
     #endregion
 

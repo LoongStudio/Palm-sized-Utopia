@@ -105,7 +105,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     {
         float levelBonus = 0.1f * currentLevel;
         float npcEfficiencyPerNPC = 1f / NPCSlotAmount; 
-        float npcBonus = assignedNPCs != null ? assignedNPCs.Count * npcEfficiencyPerNPC : 0f;
+        float npcBonus = assignedNPCs != null ? ActiveAssignedNPCsCount() * npcEfficiencyPerNPC : 0f;
         float deviceBonus = 0;
         if (installedEquipment != null)
             foreach (var equipment in installedEquipment)

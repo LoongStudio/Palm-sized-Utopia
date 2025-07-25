@@ -63,6 +63,7 @@ public class NPC : MonoBehaviour, ISaveable
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
     
     public float CurrentIdleWeight => currentIdleWeight;
+    public bool IsLocked => !lockedTask.IsNone();
 
     #endregion
 

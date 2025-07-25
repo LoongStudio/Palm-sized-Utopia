@@ -50,17 +50,16 @@ public class NPCSlotItem : MonoBehaviour{
     private void OnLockButtonClick()
     {   
         Debug.Log($"[NPCSlotItem] 锁定按钮点击，NPC：{npc.data.npcName}，建筑：{building.data.buildingName}");
-        bool lockSuccess = false;
         if(building.IsNPCLocked(npc)){
             // 如果已经锁定，则尝试解锁
-            lockSuccess = npc.TryUnlockCurrentTask();
+            npc.TryUnlockCurrentTask();
         }
         else{
             // 如果未锁定，则尝试锁定
-            lockSuccess = npc.TryLockCurrentTask();
+            npc.TryLockCurrentTask();
         }
 
-        isLocked = lockSuccess;
+        isLocked = npc.IsLocked;
         SetLockIcon();
     }
 
@@ -75,8 +74,13 @@ public class NPCSlotItem : MonoBehaviour{
             lockIcon.sprite = defaultLockIcon;
         }
     }
-
-    public void SetUp(Building building, NPC npc, bool isLocked){
+    /// <summary>
+    /// 设置NPC槽位UI的信息
+    /// </summary>
+    /// <param name="building">属于哪个建筑</param>
+    /// <param name="npc">对应哪个NPC</param>
+    /// <param name="isLocked">该NPC是否被锁定</param>
+    public void SetUp(Building building, NPC npc){
         this.building = building;
         if(building == null){
             Debug.LogError("[NPCSlotItem] 建筑为空");
@@ -91,15 +95,26 @@ public class NPCSlotItem : MonoBehaviour{
             lockButton.interactable = false;
         }else{
             this.npc = npc;
-            avatar.sprite = avatarImage;
+            bool isActiveWorking = building.IsNPCActiveWorking(npc);
+            SetAvatar(isActiveWorking);
 
             // 解锁图标不透明并启用锁定按钮
             lockIcon.color = new Color(1, 1, 1, 1);
             lockButton.interactable = true;
 
             // 设置锁定状态
-            this.isLocked = isLocked;
+            this.isLocked = building.IsNPCLocked(npc);
             SetLockIcon();
+        }
+    }
+
+    private void SetAvatar(bool isActiveWorking){
+        avatar.sprite = avatarImage;
+        // 如果不是正在工作，那么透明度为0.5
+        if(!isActiveWorking){
+            avatar.color = new Color(1, 1, 1, 0.5f);
+        }else{
+            avatar.color = new Color(1, 1, 1, 1);
         }
     }
 }

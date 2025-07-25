@@ -100,9 +100,9 @@ public class BuildingInfoPanel : BasePanel{
             if(index < assignedNPCsCount){
                 // 如果该槽位有NPC
                 NPC npc = building.assignedNPCs[index];
-                itemComponent.SetUp(building, npc, building.IsNPCLocked(npc));
+                itemComponent.SetUp(building, npc);
             }else{
-                itemComponent.SetUp(building, null, false);
+                itemComponent.SetUp(building, null);
             }
         }else{
             Debug.LogError("[BuildingInfoPanel] NPCSlotItem组件为空");
