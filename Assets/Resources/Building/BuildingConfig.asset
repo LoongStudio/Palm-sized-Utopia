@@ -50,7 +50,19 @@ MonoBehaviour:
           sellPrice: 0
         outputs:
         - resourceConfig: {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
-          amount: 10
+          amount: 5
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+      - inputs:
+        - resourceConfig: {fileID: 11400000, guid: af7276cf2fa0a4cec9d398327d8da65f, type: 2}
+          amount: 1
+          storageLimit: 0
+          purchasePrice: 0
+          sellPrice: 0
+        outputs:
+        - resourceConfig: {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+          amount: 3
           storageLimit: 0
           purchasePrice: 0
           sellPrice: 0
@@ -58,7 +70,9 @@ MonoBehaviour:
       defaultFilterMode: 1
       defaultAcceptList:
       - {fileID: 11400000, guid: 9b2b6d53683494231a9dfffc66564c51, type: 2}
+      - {fileID: 11400000, guid: af7276cf2fa0a4cec9d398327d8da65f, type: 2}
       - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
       defaultRejectList: []
     prefab: {fileID: 3491214700092412604, guid: f21f2fdf169014e4aa5f6b521728254b, type: 3}
   - subType: 2
@@ -86,7 +100,11 @@ MonoBehaviour:
     productionBuildingDatas:
       defaultResources: []
       defaultMaxValue: 100
-      acceptResources: []
+      acceptResources:
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+      - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+      - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
       conversionRules:
       - inputs:
         - resourceConfig: {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
@@ -138,7 +156,11 @@ MonoBehaviour:
           sellPrice: 0
       defaultAcceptMode: 0
       defaultFilterMode: 1
-      defaultAcceptList: []
+      defaultAcceptList:
+      - {fileID: 11400000, guid: db2e8a247fd254b489d1a145b191ffed, type: 2}
+      - {fileID: 11400000, guid: d9f33be089cae41a69a9af8150b2e94e, type: 2}
+      - {fileID: 11400000, guid: a692ae7a9c259406a8673ffdf7cbbf6b, type: 2}
+      - {fileID: 11400000, guid: 5914ca55948b23d4bac0ce096ad6a17e, type: 2}
       defaultRejectList: []
     prefab: {fileID: 8842694713244571849, guid: f01d58811061e6d42ba88ca3c62303b2, type: 3}
   - subType: 7
