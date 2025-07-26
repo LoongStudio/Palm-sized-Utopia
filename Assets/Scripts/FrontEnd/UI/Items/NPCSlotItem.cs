@@ -111,7 +111,7 @@ public class NPCSlotItem : MonoBehaviour{
         avatar.sprite = avatarImage;
         // 如果不是正在工作，那么透明度为0.5
         if(!isActiveWorking){
-            avatar.color = new Color(1, 1, 1, 0.5f);
+            avatar.color = new Color(1, 1, 1, 0.3f);
         }else{
             avatar.color = new Color(1, 1, 1, 1);
         }
