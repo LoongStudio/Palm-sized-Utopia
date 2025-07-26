@@ -72,6 +72,8 @@ public class BuildingInfoPanel : BasePanel{
     protected override void OnHide(){
         base.OnHide();
         UnregisterEvents();
+        // 取消对应建筑的选中效果
+        building.OnDeselect();
     }
     protected override void OnOpen(){
         base.OnOpen();
@@ -217,7 +219,7 @@ public class BuildingInfoPanel : BasePanel{
     private void RefreshInventorySlotInfo(ResourceEventArgs args = null){
         if(args != null){
             // 如果与自己无关，则不刷新
-            if(args.relatedInventory != building.inventory){
+            if(args.relatedBuildingInventory != building.inventory){
                 return;
             }
         }
