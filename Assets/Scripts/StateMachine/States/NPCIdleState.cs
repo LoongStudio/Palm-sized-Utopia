@@ -102,7 +102,7 @@ public class NPCIdleState : NPCStateBase
                     Debug.Log($"[NPCIdleState] {npc.data.npcName} 虽然不是工作时间，但还是决定去处理待完成的工作");
                 }
                 npc.MoveToTarget(npc.pendingTask.building.transform.position);
-                npc.assignedTask = npc.GetPendingTask();
+                npc.AssignTask(npc.GetPendingTask());
                 stateMachine.ChangeState(NPCState.MovingToWork);
             }
         }

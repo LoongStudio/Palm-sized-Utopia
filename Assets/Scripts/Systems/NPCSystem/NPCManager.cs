@@ -655,7 +655,17 @@ public class NPCManager : SingletonManager<NPCManager>, ISaveable
     public List<NPC> GetWorkingNPCs() {
         return allNPCs.Where(npc => npc.currentState == NPCState.Working).ToList();
     }
-    
+    /// <summary>
+    /// 获取一个随机空闲的NPC
+    /// </summary>
+    public NPC GetRandomIdleNPC(){
+        // 从所有状态为Idle的NPC中随机返回一个
+        var idleNPCs = allNPCs.Where(npc => npc.currentState == NPCState.Idle).ToList();
+        if(idleNPCs.Count == 0){
+            return null;
+        }
+        return idleNPCs[Random.Range(0, idleNPCs.Count)];
+    }
     // 工资系统
     public void PaySalaries() { }
     public int GetTotalSalaryCost() { return 0; }

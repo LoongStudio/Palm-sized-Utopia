@@ -50,6 +50,8 @@ public static class GameEvents
     public static event System.Action<NPCEventArgs> OnNPCUnlocked;
     public static event System.Action<NPCEventArgs> OnNPCInWorkingPosition;
     public static event System.Action<NPCEventArgs> OnNPCLeaveWorkingPosition;
+    public static event System.Action<NPCEventArgs> OnNPCAssignedTask;
+    public static event System.Action<NPCEventArgs> OnNPCAssignedToBuilding;
     #endregion
     
     #region 时间相关事件
@@ -239,6 +241,16 @@ public static class GameEvents
     public static void TriggerNPCLeaveWorkingPosition(NPCEventArgs args)
     {
         OnNPCLeaveWorkingPosition?.Invoke(args);
+    }
+
+    public static void TriggerNPCAssignedTask(NPCEventArgs args)
+    {
+        OnNPCAssignedTask?.Invoke(args);
+    }
+
+    public static void TriggerNPCAssignedToBuilding(NPCEventArgs args)
+    {
+        OnNPCAssignedToBuilding?.Invoke(args);
     }
     #endregion
     

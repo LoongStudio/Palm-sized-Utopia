@@ -16,7 +16,7 @@ public class NPCMovingHomeState : NPCStateBase
         if (npc.housing != null)
         {
             // 设置housing为assignedBuilding
-            npc.assignedTask = new TaskInfo(npc.housing, TaskType.Rest);
+            npc.AssignTask(new TaskInfo(npc.housing, TaskType.Rest));
             if (showDebugInfo)
             {
                 Debug.Log($"[NPCMovingHomeState] {npc.data.npcName} 正在回家: {npc.housing.data.buildingName}");

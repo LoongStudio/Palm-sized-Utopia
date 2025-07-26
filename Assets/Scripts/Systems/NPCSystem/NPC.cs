@@ -58,12 +58,13 @@ public class NPC : MonoBehaviour, ISaveable
 
     [Header("工作系统")]
     [SerializeField] public TaskInfo pendingTask;       // 待处理的工作建筑
-    [SerializeField] public TaskInfo assignedTask;               // 分配的建筑
+    [SerializeField] private TaskInfo assignedTask;               // 分配的建筑
     [ReadOnly] private bool isLocked = false;
     [SerializeField] public TaskInfo lockedTask = TaskInfo.GetNone();
     [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
     
+    public TaskInfo AssignedTask{get{return assignedTask;}}
     public float CurrentIdleWeight => currentIdleWeight;
     public bool IsLocked => isLocked;
 
@@ -178,7 +179,7 @@ public class NPC : MonoBehaviour, ISaveable
     public void CopyFrom(NPC other)
     {
         data = other.data;
-        assignedTask = other.assignedTask;
+        AssignTask(other.AssignedTask);
         stateMachine = other.stateMachine;
         inventory = other.inventory;
         // currentTarget现在由movement组件管理，不需要在这里复制
@@ -427,7 +428,25 @@ public class NPC : MonoBehaviour, ISaveable
     {
         StopCoroutine(_deliveryRoutine);
         ChangeState(NPCState.Idle);
-        assignedTask = TaskInfo.GetNone();
+        AssignTask(TaskInfo.GetNone());
+    }
+
+    public bool GoWorkAt(Building building){
+        if(building == null){
+            Debug.LogWarning($"[NPC] 建筑为空");
+            return false;
+        }
+        if(currentState != NPCState.Idle){
+            Debug.LogWarning($"[NPC] 当前状态不是空闲状态");
+            return false;
+        }
+        // 如果当前没有任务，则设置任务并进入移动状态
+        if(assignedTask.IsNone()){
+            pendingTask = new TaskInfo(building, TaskType.Production);
+            ChangeState(NPCState.MovingToWork);
+            return true;
+        }
+        return false;
     }
     #endregion
 
@@ -555,7 +574,18 @@ public class NPC : MonoBehaviour, ISaveable
             movement.isLanded = landed;
         }
     }
-    public void AssignTask() { }
+    public void AssignTask(TaskInfo task) {
+        assignedTask = task;
+        if(task.IsNone()){
+            return;
+        }
+        // 如果任务不为空，则触发NPC任务分配事件
+        NPCEventArgs args = new NPCEventArgs(){
+            npc = this,
+            relatedBuilding = task.building
+        };
+        GameEvents.TriggerNPCAssignedTask(args);
+    }
 
     public bool CanCarryResource(ResourceType type, int amount) { return false; }
 

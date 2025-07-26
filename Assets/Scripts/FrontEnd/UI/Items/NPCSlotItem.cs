@@ -38,8 +38,7 @@ public class NPCSlotItem : MonoBehaviour{
     }
     private void OnItemButtonClick(){
         if(npc == null){
-            // TODO: 空槽位点击逻辑
-            Debug.LogWarning("[NPCSlotItem] 空槽位点击");
+            building.GiveMeNPC();
         }
         else{
             // TODO: 有NPC的槽位点击逻辑

@@ -297,7 +297,18 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     }
 
     #endregion
-
+    
+    #region 事件管理
+    private void TriggerNPCAssignedToBuilding(NPC npc){
+        NPCEventArgs args = new NPCEventArgs(){
+            npc = npc,
+            relatedBuilding = this
+        };
+        GameEvents.TriggerNPCAssignedToBuilding(args);
+    }
+    
+    #endregion
+    
     #region 位置管理
 
     /// <summary>
@@ -358,7 +369,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     public bool IsNPCActiveWorking(NPC npc){
         return IsNPCAssigned(npc)
         && npc.currentState == NPCState.Working 
-        && npc.assignedTask.building == this;
+        && npc.AssignedTask.building == this;
     }
     public bool IsNPCLocked(NPC npc){
         if(npc == null){
@@ -374,6 +385,15 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         return false;
     }
     #endregion
+    public void GiveMeNPC(){
+        var npc = NPCManager.Instance.GetRandomIdleNPC();
+        if(npc == null){
+            Debug.LogWarning($"[Building] 没有空闲的NPC");
+            return;
+        }
+        npc.GoWorkAt(this);
+    }
+    
     public void LockNPC(NPC npc){
         if(npc == null){
             Debug.LogError($"[Building] NPC为空");
@@ -411,17 +431,18 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     {
         // 如果NPC不在已有槽位中且目标就是这个建筑
         if (!assignedNPCs.Contains(npc) 
-            && npc.assignedTask.building == this
-            && npc.assignedTask.taskType == TaskType.Production
+            && npc.AssignedTask.building == this
+            && npc.AssignedTask.taskType == TaskType.Production
             && assignedNPCs.Count < NPCSlotAmount) // 由于lockedNPCs是assignedNPCs的子集，所以只需要检查assignedNPCs.Count
         {
             assignedNPCs.Add(npc);
+            TriggerNPCAssignedToBuilding(npc);
             return true;
         }
         if (!tempAssignedNPCs.Contains(npc)
-            && npc.assignedTask.building == this
-            && (npc.assignedTask.taskType == TaskType.HandlingAccept
-            || npc.assignedTask.taskType == TaskType.HandlingDrop)
+            && npc.AssignedTask.building == this
+            && (npc.AssignedTask.taskType == TaskType.HandlingAccept
+            || npc.AssignedTask.taskType == TaskType.HandlingDrop)
             && tempAssignedNPCs.Count < NPCTempSlotAmount)
         {
             tempAssignedNPCs.Add(npc);

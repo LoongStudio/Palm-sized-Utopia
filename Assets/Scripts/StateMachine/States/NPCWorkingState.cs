@@ -22,12 +22,12 @@ public class NPCWorkingState : NPCStateBase
         
         GameEvents.TriggerNPCInWorkingPosition(new NPCEventArgs(){
             npc = npc,
-            relatedBuilding = npc.assignedTask.building
+            relatedBuilding = npc.AssignedTask.building
         });
 
         if (showDebugInfo)
         {
-            Debug.Log($"[NPCWorkingState] {npc.data.npcName} 正在 {npc.assignedTask.building} 工作 {npc.assignedTask.taskType}");
+            Debug.Log($"[NPCWorkingState] {npc.data.npcName} 正在 {npc.AssignedTask.building} 工作 {npc.AssignedTask.taskType}");
         }
         // switch (npc.assignedTask.taskType)
         // {
@@ -84,22 +84,22 @@ public class NPCWorkingState : NPCStateBase
                 Debug.Log($"[NPCWorkingState] {npc.data.npcName} 工作时间结束，准备下班");
             }
             // 将当前AssignedBuilding设为PendingWork，方便下次继续
-            if (!npc.assignedTask.IsNone())
+            if (!npc.AssignedTask.IsNone())
             {
-                npc.SetPendingWork(npc.assignedTask);
+                npc.SetPendingWork(npc.AssignedTask);
                 if (showDebugInfo)
                 {
                     Debug.Log($"[NPCWorkingState] {npc.data.npcName} "
-                              + $"将当前工作建筑设为PendingWork: {npc.assignedTask.building.data.buildingName}");
+                              + $"将当前工作建筑设为PendingWork: {npc.AssignedTask.building.data.buildingName}");
                 }
             }
             
             stateMachine.ChangeState(NPCState.Idle);
         }
         // 或者 建筑是否能够继续进行生产 但是不进行 pendingWork 储存
-        if (npc.assignedTask.taskType == TaskType.Production
-            && npc.assignedTask.building.data.buildingType == BuildingType.Production
-            && !((ProductionBuilding)npc.assignedTask.building).CanProduceAnyRule())
+        if (npc.AssignedTask.taskType == TaskType.Production
+            && npc.AssignedTask.building.data.buildingType == BuildingType.Production
+            && !((ProductionBuilding)npc.AssignedTask.building).CanProduceAnyRule())
         {
             stateMachine.ChangeState(NPCState.Idle);
         }
@@ -110,28 +110,28 @@ public class NPCWorkingState : NPCStateBase
         if (WorkingTimer > WorkingEachTime)
         {
             WorkingTimer = 0;
-            if (npc.assignedTask.taskType == TaskType.HandlingAccept)
+            if (npc.AssignedTask.taskType == TaskType.HandlingAccept)
             {
                 // 如果已经没有东西可以传输了
-                if (!npc.assignedTask.building.inventory.TransferToWithIgnore(
+                if (!npc.AssignedTask.building.inventory.TransferToWithIgnore(
                     npc.inventory, 
                     npc.data.itemTakeEachTimeCapacity, 
-                    npc.assignedTask.building.AcceptResources))
+                    npc.AssignedTask.building.AcceptResources))
                     stateMachine.ChangeState(NPCState.Idle);
             }
-            if (npc.assignedTask.taskType == TaskType.HandlingDrop)
+            if (npc.AssignedTask.taskType == TaskType.HandlingDrop)
             {
                 // 如果已经没有东西可以传输了
                 if (!npc.inventory.TransferToWithFilter(
-                    npc.assignedTask.building.inventory, 
+                    npc.AssignedTask.building.inventory, 
                     npc.data.itemTakeEachTimeCapacity, 
-                    npc.assignedTask.building.AcceptResources))
+                    npc.AssignedTask.building.AcceptResources))
                     stateMachine.ChangeState(NPCState.Idle);
             }
         }
         // 如果是拾取和放置
-        if ((npc.assignedTask.taskType == TaskType.HandlingAccept
-            || npc.assignedTask.taskType == TaskType.HandlingDrop) 
+        if ((npc.AssignedTask.taskType == TaskType.HandlingAccept
+            || npc.AssignedTask.taskType == TaskType.HandlingDrop) 
             &&WorkingMaxTimeForTemp < WorkingTimerTotal)
         {
             stateMachine.ChangeState(NPCState.Idle);
@@ -148,13 +148,13 @@ public class NPCWorkingState : NPCStateBase
         if (showDebugInfo)
         {
             Debug.Log($"[Work] {npc.data.npcName} 离开工作状态，清除已分配建筑: "
-                      + $"{npc.assignedTask?.building.data.buildingName ?? "None"}");
+                      + $"{npc.AssignedTask?.building.data.buildingName ?? "None"}");
         }
 
-        Building relatedBuilding = npc.assignedTask.building;
+        Building relatedBuilding = npc.AssignedTask.building;
         // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
-        npc.assignedTask?.building.TryRemoveNPC(npc);
-        npc.assignedTask = TaskInfo.GetNone();
+        npc.AssignedTask?.building.TryRemoveNPC(npc);
+        npc.AssignTask(TaskInfo.GetNone());
 
         GameEvents.TriggerNPCLeaveWorkingPosition(new NPCEventArgs(){
             npc = npc,

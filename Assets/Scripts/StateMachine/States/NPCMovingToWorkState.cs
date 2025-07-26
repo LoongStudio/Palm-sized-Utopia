@@ -16,8 +16,8 @@ public class NPCMovingToWorkState : NPCStateBase
         // 如果存在锁定的工作
         if (npc.IsLocked)
         {
-            npc.assignedTask = npc.lockedTask;
-            npc.MoveToTarget(npc.assignedTask.building.transform.position);
+            npc.AssignTask(npc.lockedTask);
+            npc.MoveToTarget(npc.AssignedTask.building.transform.position);
             return;
         }
         
@@ -26,7 +26,7 @@ public class NPCMovingToWorkState : NPCStateBase
         {
             var nextWork = BuildingManager.Instance.GetBestWorkBuildingWorkForNPC(npc);
             // Debug.Log($"[Work] 查找最适合NPC的建筑 {nextWork.building.data.subType}");
-            npc.assignedTask = nextWork;
+            npc.AssignTask(nextWork);
             // 改为找到时立刻注册
             if (nextWork.building != null && nextWork.building.TryAssignNPC(npc))
             {
@@ -38,7 +38,7 @@ public class NPCMovingToWorkState : NPCStateBase
             else
             {
                 Debug.Log($"[Work] {npc.data.npcName} 找不到目标工作 进入 Idle");
-                npc.assignedTask = null;
+                npc.AssignTask(TaskInfo.GetNone());
                 // 如果没有找到工作，返回空闲状态
                 stateMachine.ChangeState(NPCState.Idle);
                 return;
@@ -47,16 +47,16 @@ public class NPCMovingToWorkState : NPCStateBase
         // 如果存在待处理的工作
         else
         {
-            npc.assignedTask = npc.pendingTask;
+            npc.AssignTask(npc.pendingTask);
             // 但是分配失败，则清除待处理工作，并返回空闲状态
-            if(!npc.assignedTask.building.TryAssignNPC(npc)){
+            if(!npc.AssignedTask.building.TryAssignNPC(npc)){
                 npc.ClearPendingWork();
-                npc.assignedTask = null;
+                npc.AssignTask(TaskInfo.GetNone());
                 stateMachine.ChangeState(NPCState.Idle);
                 return;
             }
             // 成功分配待处理的工作，直接移动到目标位置 正常来说在上一个状态应该已经设置了 Assigned
-            npc.MoveToTarget(npc.assignedTask.building.transform.position);
+            npc.MoveToTarget(npc.AssignedTask.building.transform.position);
         }
 
         if (showDebugInfo)

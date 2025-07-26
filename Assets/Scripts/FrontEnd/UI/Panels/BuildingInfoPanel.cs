@@ -50,6 +50,7 @@ public class BuildingInfoPanel : BasePanel{
         closeButton.onClick.RemoveListener(OnCloseButtonClick);
     }
     private void RegisterEvents(){
+        GameEvents.OnNPCAssignedToBuilding += RefreshNPCSlotInfo;
         GameEvents.OnNPCLocked += RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked += RefreshNPCSlotInfo;
         GameEvents.OnNPCInWorkingPosition += RefreshNPCSlotInfo;
@@ -59,6 +60,7 @@ public class BuildingInfoPanel : BasePanel{
         GameEvents.OnResourceChanged += RefreshInventorySlotInfo;
     }
     private void UnregisterEvents(){
+        GameEvents.OnNPCAssignedToBuilding -= RefreshNPCSlotInfo;
         GameEvents.OnNPCLocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCInWorkingPosition -= RefreshNPCSlotInfo;
