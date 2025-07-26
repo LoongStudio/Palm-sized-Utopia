@@ -510,6 +510,15 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     #endregion
 
     #region 选中系统
+    private bool _canBeSelected = false;
+    public bool CanBeSelected {
+        get{
+            return _canBeSelected;
+        }
+        set{
+            _canBeSelected = value;
+        }
+    }
     private Outline _outline;
     public Outline Outline {
         get{

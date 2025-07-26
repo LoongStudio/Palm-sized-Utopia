@@ -54,7 +54,7 @@ public class SelectManager : SingletonManager<SelectManager>{
         // 选中当前物体
         this.selected = selected;
         ISelectable newSelectable = selected.GetComponentInChildren<ISelectable>();
-        if(newSelectable != null){
+        if(newSelectable != null && newSelectable.CanBeSelected){
             newSelectable.OnSelect();
         }else{
             Debug.LogWarning("[SelectManager] 选中物体没有实现ISelectable接口：" + selected.name);

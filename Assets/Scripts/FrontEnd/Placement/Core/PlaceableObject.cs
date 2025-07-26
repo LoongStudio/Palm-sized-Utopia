@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Linq;
+using System.Collections;
 
 /// 可放置物体组件
 public class PlaceableObject : MonoBehaviour, IPlaceable, ISaveable
@@ -267,6 +268,9 @@ public class PlaceableObject : MonoBehaviour, IPlaceable, ISaveable
             // 恢复原始材质
             RestoreOriginalMaterials();
 
+            // 设置建筑短时间不可选中
+            StartCoroutine(SetBuildingUnselectable());
+
             // 触发事件
             TriggerEvents();
 
@@ -276,6 +280,23 @@ public class PlaceableObject : MonoBehaviour, IPlaceable, ISaveable
         {
             Debug.LogWarning($"[PlaceableObject] Failed to place {name} - positions already occupied");
         }
+    }
+    /// <summary>
+    /// 让建筑在短时间内不可被选中，防止刚放下来就打开UI等BUG
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator SetBuildingUnselectable()
+    {
+        Building building = GetComponentInChildren<Building>();
+        if(building != null){
+            Debug.Log($"[PlaceableObject] 建筑{building.name}设置不可选中");
+            building.CanBeSelected = false;
+        }else{
+            Debug.LogWarning($"[PlaceableObject] 建筑为空，无法设置不可选中");
+            yield break;
+        }
+        yield return new WaitForSeconds(0.2f);
+        building.CanBeSelected = true;
     }
 
     private void TriggerEvents()
