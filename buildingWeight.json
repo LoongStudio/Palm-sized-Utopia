@@ -1,0 +1,10 @@
+{
+  "Farm": {
+    "weightSlot": 1.0,
+    "weightResourceAgainst": 0.5,
+    "weightResourceInvolved": 0.8,
+    "weightDistance": 0.3,
+    "maxDistance": 20.0,
+    "weightThreshold": 0.1
+  }
+}

@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine.Rendering;
+#if DEBUG
+using System.IO;
+using Newtonsoft.Json;
+#endif
 
 [DisallowMultipleComponent]
 public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
@@ -21,6 +25,21 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
     private Dictionary<BuildingSubType, BuildingData> _buildingDataDict;
     private Dictionary<Vector2Int, Building> _buildingOccupies;
     private Dictionary<string, Building> _buildingsById; // 通过ID快速查找建筑
+
+#if DEBUG
+    class BuildingFitWeight {
+        public BuildingSubType SubType;
+        public float weightSlot;
+        public float weightResourceAgainst;
+        public float weightResourceInvolved;
+        public float weightDistance;
+        public float maxDistance;
+        public float weightThreshold;
+    }
+    // 调试用建筑权重JSON数据
+    private Dictionary<BuildingSubType, BuildingFitWeight> _debugBuildingWeights;
+    private bool _isDebugWeightsLoaded = false;
+#endif
 
     [Header("资源管理")]
     // 历史资源变化记录（可用于曲线绘制）
@@ -82,7 +101,12 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         AppliedBuffs = new Dictionary<BuildingSubType, Dictionary<BuffEnums, int>>();
         buildingConfig = Instantiate(originalBuildingConfig);
         buildingBuffConfig = Instantiate(originalBuildingBuffConfig);
+        
+#if DEBUG
+        LoadDebugBuildingWeights();
+#endif
     }
+    // #endregion
 
     private void SubscribeEvents()
     {
@@ -610,6 +634,20 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
             float weightResourceInvolved = fitWeight.weightResourceInvolved;
             float weightDistance = fitWeight.weightDistance;
             float maxDistance = fitWeight.maxDistance; // 可根据地图实际情况调整
+            
+#if DEBUG
+            // 如果已加载调试权重且当前建筑类型在调试数据中，则使用调试权重
+            if (_isDebugWeightsLoaded && _debugBuildingWeights != null && _debugBuildingWeights.ContainsKey(building.data.subType))
+            {
+                var debugWeight = _debugBuildingWeights[building.data.subType];
+                weightSlot = debugWeight.weightSlot;
+                weightResourceAgainst = debugWeight.weightResourceAgainst;
+                weightResourceInvolved = debugWeight.weightResourceInvolved;
+                weightDistance = debugWeight.weightDistance;
+                maxDistance = debugWeight.maxDistance;
+                Debug.Log($"[BuildingManager] 使用调试权重数据: {building.data.subType}");
+            }
+#endif
 
             // 缺人程度
             float slotRatio = 0f;
@@ -734,4 +772,35 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
         }
     }
     #endregion
+
+
+#if DEBUG
+    /// <summary>
+    /// 从JSON文件加载调试用建筑权重
+    /// </summary>
+    private void LoadDebugBuildingWeights()
+    {
+        try
+        {
+            string exeFolder = Directory.GetParent(Application.dataPath).FullName;
+            string jsonPath = Path.Combine(exeFolder, "buildingWeight.json");
+            
+            if (File.Exists(jsonPath))
+            {
+                string jsonContent = File.ReadAllText(jsonPath);
+                _debugBuildingWeights = JsonConvert.DeserializeObject<Dictionary<BuildingSubType, BuildingFitWeight>>(jsonContent);
+                _isDebugWeightsLoaded = true;
+                Debug.Log($"[BuildingManager] 成功加载调试权重数据，共 {_debugBuildingWeights.Count} 个建筑类型");
+            }
+            else
+            {
+                Debug.LogWarning($"[BuildingManager] 未找到调试权重文件: {jsonPath}");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[BuildingManager] 加载调试权重数据失败: {ex.Message}");
+        }
+    }
+#endif
 }
