@@ -39,6 +39,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         base.SetBuildingData(data);
         // 设置转换规则
         productionRules = data.productionBuildingDatas.conversionRules;
+        productionCooldown = data.productionBuildingDatas.productionCooldown;
     }
 
     protected virtual void UpdateProduction()

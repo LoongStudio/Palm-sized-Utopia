@@ -25,6 +25,7 @@ public class BuildingData
 [System.Serializable]
 public class ProductionBuildingData
 {
+    [FoldoutGroup("生产信息"),LabelText("基础生产冷却"), Tooltip("每X秒执行一次转化规则")] public float productionCooldown;
     [FoldoutGroup("资源相关"),LabelText("默认资源数量")] public List<ResourceStack> defaultResources;
     [FoldoutGroup("资源相关"),LabelText("默认最大值")] public int defaultMaxValue;
     [FoldoutGroup("资源相关"),LabelText("可放入资源")] public List<ResourceConfig> acceptResources;

@@ -27,7 +27,7 @@ MonoBehaviour:
       npcSlots: 3
       npcTempSlots: 3
       equipmentSlots: 3
-      baseEfficiency: 1
+      baseProductionSpeedMultiplier: 0
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
@@ -36,6 +36,7 @@ MonoBehaviour:
         maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
+      productionCooldown: 5
       defaultResources: []
       defaultMaxValue: 100
       acceptResources:
@@ -89,7 +90,7 @@ MonoBehaviour:
       npcSlots: 1
       npcTempSlots: 3
       equipmentSlots: 1
-      baseEfficiency: 1
+      baseProductionSpeedMultiplier: 0
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
@@ -98,6 +99,7 @@ MonoBehaviour:
         maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
+      productionCooldown: 1
       defaultResources: []
       defaultMaxValue: 100
       acceptResources:
@@ -178,7 +180,7 @@ MonoBehaviour:
       npcSlots: 5
       npcTempSlots: 3
       equipmentSlots: 1
-      baseEfficiency: 1
+      baseProductionSpeedMultiplier: 0
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
@@ -187,6 +189,7 @@ MonoBehaviour:
         maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
+      productionCooldown: 0
       defaultResources: []
       defaultMaxValue: 0
       acceptResources: []
@@ -210,7 +213,7 @@ MonoBehaviour:
       npcSlots: 1
       npcTempSlots: 3
       equipmentSlots: 1
-      baseEfficiency: 1
+      baseProductionSpeedMultiplier: 0
       fitWeightData:
         weightSlot: 0
         weightResourceAgainst: 1.3
@@ -219,6 +222,7 @@ MonoBehaviour:
         maxDistance: 20
         weightThreshold: 0.1
     productionBuildingDatas:
+      productionCooldown: 0
       defaultResources: []
       defaultMaxValue: 100
       acceptResources:
