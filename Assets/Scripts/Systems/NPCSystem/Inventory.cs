@@ -152,20 +152,66 @@ public class Inventory : ISaveable
         }
         return cur.CanAdd(amount);
     }
-
-    private Dictionary<ResourceType, int> hashSetToDict(HashSet<ResourceConfig> hashSet)
+    /// <summary>
+    /// 用于转化时触发事件
+    /// </summary>
+    private void TriggerResourceChanged(ResourceConfig config, ResourceStack cur)
     {
-        if (hashSet == null)
+        if (ownerType == InventoryOwnerType.NPC)
         {
-            Debug.LogWarning("HashSet is null");
-            return null;
+            ResourceEventArgs args = new ResourceEventArgs()
+            {
+                resourceType = config.type,
+                subType = config.subType,
+                newAmount = cur.amount,
+                relatedNPCInventory = this,
+            };
+            GameEvents.TriggerResourceChanged(args);
         }
-        Dictionary<ResourceType, int> dict = new Dictionary<ResourceType, int>();
-        foreach (var config in hashSet)
+        else if (ownerType == InventoryOwnerType.Building)
         {
-            dict[config.type] = config.subType;
+            ResourceEventArgs args = new ResourceEventArgs()
+            {
+                resourceType = config.type,
+                subType = config.subType,
+                newAmount = cur.amount,
+                relatedBuildingInventory = this,
+            };
+            GameEvents.TriggerResourceChanged(args);
         }
-        return dict;
+    }
+
+    /// <summary>
+    /// 用于转移时触发事件
+    /// </summary>
+    private void TriggerResourceChanged(Inventory target, ResourceStack item)
+    {
+        Inventory relatedBuildingInventory;
+        Inventory relatedNPCInventory;
+        // 如果是从NPC转移到Building
+        if (ownerType == InventoryOwnerType.NPC)
+        {
+            relatedBuildingInventory = target;
+            relatedNPCInventory = this;
+        }
+        // 如果是从Building转移到NPC
+        else if (ownerType == InventoryOwnerType.Building)
+        {
+            relatedBuildingInventory = this;
+            relatedNPCInventory = target;
+        }else{
+            return;
+        }
+
+        ResourceEventArgs args = new ResourceEventArgs()
+        {
+            resourceType = item.resourceConfig.type,
+            subType = item.resourceConfig.subType,
+            newAmount = item.amount,
+            relatedBuildingInventory = relatedBuildingInventory,
+            relatedNPCInventory = relatedNPCInventory,
+        };
+        GameEvents.TriggerResourceChanged(args);
     }
     #endregion
 
@@ -181,13 +227,8 @@ public class Inventory : ISaveable
 
         var cur = GetCurrent(config);
         cur.AddAmount(amount);
-        ResourceEventArgs args = new ResourceEventArgs(){
-            resourceType = config.type,
-            subType = config.subType,
-            newAmount = cur.amount,
-            relatedInventory = this,
-        };
-        GameEvents.TriggerResourceChanged(args);
+
+        TriggerResourceChanged(config, cur);
 
         return true;
     }
@@ -197,15 +238,10 @@ public class Inventory : ISaveable
         var cur = GetCurrent(config);
         if (cur == null || cur.amount < amount) return false;
         cur.amount -= amount;
+
         if (ownerType == InventoryOwnerType.Building)
             OnResourceChanged?.Invoke(config, -amount);
-        ResourceEventArgs args = new ResourceEventArgs(){
-            resourceType = config.type,
-            subType = config.subType,
-            newAmount = cur.amount,
-            relatedInventory = this,
-        };
-        GameEvents.TriggerResourceChanged(args);
+        TriggerResourceChanged(config, cur);
         return true;
     }
 
@@ -311,6 +347,9 @@ public class Inventory : ISaveable
                 break;
             item.amount -= transferable;
             targetCurrent.amount += transferable;
+
+            TriggerResourceChanged(target, item);
+
             transferredTotal += transferable;
             if (transferredTotal >= maxTransferAmount)
                 break;
@@ -326,7 +365,7 @@ public class Inventory : ISaveable
         {
             if (item.amount <= 0 || !filters.Contains(item.resourceConfig))
                 continue;
-            
+
             var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
@@ -346,6 +385,9 @@ public class Inventory : ISaveable
                 break;
             item.amount -= transferable;
             targetCurrent.amount += transferable;
+
+            TriggerResourceChanged(target, item);
+
             transferredTotal += transferable;
             Debug.Log($"[Work] 传输过滤: {item.resourceConfig.name} {transferable}/{transferredTotal}");
             if (transferredTotal >= maxTransferAmount)
@@ -354,6 +396,7 @@ public class Inventory : ISaveable
         return transferredTotal > 0;
     }
 
+    
     public bool TransferToWithIgnore(Inventory target, int maxTransferAmount, HashSet<ResourceConfig> ignores)
     {
         int transferredTotal = 0;
@@ -383,12 +426,17 @@ public class Inventory : ISaveable
                 break;
             item.amount -= transferable;
             targetCurrent.amount += transferable;
+
+            TriggerResourceChanged(target, item);
+
             transferredTotal += transferable;
             if (transferredTotal >= maxTransferAmount)
                 break;
         }
         return transferredTotal > 0;
     }
+
+
     #endregion
 
     #region 交换操作

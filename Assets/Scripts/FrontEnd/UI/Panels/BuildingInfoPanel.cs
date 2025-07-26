@@ -217,7 +217,7 @@ public class BuildingInfoPanel : BasePanel{
     private void RefreshInventorySlotInfo(ResourceEventArgs args = null){
         if(args != null){
             // 如果与自己无关，则不刷新
-            if(args.relatedInventory != building.inventory){
+            if(args.relatedBuildingInventory != building.inventory){
                 return;
             }
         }
