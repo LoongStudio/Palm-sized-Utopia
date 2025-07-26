@@ -344,8 +344,19 @@ public class NPC : MonoBehaviour, ISaveable
         if(!isLocked){
             return;
         }
+        // 解除锁定状态并清空锁定任务
         isLocked = false;
         lockedTask = TaskInfo.GetNone();
+
+        // 防止NPC不占槽位工作，没有这段的话NPC会继续前往工作但不占用建筑槽位
+        // 如果NPC正在MovingToWork状态，也就是正在赶来，则将其改为Idle状态，并清空pendingTask和assignedTask
+        if(currentState == NPCState.MovingToWork){
+            ChangeState(NPCState.Idle);
+            ClearPendingWork();
+            AssignTask(TaskInfo.GetNone());
+        }
+
+        // 触发解锁事件
         GameEvents.TriggerNPCUnlocked(new NPCEventArgs(){npc = this, relatedBuilding = building});
         Debug.Log($"[NPC] {data.npcName} 成功解锁当前工作, 建筑 {building.data.buildingName}");
     }
