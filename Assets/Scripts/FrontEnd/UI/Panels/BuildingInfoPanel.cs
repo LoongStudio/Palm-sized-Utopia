@@ -208,7 +208,7 @@ public class BuildingInfoPanel : BasePanel{
         // 如果建筑是生产建筑，则显示Buff信息
         SetBuffBaseInfoVisible(true);
         ProductionBuilding productionBuilding = building as ProductionBuilding;
-        int effi = (int)(productionBuilding.efficiency * 100);
+        int effi = (int)(productionBuilding.productionSpeedMultiplier * 100);
         // 更新效率数字和颜色
         SetEfficiencyNumber(effi);
     }

@@ -87,9 +87,9 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         }
     }
 
-    public float BaseEfficiency {
+    public float BaseProductionSpeedMultiplier {
         get {
-            return data.baseEfficiency;
+            return data.baseProductionSpeedMultiplier;
         }
     }
     

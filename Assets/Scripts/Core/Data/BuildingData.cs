@@ -18,7 +18,7 @@ public class BuildingData
     [FoldoutGroup("建筑信息"),LabelText("NPC槽位数量")] public int npcSlots;
     [FoldoutGroup("建筑信息"),LabelText("NPC临时槽位数量")] public int npcTempSlots = 3;
     [FoldoutGroup("建筑信息"),LabelText("设备槽位数量")] public int equipmentSlots;
-    [FoldoutGroup("建筑信息"),LabelText("基础效率")] public float baseEfficiency;
+    [FoldoutGroup("建筑信息"),LabelText("基础效率倍数")] public float baseProductionSpeedMultiplier;
     [FoldoutGroup("建筑信息"),LabelText("建筑适配权重")] public BuildingFitWeightData fitWeightData;
 } 
 

@@ -11,7 +11,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public float productionCooldown = 5f;
     public float productionTimer = 0f; // 全局cd
     public float conversionTime = 5f;
-    public float efficiency = 1f;
+    public float productionSpeedMultiplier = 1f;
     private bool _canProduce = true; 
     public bool randomProductionOrder = false; // 新增：是否随机生产顺序
     private void OnEnable(){
@@ -71,7 +71,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     {
 
         // 冷却未结束，直接返回
-        if (productionTimer < productionCooldown / efficiency)
+        if (productionTimer < productionCooldown / productionSpeedMultiplier)
         {
             productionTimer += Time.deltaTime;
             return;
@@ -125,15 +125,15 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         if (installedEquipment != null)
             foreach (var equipment in installedEquipment)
                 deviceBonus += equipment.deviceBonus;
-        float totalEfficiency = BaseEfficiency + levelBonus + slotBonus + npcAbilityBonus + friendWorkTogetherBonus + deviceBonus;
-        Debug.Log($"[ProductionBuilding] 建筑{data.buildingName}当前总效率{totalEfficiency}|基础效率{BaseEfficiency}|等级加成{levelBonus}|槽位加成{slotBonus}|NPC能力加成{npcAbilityBonus}|友方合作加成{friendWorkTogetherBonus}|设备加成{deviceBonus}");
+        float totalEfficiency = BaseProductionSpeedMultiplier + levelBonus + slotBonus + npcAbilityBonus + friendWorkTogetherBonus + deviceBonus;
+        Debug.Log($"[ProductionBuilding] 建筑{data.buildingName}当前总效率{totalEfficiency}|基础效率{BaseProductionSpeedMultiplier}|等级加成{levelBonus}|槽位加成{slotBonus}|NPC能力加成{npcAbilityBonus}|友方合作加成{friendWorkTogetherBonus}|设备加成{deviceBonus}");
         // float totalEfficiency = baseEfficiency;
         // 按产出规则数量分摊效率（防止多个规则时过快）
         // if (productionRules != null && productionRules.Count > 0)
         //     totalEfficiency /= productionRules.Count;
 
-        efficiency = totalEfficiency;
-        return efficiency;
+        productionSpeedMultiplier = totalEfficiency;
+        return productionSpeedMultiplier;
     }
 
     /// <summary>
