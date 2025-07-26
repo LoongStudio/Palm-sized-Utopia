@@ -587,6 +587,8 @@ public class Inventory : ISaveable
             cur = GetCurrent(config);
         }
         cur.AddAmount(amount);
+        // 触发事件
+        TriggerResourceChanged(config, cur);
     }
     #endregion
 

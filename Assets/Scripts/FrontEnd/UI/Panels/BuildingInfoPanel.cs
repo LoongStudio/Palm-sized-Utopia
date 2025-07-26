@@ -236,10 +236,11 @@ public class BuildingInfoPanel : BasePanel{
         foreach(Transform child in InventorySlotParent){
             Destroy(child.gameObject);
         }
-        // 根据当前建筑的库存，刷新Inventory槽位信息
-        List<ResourceStack> resources = building.inventory.currentStacks.Where(stack => stack.amount > 0).ToList();  // inventory.currentStacks中amount>0的数量
-        foreach(ResourceStack resource in resources){
-            GenerateInventorySlotItem(resource);
+        // 直接遍历所有资源堆栈，只显示数量大于0的
+        foreach(ResourceStack resource in building.inventory.currentStacks){
+            if(resource.amount > 0){
+                GenerateInventorySlotItem(resource);
+            }
         }
     }
     private void GenerateInventorySlotItem(ResourceStack resource){
