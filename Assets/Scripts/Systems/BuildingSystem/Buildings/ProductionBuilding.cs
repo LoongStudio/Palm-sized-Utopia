@@ -26,6 +26,7 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     {
         base.Start();
         SetupProductionRule();
+        UpdateCurrentEfficiency();
     }
     protected virtual void Update()
     {
