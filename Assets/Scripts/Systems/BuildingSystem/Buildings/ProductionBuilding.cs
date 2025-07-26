@@ -129,8 +129,8 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         Debug.Log($"[ProductionBuilding] 建筑{data.buildingName}当前总效率{totalEfficiency}|基础效率{BaseEfficiency}|等级加成{levelBonus}|槽位加成{slotBonus}|NPC能力加成{npcAbilityBonus}|友方合作加成{friendWorkTogetherBonus}|设备加成{deviceBonus}");
         // float totalEfficiency = baseEfficiency;
         // 按产出规则数量分摊效率（防止多个规则时过快）
-        if (productionRules != null && productionRules.Count > 0)
-            totalEfficiency /= productionRules.Count;
+        // if (productionRules != null && productionRules.Count > 0)
+        //     totalEfficiency /= productionRules.Count;
 
         efficiency = totalEfficiency;
         return efficiency;
