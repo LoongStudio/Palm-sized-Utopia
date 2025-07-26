@@ -27,6 +27,10 @@ public class ResourcePanel : BasePanel{
     // 资源变化时更新UI
     private void OnResourceChanged(ResourceEventArgs args)
     {
-        coinAmountText.text = args.newAmount.ToString();
+        // 如果资源类型是金币，则更新金币数量
+        if(args.resourceType == ResourceManager.Instance.Gold.type){
+            coinAmountText.text = args.newAmount.ToString();
+        }
+        // TODO: 如有必要的话，更新Ticket数量
     }
 }

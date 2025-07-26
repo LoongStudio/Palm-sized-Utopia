@@ -15,6 +15,8 @@ public class ResourceEventArgs
     public int price;
     public ResourceType priceType = ResourceType.Coin;
     public int priceSubType = 0;
+    // inventory相关
+    public Inventory relatedInventory;
     
     public System.DateTime timestamp;
     

@@ -181,6 +181,13 @@ public class Inventory : ISaveable
 
         var cur = GetCurrent(config);
         cur.AddAmount(amount);
+        ResourceEventArgs args = new ResourceEventArgs(){
+            resourceType = config.type,
+            subType = config.subType,
+            newAmount = cur.amount,
+            relatedInventory = this,
+        };
+        GameEvents.TriggerResourceChanged(args);
 
         return true;
     }
@@ -192,6 +199,13 @@ public class Inventory : ISaveable
         cur.amount -= amount;
         if (ownerType == InventoryOwnerType.Building)
             OnResourceChanged?.Invoke(config, -amount);
+        ResourceEventArgs args = new ResourceEventArgs(){
+            resourceType = config.type,
+            subType = config.subType,
+            newAmount = cur.amount,
+            relatedInventory = this,
+        };
+        GameEvents.TriggerResourceChanged(args);
         return true;
     }
 

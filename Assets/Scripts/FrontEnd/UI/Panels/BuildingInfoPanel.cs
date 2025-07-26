@@ -54,12 +54,14 @@ public class BuildingInfoPanel : BasePanel{
         GameEvents.OnNPCUnlocked += RefreshNPCSlotInfo;
         GameEvents.OnNPCInWorkingPosition += RefreshNPCSlotInfo;
         GameEvents.OnNPCLeaveWorkingPosition += RefreshNPCSlotInfo;
+        GameEvents.OnResourceChanged += RefreshInventorySlotInfo;
     }
     private void UnregisterEvents(){
         GameEvents.OnNPCLocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCInWorkingPosition -= RefreshNPCSlotInfo;
         GameEvents.OnNPCLeaveWorkingPosition -= RefreshNPCSlotInfo;
+        GameEvents.OnResourceChanged -= RefreshInventorySlotInfo;
     }
     protected override void OnShow(){
         base.OnShow();
@@ -212,7 +214,13 @@ public class BuildingInfoPanel : BasePanel{
         efficiency.color = color;
         percentSign.color = color;  // 百分号颜色与效率颜色相同
     }
-    private void RefreshInventorySlotInfo(){
+    private void RefreshInventorySlotInfo(ResourceEventArgs args = null){
+        if(args != null){
+            // 如果与自己无关，则不刷新
+            if(args.relatedInventory != building.inventory){
+                return;
+            }
+        }
         // 清除所有Inventory槽位
         foreach(Transform child in InventorySlotParent){
             Destroy(child.gameObject);

@@ -6,6 +6,7 @@ public static class GameEvents
     
     #region 资源相关事件
     public static event System.Action<ResourceEventArgs> OnResourceChanged;
+    public static event System.Action<ResourceEventArgs> OnGoldTicketChanged;
     public static event System.Action<ResourceEventArgs> OnResourceInsufficient;
     public static event System.Action<ResourceEventArgs> OnResourceBoughtClicked;
     public static event System.Action<ResourceEventArgs> OnResourceBoughtConfirmed;
@@ -99,6 +100,10 @@ public static class GameEvents
     public static void TriggerResourceChanged(ResourceEventArgs args) 
     {
         OnResourceChanged?.Invoke(args);
+    }
+    public static void TriggerGoldTicketChanged(ResourceEventArgs args) 
+    {
+        OnGoldTicketChanged?.Invoke(args);
     }
     public static void TriggerResourceInsufficient(ResourceEventArgs args) 
     {
