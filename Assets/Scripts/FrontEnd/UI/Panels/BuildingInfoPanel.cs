@@ -53,14 +53,18 @@ public class BuildingInfoPanel : BasePanel{
         GameEvents.OnNPCLocked += RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked += RefreshNPCSlotInfo;
         GameEvents.OnNPCInWorkingPosition += RefreshNPCSlotInfo;
+        GameEvents.OnNPCInWorkingPosition += RefreshBuffSlotInfo;
         GameEvents.OnNPCLeaveWorkingPosition += RefreshNPCSlotInfo;
+        GameEvents.OnNPCLeaveWorkingPosition += RefreshBuffSlotInfo;
         GameEvents.OnResourceChanged += RefreshInventorySlotInfo;
     }
     private void UnregisterEvents(){
         GameEvents.OnNPCLocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCInWorkingPosition -= RefreshNPCSlotInfo;
+        GameEvents.OnNPCInWorkingPosition -= RefreshBuffSlotInfo;
         GameEvents.OnNPCLeaveWorkingPosition -= RefreshNPCSlotInfo;
+        GameEvents.OnNPCLeaveWorkingPosition -= RefreshBuffSlotInfo;
         GameEvents.OnResourceChanged -= RefreshInventorySlotInfo;
     }
     protected override void OnShow(){
@@ -142,7 +146,12 @@ public class BuildingInfoPanel : BasePanel{
             Debug.LogError("[BuildingInfoPanel] NPCSlotItem组件为空");
         }
     }
-    private void RefreshBuffSlotInfo(){
+    private void RefreshBuffSlotInfo(NPCEventArgs args = null){
+        if(args != null){
+            if(args.relatedBuilding != building){
+                return;
+            }
+        }
         // 刷新Buff总百分比和颜色
         RefreshBuffBaseInfo();
 

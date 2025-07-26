@@ -581,11 +581,11 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         Buffs.Remove(buff.type);
     }
     /// <summary>
-    /// 每个NPC提供1/最大槽位数 的正向Buff, 但不存储在Buffs中
+    /// 每个有活跃NPC的槽位提供正向Buff, 但不存储在Buffs中
     /// </summary>
     public Buff GetNPCSlotBuff(){
         BuffEnums type = BuffEnums.NPCWorkingInSlot;
-        float intensity = assignedNPCs.Count / NPCSlotAmount;
+        float intensity = ActiveAssignedNPCsCount() * 0.1f;
         return new Buff(type, intensity);
     }
     /// <summary>
@@ -598,12 +598,13 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         if(NPCSlotAmount < 2){
             return new Buff(type, 0);
         }
-        if(assignedNPCs.Count != 2){
+        var activeNPCs = GetActiveAssignedNPCs();
+        if(activeNPCs.Count != 2){
             return new Buff(type, 0);
         }
         // 从NPCManager中的SocialSystem中获取NPC之间的关系
-        NPC npc1 = assignedNPCs[0];
-        NPC npc2 = assignedNPCs[1];
+        NPC npc1 = activeNPCs[0];
+        NPC npc2 = activeNPCs[1];
         int relationship = NPCManager.Instance.socialSystem.GetRelationship(npc1, npc2);
         int intensity = 0;
         // 关系50-100时，加成10%，100时加成25%,50以下没有加成
@@ -616,13 +617,13 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         return new Buff(type, intensity);
     }
     /// <summary>
-    /// 获取所有在槽位中的NPC自身能力的总加成
+    /// 获取所有在槽位中的活跃的NPC自身能力的总加成
     /// </summary>
     /// <returns></returns>
     public Buff GetInSlotNPCBuff(){
         BuffEnums type = BuffEnums.NPCEfficiency;
         float intensity = 0;
-        foreach(var npc in assignedNPCs){
+        foreach(var npc in GetActiveAssignedNPCs()){
             intensity += npc.GetWorkEfficiency();
         }
         return new Buff(type, intensity);

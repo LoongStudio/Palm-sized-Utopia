@@ -11,10 +11,17 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     public float productionCooldown = 5f;
     public float productionTimer = 0f; // 全局cd
     public float conversionTime = 5f;
-    public float baseEfficiency = 50f;  // 这里被我替换为了BaseEfficiency，因为它在data中被定义了
     public float efficiency = 1f;
     private bool _canProduce = true; 
     public bool randomProductionOrder = false; // 新增：是否随机生产顺序
+    private void OnEnable(){
+        GameEvents.OnNPCInWorkingPosition += UpdateCurrentEfficiencyOnEvent;
+        GameEvents.OnNPCLeaveWorkingPosition += UpdateCurrentEfficiencyOnEvent;
+    }
+    private void OnDisable(){
+        GameEvents.OnNPCInWorkingPosition -= UpdateCurrentEfficiencyOnEvent;
+        GameEvents.OnNPCLeaveWorkingPosition -= UpdateCurrentEfficiencyOnEvent;
+    }
     private new void Start()
     {
         base.Start();
@@ -100,17 +107,26 @@ public abstract class ProductionBuilding : Building, IResourceProducer
         }
     }
 
-    
+    private void UpdateCurrentEfficiencyOnEvent(NPCEventArgs args){
+        if(args != null){
+            if(args.relatedBuilding != this){
+                return;
+            }
+        }
+        UpdateCurrentEfficiency();
+    }
     public virtual float UpdateCurrentEfficiency()
     {
         float levelBonus = 0.1f * currentLevel;
-        float npcEfficiencyPerNPC = 1f / NPCSlotAmount; 
-        float npcBonus = assignedNPCs != null ? ActiveAssignedNPCsCount() * npcEfficiencyPerNPC : 0f;
+        float slotBonus = GetNPCSlotBuff().intensity/100f;
+        float npcAbilityBonus = GetInSlotNPCBuff().intensity/100f;
+        float friendWorkTogetherBonus = GetFriendWorkTogetherBuff().intensity/100f;
         float deviceBonus = 0;
         if (installedEquipment != null)
             foreach (var equipment in installedEquipment)
                 deviceBonus += equipment.deviceBonus;
-        float totalEfficiency = BaseEfficiency + levelBonus + npcBonus + deviceBonus;
+        float totalEfficiency = BaseEfficiency + levelBonus + slotBonus + npcAbilityBonus + friendWorkTogetherBonus + deviceBonus;
+        Debug.Log($"[ProductionBuilding] 建筑{data.buildingName}当前总效率{totalEfficiency}|基础效率{BaseEfficiency}|等级加成{levelBonus}|槽位加成{slotBonus}|NPC能力加成{npcAbilityBonus}|友方合作加成{friendWorkTogetherBonus}|设备加成{deviceBonus}");
         // float totalEfficiency = baseEfficiency;
         // 按产出规则数量分摊效率（防止多个规则时过快）
         if (productionRules != null && productionRules.Count > 0)
