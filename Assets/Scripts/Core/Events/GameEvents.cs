@@ -44,6 +44,11 @@ public static class GameEvents
     public static event System.Action<NPCEventArgs> OnNPCReadyForSocialInteraction;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteractionStarted;
     public static event System.Action<NPCEventArgs> OnNPCSocialInteractionEnded;
+
+    public static event System.Action<NPCEventArgs> OnNPCLocked;
+    public static event System.Action<NPCEventArgs> OnNPCUnlocked;
+    public static event System.Action<NPCEventArgs> OnNPCInWorkingPosition;
+    public static event System.Action<NPCEventArgs> OnNPCLeaveWorkingPosition;
     #endregion
     
     #region 时间相关事件
@@ -209,6 +214,26 @@ public static class GameEvents
     public static void TriggerNPCDestroyed(NPCEventArgs args)
     {
         OnNPCDestroyed?.Invoke(args);
+    }
+
+    public static void TriggerNPCLocked(NPCEventArgs args)
+    {
+        OnNPCLocked?.Invoke(args);
+    }
+
+    public static void TriggerNPCUnlocked(NPCEventArgs args)
+    {
+        OnNPCUnlocked?.Invoke(args);
+    }
+
+    public static void TriggerNPCInWorkingPosition(NPCEventArgs args)
+    {
+        OnNPCInWorkingPosition?.Invoke(args);
+    }
+
+    public static void TriggerNPCLeaveWorkingPosition(NPCEventArgs args)
+    {
+        OnNPCLeaveWorkingPosition?.Invoke(args);
     }
     #endregion
     

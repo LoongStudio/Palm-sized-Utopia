@@ -33,7 +33,6 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     // public int maxSlotAmount = 3;  // 这里被我替换为了NPCSlotAmount，因为它在data中被定义了
     public List<NPC> assignedNPCs;
     public List<NPC> tempAssignedNPCs;
-    public List<NPC> lockedNPCs;
     public List<Equipment> installedEquipment;
     public Inventory inventory;           // 背包
     
@@ -349,24 +348,18 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     #endregion
 
     #region NPC管理
-
-    public virtual bool TryLockNPC(NPC npc)
-    {
-        if (!assignedNPCs.Contains(npc)) {
-            Debug.LogWarning($"[Building] NPC {npc.data.npcName} 没有被分配到建筑 {data.buildingName} 中");
-            return false;
-        }
-        // 锁定NPC时，不将其从assignedNPCs中移除，只是添加到lockedNPCs中
-        if (!lockedNPCs.Contains(npc))
-        {
-            lockedNPCs.Add(npc);
-            Debug.Log($"[Building] NPC {npc.data.npcName} 被锁定到建筑 {data.buildingName} 中");
-            return true;
-        }
-        Debug.LogWarning($"[Building] NPC {npc.data.npcName} 已经被锁定到建筑 {data.buildingName} 中");
-        return false; // 如果已经锁定，返回false
+    #region NPC查询
+    public bool IsNPCAssigned(NPC npc){
+        return assignedNPCs.Contains(npc);
     }
-
+    /// <summary>
+    /// 检查NPC是否正在这个建筑中工作
+    /// </summary>
+    public bool IsNPCActiveWorking(NPC npc){
+        return IsNPCAssigned(npc)
+        && npc.currentState == NPCState.Working 
+        && npc.assignedTask.building == this;
+    }
     public bool IsNPCLocked(NPC npc){
         if(npc == null){
             Debug.LogError($"[Building] NPC为空");
@@ -375,30 +368,41 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
 
         // 检查NPC是否在assignedNPCs中且同时在lockedNPCs中
         if(assignedNPCs.Contains(npc)){
-            return lockedNPCs.Contains(npc);
+            return npc.IsLocked;
         }
         Debug.LogWarning($"[Building] NPC {npc.data.npcName} 没有被分配到建筑 {data.buildingName} 中");
         return false;
     }
+    #endregion
+    public void LockNPC(NPC npc){
+        if(npc == null){
+            Debug.LogError($"[Building] NPC为空");
+            return;
+        }
+        if(IsNPCAssigned(npc)){
+            npc.LockWork(this);
+            return;
+        }else{
+            Debug.LogWarning($"[Building] 无法锁定NPC {npc.data.npcName} ，没有被分配到建筑 {data.buildingName} 中");
+        }
 
-    /// <summary>
-    /// 解锁NPC
-    /// </summary>
-    public virtual bool TryUnlockNPC(NPC npc)
-    {
-        if (!assignedNPCs.Contains(npc)) {
-            Debug.LogWarning($"[Building] 建筑 {data.buildingName} 解锁NPC {npc.data.npcName} 失败，因为NPC没有被分配到建筑中");
-            return false;
+
+    }
+    public void UnlockNPC(NPC npc){
+        if(npc == null){
+            Debug.LogError($"[Building] NPC为空");
+            return;
         }
-        // 解锁NPC时，从lockedNPCs中移除
-        if (lockedNPCs.Contains(npc))
-        {
-            lockedNPCs.Remove(npc);
-            Debug.Log($"[Building] NPC {npc.data.npcName} 被建筑 {data.buildingName} 解锁");
-            return true;
+        if(IsNPCAssigned(npc)){
+            // 如果NPC当前未在建筑中工作，则将其从assignedNPCs中一并移除
+            if(!IsNPCActiveWorking(npc)){
+                assignedNPCs.Remove(npc);
+            }
+            npc.UnlockWork(this);
+            return;
+        }else{
+            Debug.LogWarning($"[Building] 无法解锁NPC {npc.data.npcName} ，没有被分配到建筑 {data.buildingName} 中");
         }
-        Debug.LogWarning($"[Building] 建筑 {data.buildingName} 尝试解锁NPC {npc.data.npcName} 失败，因为NPC没有被锁定");
-        return false; // 如果本来就没有锁定，返回false
     }
     /// <summary>
     /// 尝试分配NPC到建筑
@@ -432,7 +436,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     public virtual void TryRemoveNPC(NPC npc)
     {
         // 如果NPC被锁定，则不移除
-        if(assignedNPCs.Contains(npc) && lockedNPCs.Contains(npc)){
+        if(IsNPCAssigned(npc) && IsNPCLocked(npc)){
             Debug.LogWarning($"[Building] NPC {npc.data.npcName} 被锁定，不能移除");
             return;
         }
@@ -446,17 +450,18 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
     public void ForceRemoveNPC(NPC npc){
         assignedNPCs.Remove(npc);
         tempAssignedNPCs.Remove(npc);
-        lockedNPCs.Remove(npc);
     }
     /// <summary>
     /// 获取分配NPC中正在这个建筑工作的NPC
     /// </summary>
     public List<NPC> GetActiveAssignedNPCs(){
-        if(assignedNPCs == null){
-            return new List<NPC>();
+        List<NPC> result = new List<NPC>();
+        foreach(var npc in assignedNPCs){
+            if(IsNPCActiveWorking(npc)){
+                result.Add(npc);
+            }
         }
-        return assignedNPCs.Where(npc => npc.currentState == NPCState.Working 
-        && npc.assignedTask.building == this).ToList();
+        return result;
     }
     /// <summary>
     /// 获取分配NPC中正在这个建筑工作的NPC数量
@@ -467,20 +472,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         Debug.Log($"[Building] 建筑 {data.buildingName} 当前有 {result} 个活跃NPC正在实际工作");
         return result;
     }
-    /// <summary>
-    /// 检查NPC是否被分配到建筑中
-    /// </summary>
-    public bool IsNPCAssigned(NPC npc){
-        return assignedNPCs.Contains(npc);
-    }
-    /// <summary>
-    /// 检查NPC是否正在这个建筑中工作
-    /// </summary>
-    public bool IsNPCActiveWorking(NPC npc){
-        return IsNPCAssigned(npc)
-        && npc.currentState == NPCState.Working 
-        && npc.assignedTask.building == this;
-    }
+
 
     #endregion
 
@@ -714,7 +706,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         Debug.Log($"位置: {string.Join(" ", positions)}");
         Debug.Log($"分配NPC数量: {assignedNPCs?.Count ?? 0}/{NPCSlotAmount}");
         Debug.Log($"临时NPC数量: {tempAssignedNPCs?.Count ?? 0}");
-        Debug.Log($"锁定NPC数量: {lockedNPCs?.Count ?? 0}");
+        Debug.Log($"锁定NPC数量: {assignedNPCs?.Count(npc => IsNPCLocked(npc)) ?? 0}");
         Debug.Log($"[Building] ====================================================");
     }
 
@@ -732,7 +724,7 @@ public abstract class Building : MonoBehaviour, IUpgradeable, ISaveable, ISelect
         List<string> displayLines = new List<string>();
         
         // NPC信息 - 显示分配数量、锁定数量和临时数量
-        int lockedCount = lockedNPCs?.Count ?? 0;
+        int lockedCount = assignedNPCs?.Count(npc => IsNPCLocked(npc)) ?? 0;
         displayLines.Add($"[A:{assignedNPCs.Count}/{NPCSlotAmount}][L:{lockedCount}][T:{tempAssignedNPCs.Count}]");
         
         // Inventory资源信息

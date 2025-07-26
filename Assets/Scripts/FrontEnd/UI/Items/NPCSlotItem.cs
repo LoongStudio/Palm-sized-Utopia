@@ -52,11 +52,11 @@ public class NPCSlotItem : MonoBehaviour{
         Debug.Log($"[NPCSlotItem] 锁定按钮点击，NPC：{npc.data.npcName}，建筑：{building.data.buildingName}");
         if(building.IsNPCLocked(npc)){
             // 如果已经锁定，则尝试解锁
-            npc.TryUnlockCurrentTask();
+            building.UnlockNPC(npc);
         }
         else{
             // 如果未锁定，则尝试锁定
-            npc.TryLockCurrentTask();
+            building.LockNPC(npc);
         }
 
         isLocked = npc.IsLocked;

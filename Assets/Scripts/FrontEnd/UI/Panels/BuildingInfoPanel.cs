@@ -49,16 +49,40 @@ public class BuildingInfoPanel : BasePanel{
         levelUpButton.onClick.RemoveListener(OnLevelUpButtonClick);
         closeButton.onClick.RemoveListener(OnCloseButtonClick);
     }
+    private void RegisterEvents(){
+        GameEvents.OnNPCLocked += RefreshNPCSlotInfo;
+        GameEvents.OnNPCUnlocked += RefreshNPCSlotInfo;
+        GameEvents.OnNPCInWorkingPosition += RefreshNPCSlotInfo;
+        GameEvents.OnNPCLeaveWorkingPosition += RefreshNPCSlotInfo;
+    }
+    private void UnregisterEvents(){
+        GameEvents.OnNPCLocked -= RefreshNPCSlotInfo;
+        GameEvents.OnNPCUnlocked -= RefreshNPCSlotInfo;
+        GameEvents.OnNPCInWorkingPosition -= RefreshNPCSlotInfo;
+        GameEvents.OnNPCLeaveWorkingPosition -= RefreshNPCSlotInfo;
+    }
     protected override void OnShow(){
         base.OnShow();
+        RegisterEvents();
         RefreshBuildingInfo();
     }
 
+    protected override void OnHide(){
+        base.OnHide();
+        UnregisterEvents();
+    }
+    protected override void OnOpen(){
+        base.OnOpen();
+        RegisterEvents();
+    }
+    protected override void OnClose(){
+        base.OnClose();
+        UnregisterEvents();
+    }
     protected override void OnInitialize(){
         base.OnInitialize();
         RefreshBuildingInfo();
     }
-
     private void RefreshBuildingInfo(){
         building = SelectManager.Instance.Selected.GetComponentInChildren<Building>();
 
@@ -80,7 +104,13 @@ public class BuildingInfoPanel : BasePanel{
         level.text = (building.currentLevel + 1).ToString();
         // TODO：根据当前建筑类型和正在进行的任务，显示工作信息
     }
-    private void RefreshNPCSlotInfo(){
+    private void RefreshNPCSlotInfo(NPCEventArgs args = null){
+        // 如果与当前建筑无关，则不刷新，防止性能浪费
+        if(args != null){
+            if(args.relatedBuilding != building){
+                return;
+            }
+        }
         // 刷新NPC槽位数量信息
         npcAmountInfo.SetInfo(building.assignedNPCs.Count, building.NPCSlotAmount);
         // 清除所有NPC槽位

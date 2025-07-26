@@ -14,7 +14,7 @@ public class NPCMovingToWorkState : NPCStateBase
         base.OnEnterState();
         
         // 如果存在锁定的工作
-        if (!npc.lockedTask.IsNone())
+        if (npc.IsLocked)
         {
             npc.assignedTask = npc.lockedTask;
             npc.MoveToTarget(npc.assignedTask.building.transform.position);
@@ -44,10 +44,18 @@ public class NPCMovingToWorkState : NPCStateBase
                 return;
             }
         }
+        // 如果存在待处理的工作
         else
         {
             npc.assignedTask = npc.pendingTask;
-            // 有待处理的工作，直接移动到目标位置 正常来说在上一个状态应该已经设置了 Assigned
+            // 但是分配失败，则清除待处理工作，并返回空闲状态
+            if(!npc.assignedTask.building.TryAssignNPC(npc)){
+                npc.ClearPendingWork();
+                npc.assignedTask = null;
+                stateMachine.ChangeState(NPCState.Idle);
+                return;
+            }
+            // 成功分配待处理的工作，直接移动到目标位置 正常来说在上一个状态应该已经设置了 Assigned
             npc.MoveToTarget(npc.assignedTask.building.transform.position);
         }
 

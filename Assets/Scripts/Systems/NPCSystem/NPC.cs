@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEditor;
 using System;
 using UnityEngine.Serialization;
+using Sirenix.OdinInspector;
 
 public class NPC : MonoBehaviour, ISaveable
 {
@@ -58,12 +59,13 @@ public class NPC : MonoBehaviour, ISaveable
     [Header("工作系统")]
     [SerializeField] public TaskInfo pendingTask;       // 待处理的工作建筑
     [SerializeField] public TaskInfo assignedTask;               // 分配的建筑
+    [ReadOnly] private bool isLocked = false;
     [SerializeField] public TaskInfo lockedTask = TaskInfo.GetNone();
     [SerializeField] private float idleTimeWeight = 0.1f;        // 每秒增加的权重
     [SerializeField] private float currentIdleWeight = 0f;       // 当前累积的权重
     
     public float CurrentIdleWeight => currentIdleWeight;
-    public bool IsLocked => !lockedTask.IsNone();
+    public bool IsLocked => isLocked;
 
     #endregion
 
@@ -326,36 +328,25 @@ public class NPC : MonoBehaviour, ISaveable
     #region 工作相关
 
     [ContextMenu("尝试锁定当前工作")]
-    public bool TryLockCurrentTask()
-    {
-        if (!(currentState.Equals(NPCState.Working)
-              && assignedTask.taskType.Equals(TaskType.Production))){
-            Debug.LogWarning($"[NPC] {data.npcName} 尝试锁定当前工作失败，因为当前不处于工作状态，或者任务类型不是生产");
-            return false;
+    public void LockWork(Building building){
+        if(isLocked){
+            return;
         }
-        if (!assignedTask.building.TryLockNPC(this))
-        {
-            Debug.LogWarning($"[NPC] {data.npcName} 尝试锁定当前工作失败，因为建筑 {assignedTask.building.data.buildingName} 锁定NPC失败");
-            return false;
-        }
+        // 设置自身锁定状态和锁定任务
+        isLocked = true;
         lockedTask = assignedTask;
-        Debug.Log($"[NPC] {data.npcName} 成功锁定当前工作");
-        return true;
-        
+        // 触发锁定事件
+        GameEvents.TriggerNPCLocked(new NPCEventArgs(){npc = this, relatedBuilding = building});
+        Debug.Log($"[NPC] {data.npcName} 成功锁定当前工作, 建筑 {building.data.buildingName}");
     }
-
-    [ContextMenu("解锁当前工作")]
-    public bool TryUnlockCurrentTask()
-    {
-        if(lockedTask != null 
-        &&lockedTask.taskType != TaskType.None
-        && lockedTask.building != null){
-            if(lockedTask.building.TryUnlockNPC(this)){
-                lockedTask = TaskInfo.GetNone();
-                return true;
-            }
+    public void UnlockWork(Building building){
+        if(!isLocked){
+            return;
         }
-        return false;
+        isLocked = false;
+        lockedTask = TaskInfo.GetNone();
+        GameEvents.TriggerNPCUnlocked(new NPCEventArgs(){npc = this, relatedBuilding = building});
+        Debug.Log($"[NPC] {data.npcName} 成功解锁当前工作, 建筑 {building.data.buildingName}");
     }
     
     public bool CanWorkNow()

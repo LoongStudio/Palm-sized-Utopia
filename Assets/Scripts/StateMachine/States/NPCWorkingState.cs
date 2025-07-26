@@ -20,6 +20,11 @@ public class NPCWorkingState : NPCStateBase
 
         animator.SetBool("isWorking", true);
         
+        GameEvents.TriggerNPCInWorkingPosition(new NPCEventArgs(){
+            npc = npc,
+            relatedBuilding = npc.assignedTask.building
+        });
+
         if (showDebugInfo)
         {
             Debug.Log($"[NPCWorkingState] {npc.data.npcName} 正在 {npc.assignedTask.building} 工作 {npc.assignedTask.taskType}");
@@ -139,15 +144,21 @@ public class NPCWorkingState : NPCStateBase
         animator.SetBool("isWorking", false);
         WorkingTimer = 0.0f;
         WorkingTimerTotal = 0.0f;
-        // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
+
         if (showDebugInfo)
         {
             Debug.Log($"[Work] {npc.data.npcName} 离开工作状态，清除已分配建筑: "
                       + $"{npc.assignedTask?.building.data.buildingName ?? "None"}");
-            npc.assignedTask?.building.TryRemoveNPC(npc);
-            npc.assignedTask = TaskInfo.GetNone();
-            
         }
-        
+
+        Building relatedBuilding = npc.assignedTask.building;
+        // 清除AssignedBuilding（如果有PendingWork会在下次工作时重新分配）
+        npc.assignedTask?.building.TryRemoveNPC(npc);
+        npc.assignedTask = TaskInfo.GetNone();
+
+        GameEvents.TriggerNPCLeaveWorkingPosition(new NPCEventArgs(){
+            npc = npc,
+            relatedBuilding = relatedBuilding
+        });
     }
 } 
