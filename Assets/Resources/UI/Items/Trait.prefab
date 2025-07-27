@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Social Master
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3aab8bbc3b8a64d4dbc41bcb1f09cd21, type: 2}
-  m_sharedMaterial: {fileID: 9043877667646627131, guid: 3aab8bbc3b8a64d4dbc41bcb1f09cd21, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 38cb9293eceef114fb793f313544f306, type: 2}
+  m_sharedMaterial: {fileID: 7242523649196990620, guid: 38cb9293eceef114fb793f313544f306, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
