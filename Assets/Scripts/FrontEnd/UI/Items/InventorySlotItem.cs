@@ -4,8 +4,8 @@ using Sirenix.OdinInspector;
 using TMPro;
 
 public class InventorySlotItem : MonoBehaviour{
-    [SerializeField, ReadOnly]private Image icon;
-    [SerializeField, ReadOnly]private AmountInfo amountInfo;
+    [SerializeField] private Image icon;
+    [SerializeField] private AmountInfo amountInfo;
 
     private void Awake(){
         icon = GetComponentInChildren<Image>();

@@ -28,6 +28,7 @@ public class SocialSystem : ISaveable
     public float socialInteractionDistance => data?.config?.socialInteractionDistance ?? 2f;
     public float socialMoveSpeed => data?.config?.socialMoveSpeed ?? 0.5f;
     public float socialTimeout => data?.config?.socialTimeout ?? 10f;
+    public int maxRelationship => config?.maxRelationship ?? 100;
     
     // 向后兼容性集合属性
     public Dictionary<(NPC, NPC), float> interactionCooldowns => data?.interactionCooldowns;

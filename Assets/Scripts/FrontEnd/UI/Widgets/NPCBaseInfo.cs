@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 
 public class NPCBaseInfo : WidgetBase
 {
-    private NPC npc;
+    private NPC _npc;
     [BoxGroup("NPC信息"), LabelText("名字"), SerializeField] private TextMeshProUGUI npcName;
     [BoxGroup("NPC信息"), LabelText("头像"), SerializeField] private Image avatar;
     [BoxGroup("NPC信息/当前状态"), LabelText("动词"), SerializeField] private TextMeshProUGUI verb;
@@ -14,11 +14,11 @@ public class NPCBaseInfo : WidgetBase
     [BoxGroup("NPC信息/当前状态"), LabelText("对象"), SerializeField] private TextMeshProUGUI objectName;
 
     public void SetUp(NPC npc){
-        this.npc = npc;
+        _npc = npc;
         UpdateSelf();
     }
     public override void UpdateSelf(){
-        npcName.text = npc.data.npcName;
+        npcName.text = _npc.data.npcName;
         UpdateStateText();
         // 让所有TextMeshProUGUI组件的宽度自适应
         AutoAdjustTextWidth(npcName);
@@ -27,7 +27,7 @@ public class NPCBaseInfo : WidgetBase
         AutoAdjustTextWidth(objectName);
     }
     public void UpdateStateText(){
-        var state = npc.stateMachine.CurrentState;
+        var state = _npc.stateMachine.CurrentState;
         if(state == NPCState.Idle){
             verb.text = "Idle";
             prep.text = "";
@@ -45,11 +45,11 @@ public class NPCBaseInfo : WidgetBase
         else if(state == NPCState.Social){
             verb.text = "Socializing";
             prep.text = "with";
-            NPC otherNPC = NPCManager.Instance.socialSystem.GetSocialPartner(npc);
+            NPC otherNPC = NPCManager.Instance.socialSystem.GetSocialPartner(_npc);
             objectName.text = otherNPC.data.npcName;
         }
         else if(state == NPCState.MovingToWork){
-            Building building = npc.AssignedTask.building;
+            Building building = _npc.AssignedTask.building;
             if(building != null){
                 verb.text = "Moving";
                 prep.text = "to";
@@ -62,11 +62,11 @@ public class NPCBaseInfo : WidgetBase
             }
         }
         else if(state == NPCState.Working){
-            Building building = npc.AssignedTask.building;
+            Building building = _npc.AssignedTask.building;
             if(building == null){
                 return;
             }
-            switch(npc.AssignedTask.taskType){
+            switch(_npc.AssignedTask.taskType){
                 case TaskType.Production:
                     verb.text = "Producing";
                     prep.text = "at";
