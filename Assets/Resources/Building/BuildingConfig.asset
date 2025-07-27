@@ -27,7 +27,7 @@ MonoBehaviour:
       npcSlots: 3
       npcTempSlots: 3
       equipmentSlots: 3
-      baseProductionSpeedMultiplier: 0
+      baseProductionSpeedMultiplier: 0.5
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
@@ -90,7 +90,7 @@ MonoBehaviour:
       npcSlots: 1
       npcTempSlots: 3
       equipmentSlots: 1
-      baseProductionSpeedMultiplier: 0
+      baseProductionSpeedMultiplier: 0.25
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5
@@ -213,7 +213,7 @@ MonoBehaviour:
       npcSlots: 1
       npcTempSlots: 3
       equipmentSlots: 1
-      baseProductionSpeedMultiplier: 0
+      baseProductionSpeedMultiplier: 0.8
       fitWeightData:
         weightSlot: 0
         weightResourceAgainst: 1.3
