@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using System.Linq;
 
 
 public class NPCSocialInfo : WidgetBase{
@@ -26,7 +27,8 @@ public class NPCSocialInfo : WidgetBase{
         }
         // 创建社交关系组件
         Dictionary<NPC, int> relationships = NPCManager.Instance.socialSystem.GetAllRelationshipsFor(_npc);
-        foreach(var relationship in relationships){
+        var sortedRelationships = relationships.OrderByDescending(r => r.Value).ToList();
+        foreach(var relationship in sortedRelationships){
             NPC partner = relationship.Key;
             int relationshipValue = relationship.Value;
             GameObject item = Instantiate(relationshipItemPrefab, relationshipItemParent);
