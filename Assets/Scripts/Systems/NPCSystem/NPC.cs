@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
 using UnityEditor;
-using System;
-using UnityEngine.Serialization;
 using Sirenix.OdinInspector;
 
-public class NPC : MonoBehaviour, ISaveable
+public class NPC : MonoBehaviour, ISaveable, ISelectable
 {
     #region 字段声明
     [Header("调试信息")]
@@ -603,7 +601,82 @@ public class NPC : MonoBehaviour, ISaveable
     public void CollectResource() { }
 
     public void DeliverResource() { }
+    /// <summary>
+    /// 设置当前目标Transform
+    /// </summary>
+    /// <param name="target">目标Transform</param>
+    public void SetCurrentTarget(Transform target)
+    {
+        if (movement != null)
+        {
+            movement.SetCurrentTarget(target);
+        }
+    }
+
+    /// <summary>
+    /// 设置当前目标位置
+    /// </summary>
+    /// <param name="position">目标位置</param>
+    public void SetCurrentTargetPosition(Vector3 position)
+    {
+        if (movement != null)
+        {
+            movement.SetCurrentTargetPosition(position);
+        }
+    }
     #endregion
+
+    #region 选择相关
+    private bool _canBeSelected = true;
+    public bool CanBeSelected {
+        get{
+            return _canBeSelected;
+        } 
+        set{
+            _canBeSelected = value;
+        }
+    }
+    private Outline _outline;
+    public Outline Outline {
+        get{
+            if(_outline == null){
+                _outline = GetComponent<Outline>();
+            }
+            return _outline;
+        }
+        set{
+            _outline = value;
+        }
+    }
+    public void OnSelect()
+    {
+        Debug.Log($"[NPC] {data.npcName} 被选中");
+        GameEvents.TriggerNPCSelected(this);
+        HighlightSelf();
+    }
+    public void OnDeselect()
+    {
+        UnhighlightSelf();
+    }
+    public void HighlightSelf(){
+        // 没有的话加一个
+        if(Outline == null){
+            Outline = gameObject.AddComponent<Outline>();
+            Outline.OutlineColor = Color.white;
+            Outline.OutlineWidth = 2f;
+            Outline.OutlineMode = Outline.Mode.OutlineVisible;
+
+        }
+
+        Outline.enabled = true;
+    }
+    public void UnhighlightSelf(){
+        if(Outline != null){
+            Outline.enabled = false;
+        }
+    }
+    #endregion
+
 
     #region 存档系统
     // TODO: 这块好像用不到，先留着
@@ -738,27 +811,5 @@ public class NPC : MonoBehaviour, ISaveable
         currentIdleWeight += idleTimeWeight * Time.deltaTime;
     }
 
-    /// <summary>
-    /// 设置当前目标Transform
-    /// </summary>
-    /// <param name="target">目标Transform</param>
-    public void SetCurrentTarget(Transform target)
-    {
-        if (movement != null)
-        {
-            movement.SetCurrentTarget(target);
-        }
-    }
 
-    /// <summary>
-    /// 设置当前目标位置
-    /// </summary>
-    /// <param name="position">目标位置</param>
-    public void SetCurrentTargetPosition(Vector3 position)
-    {
-        if (movement != null)
-        {
-            movement.SetCurrentTargetPosition(position);
-        }
-    }
 } 

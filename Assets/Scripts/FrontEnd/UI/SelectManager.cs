@@ -54,10 +54,14 @@ public class SelectManager : SingletonManager<SelectManager>{
         // 选中当前物体
         this.selected = selected;
         ISelectable newSelectable = selected.GetComponentInChildren<ISelectable>();
-        if(newSelectable != null && newSelectable.CanBeSelected){
-            newSelectable.OnSelect();
+        if(newSelectable != null){
+            if(newSelectable.CanBeSelected){
+                newSelectable.OnSelect();
+            }else{
+                Debug.LogWarning($"[SelectManager] 选中物体{selected.name}CanBeSelected为false");
+            }
         }else{
-            Debug.LogWarning("[SelectManager] 选中物体没有实现ISelectable接口：" + selected.name);
+            Debug.LogWarning($"[SelectManager] 选中物体{selected.name}没有实现ISelectable接口");
         }
     }
 }

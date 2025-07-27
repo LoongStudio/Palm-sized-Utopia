@@ -92,7 +92,9 @@ public class UIManager : SingletonManager<UIManager>
     }
     private void OnNPCSelected(NPC npc)
     {
-        
+        if(npc != null){
+            OpenPanel("NPCInfoPanel");
+        }
     }
     #endregion
     private void Start()
@@ -162,6 +164,7 @@ public class UIManager : SingletonManager<UIManager>
         pathDict.Add("ResourceShopPanel", UIConst.ResourceShopPanel);
         pathDict.Add("QuantitySelectPanel", UIConst.QuantitySelectPanel);
         pathDict.Add("BuildingInfoPanel", UIConst.BuildingInfoPanel);
+        pathDict.Add("NPCInfoPanel", UIConst.NPCInfoPanel);
     }
     public BasePanel OpenPanel(string panelName)
     {
@@ -271,4 +274,5 @@ public class UIConst
     public const string ResourceShopPanel = "UI/Panels/ResourceShopPanel";
     public const string QuantitySelectPanel = "UI/Panels/QuantitySelectPanel";
     public const string BuildingInfoPanel = "UI/Panels/BuildingInfoPanel";
+    public const string NPCInfoPanel = "UI/Panels/NPCInfoPanel";
 }
