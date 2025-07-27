@@ -52,6 +52,16 @@ public abstract class ProductionBuilding : Building, IResourceProducer
             productionTimers = new List<float>(new float[productionRules.Count]);
         }
 
+        // 冷却未结束，直接返回
+        if (productionTimer < productionCooldown / productionSpeedMultiplier)
+        {
+            productionTimer += Time.deltaTime;
+            return;
+        }
+        // 重置计时器, 防止短时间内多次运行复杂逻辑
+        productionTimer = 0f;
+        UpdateCurrentEfficiency();
+
         ProduceResources();
     }
 
@@ -71,18 +81,6 @@ public abstract class ProductionBuilding : Building, IResourceProducer
 
     public virtual void ProduceResources()
     {
-
-        // 冷却未结束，直接返回
-        if (productionTimer < productionCooldown / productionSpeedMultiplier)
-        {
-            productionTimer += Time.deltaTime;
-            return;
-        }
-        
-        // 重置计时器, 防止短时间内多次运行复杂逻辑
-        productionTimer = 0f;
-        UpdateCurrentEfficiency();
-
         // 新增：根据开关决定生产顺序
         List<int> indices = new List<int>();
         for (int i = 0; i < productionRules.Count; i++) indices.Add(i);
