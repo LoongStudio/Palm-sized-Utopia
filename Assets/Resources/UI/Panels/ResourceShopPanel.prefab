@@ -623,6 +623,7 @@ GameObject:
   - component: {fileID: 5907078189242652411}
   - component: {fileID: 6758312011217439529}
   - component: {fileID: 154040530506842544}
+  - component: {fileID: 6003390012206998546}
   m_Layer: 5
   m_Name: ResourceShopPanel
   m_TagString: Untagged
@@ -680,6 +681,19 @@ MonoBehaviour:
   content: {fileID: 8647909723213499146}
   closeButton: {fileID: 2739407389274842835}
   shopItemPrefab: {fileID: 0}
+--- !u!114 &6003390012206998546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6011349678983382386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 831bee5fb20a6a44981c5cbed5853f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetPanel: {fileID: 5907078189242652411}
 --- !u!1 &8272718788818305479
 GameObject:
   m_ObjectHideFlags: 0

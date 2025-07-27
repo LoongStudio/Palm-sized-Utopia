@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6176469790069946178}
   - component: {fileID: 5549998125256273684}
   - component: {fileID: 3131354406463642358}
+  - component: {fileID: 767732598134171075}
   m_Layer: 5
   m_Name: NPCInfoPanel
   m_TagString: Untagged
@@ -112,6 +113,19 @@ MonoBehaviour:
   npcAbilityInfo: {fileID: 6841180218280952199}
   npcInventorySlot: {fileID: 2145059821358257817}
   npcSocialInfo: {fileID: 4646610924854907401}
+--- !u!114 &767732598134171075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575377349744864140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 831bee5fb20a6a44981c5cbed5853f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetPanel: {fileID: 298704581486101226}
 --- !u!1 &1591313710869030394
 GameObject:
   m_ObjectHideFlags: 0

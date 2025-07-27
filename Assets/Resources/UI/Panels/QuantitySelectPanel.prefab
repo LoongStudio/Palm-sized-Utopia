@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8072463640387120362}
   - component: {fileID: 5467518120493823188}
   - component: {fileID: 1871195224116396760}
+  - component: {fileID: -1346046199394619938}
   m_Layer: 5
   m_Name: QuantitySelectPanel
   m_TagString: Untagged
@@ -72,6 +73,19 @@ MonoBehaviour:
   confirmButton: {fileID: 3689018883698441371}
   costText: {fileID: 1600501049588152962}
   costSprite: {fileID: 6970179245375256872}
+--- !u!114 &-1346046199394619938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108418256987839567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 831bee5fb20a6a44981c5cbed5853f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetPanel: {fileID: 8072463640387120362}
 --- !u!1 &563298829443586213
 GameObject:
   m_ObjectHideFlags: 0

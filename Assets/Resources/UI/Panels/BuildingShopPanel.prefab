@@ -86,6 +86,7 @@ GameObject:
   - component: {fileID: 1511684280547311326}
   - component: {fileID: 2527054929000794915}
   - component: {fileID: 1044710843006164682}
+  - component: {fileID: -4060416159265935521}
   m_Layer: 5
   m_Name: BuildingShopPanel
   m_TagString: Untagged
@@ -143,6 +144,19 @@ MonoBehaviour:
   content: {fileID: 4645576383171166615}
   closeButton: {fileID: 3269194489579938716}
   shopItemPrefab: {fileID: 3553610791198186498, guid: c0eb17dd96a1e2d48872bc868816013e, type: 3}
+--- !u!114 &-4060416159265935521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3070524753840015703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 831bee5fb20a6a44981c5cbed5853f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetPanel: {fileID: 1511684280547311326}
 --- !u!1 &3379064184193513748
 GameObject:
   m_ObjectHideFlags: 0
