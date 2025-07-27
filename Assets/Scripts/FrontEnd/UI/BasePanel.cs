@@ -88,9 +88,20 @@ public class BasePanel : MonoBehaviour
         OnHide();
     }
     // 子类重写
-    protected virtual void OnOpen() { }
-    protected virtual void OnClose() { }
-    protected virtual void OnShow() { }
-    protected virtual void OnHide() { }
+    protected virtual void OnOpen() {
+        RegisterEvents();
+    }
+    protected virtual void OnClose() {
+        UnregisterEvents();
+    }
+    protected virtual void OnShow() {
+        RegisterEvents();
+    }
+    protected virtual void OnHide() {
+        UnregisterEvents();
+    }
     protected virtual void OnInitialize() { }
+
+    protected virtual void RegisterEvents() { }
+    protected virtual void UnregisterEvents() { }
 }

@@ -49,7 +49,8 @@ public class BuildingInfoPanel : BasePanel{
         levelUpButton.onClick.RemoveListener(OnLevelUpButtonClick);
         closeButton.onClick.RemoveListener(OnCloseButtonClick);
     }
-    private void RegisterEvents(){
+    protected override void RegisterEvents(){
+        base.RegisterEvents();
         GameEvents.OnNPCAssignedToBuilding += RefreshNPCSlotInfo;
         GameEvents.OnNPCLocked += RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked += RefreshNPCSlotInfo;
@@ -59,7 +60,8 @@ public class BuildingInfoPanel : BasePanel{
         GameEvents.OnNPCLeaveWorkingPosition += RefreshBuffSlotInfo;
         GameEvents.OnResourceChanged += RefreshInventorySlotInfo;
     }
-    private void UnregisterEvents(){
+    protected override void UnregisterEvents(){
+        base.UnregisterEvents();
         GameEvents.OnNPCAssignedToBuilding -= RefreshNPCSlotInfo;
         GameEvents.OnNPCLocked -= RefreshNPCSlotInfo;
         GameEvents.OnNPCUnlocked -= RefreshNPCSlotInfo;
@@ -71,23 +73,19 @@ public class BuildingInfoPanel : BasePanel{
     }
     protected override void OnShow(){
         base.OnShow();
-        RegisterEvents();
         RefreshBuildingInfo();
     }
 
     protected override void OnHide(){
         base.OnHide();
-        UnregisterEvents();
         // 取消对应建筑的选中效果
         building.OnDeselect();
     }
     protected override void OnOpen(){
         base.OnOpen();
-        RegisterEvents();
     }
     protected override void OnClose(){
         base.OnClose();
-        UnregisterEvents();
     }
     protected override void OnInitialize(){
         base.OnInitialize();

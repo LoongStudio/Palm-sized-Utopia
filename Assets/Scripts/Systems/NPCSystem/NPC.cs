@@ -270,6 +270,14 @@ public class NPC : MonoBehaviour, ISaveable, ISelectable
         if (currentState != newState)
         {
             stateMachine.ChangeState(newState);
+
+            // 触发状态改变事件
+            NPCEventArgs args = new NPCEventArgs(){
+                npc = this,
+                oldState = stateMachine.PreviousState,
+                newState = newState
+            };
+            GameEvents.TriggerNPCStateChanged(args);
         }
     }
 

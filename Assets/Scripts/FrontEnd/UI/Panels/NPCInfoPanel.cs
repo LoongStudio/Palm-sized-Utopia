@@ -15,19 +15,22 @@ public class NPCInfoPanel : BasePanel
     protected override void Awake(){
         base.Awake();
     }
-    private void OnEnable(){
-        RegisterEvents();
-    }
-    private void OnDisable(){
-        UnregisterEvents();
-    }
 
     #region 事件订阅和处理
-    private void RegisterEvents(){
+    protected override void RegisterEvents(){
+        base.RegisterEvents();
         closeButton.onClick.AddListener(OnCloseButtonClick);
+        GameEvents.OnNPCStateChanged += OnNPCStateChanged;
     }
-    private void UnregisterEvents(){
+    protected override void UnregisterEvents(){
         closeButton.onClick.RemoveListener(OnCloseButtonClick);
+        GameEvents.OnNPCStateChanged -= OnNPCStateChanged;
+    }
+    private void OnNPCStateChanged(NPCEventArgs args){
+        if(args.npc == npc){
+            // 更新基础信息（主要是状态部分）
+            npcBaseInfo.UpdateSelf();
+        }
     }
     private void OnCloseButtonClick(){
         Hide();
