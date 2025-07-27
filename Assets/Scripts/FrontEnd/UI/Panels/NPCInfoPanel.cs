@@ -113,5 +113,9 @@ public class NPCInfoPanel : BasePanel
                 npcInventorySlot.gameObject.SetActive(false);
             }
         }
+        else
+        {
+            npcInventorySlot.gameObject.SetActive(false);
+        }
     }
 }
