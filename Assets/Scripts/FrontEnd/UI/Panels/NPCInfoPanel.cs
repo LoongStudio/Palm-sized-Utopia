@@ -21,15 +21,23 @@ public class NPCInfoPanel : BasePanel
         base.RegisterEvents();
         closeButton.onClick.AddListener(OnCloseButtonClick);
         GameEvents.OnNPCStateChanged += OnNPCStateChanged;
+        GameEvents.OnResourceChanged += OnResourceChanged;
     }
     protected override void UnregisterEvents(){
         closeButton.onClick.RemoveListener(OnCloseButtonClick);
         GameEvents.OnNPCStateChanged -= OnNPCStateChanged;
+        GameEvents.OnResourceChanged -= OnResourceChanged;
     }
     private void OnNPCStateChanged(NPCEventArgs args){
         if(args.npc == npc){
             // 更新基础信息（主要是状态部分）
             npcBaseInfo.UpdateSelf();
+        }
+    }
+    private void OnResourceChanged(ResourceEventArgs args){
+        if(args.relatedNPCInventory == npc.inventory){
+            // 更新Inventory信息
+            SetUpNPCInventory();
         }
     }
     private void OnCloseButtonClick(){
