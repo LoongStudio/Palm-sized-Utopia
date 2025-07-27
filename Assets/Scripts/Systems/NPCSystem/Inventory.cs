@@ -142,6 +142,14 @@ public class Inventory : ISaveable
         var cur = GetCurrent(config);
         if (cur == null)
         {
+            // NPC仅能持有一种资源,若已有一种资源,但资源数量为0,AllowAll模式下可自动补全
+            if (ownerType == InventoryOwnerType.NPC){                
+                if (currentStacks.Count > 0){
+                    if(currentStacks[0].amount != 0){
+                        return false;
+                    }
+                }
+            }
             // AllowAll模式下可自动补全
             if (acceptMode == InventoryAcceptMode.AllowAll)
             {
@@ -328,6 +336,13 @@ public class Inventory : ISaveable
             var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
+                if(target.ownerType == InventoryOwnerType.NPC){
+                    if(target.currentStacks.Count > 0){
+                        if(target.currentStacks[0].amount != 0){
+                            continue;
+                        }
+                    }
+                }
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
                     targetCurrent = new ResourceStack(item.resourceConfig, 0, defaultMaxValue);
@@ -369,6 +384,14 @@ public class Inventory : ISaveable
             var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
+                // NPC仅能持有一种资源,若已有一种资源,但资源数量为0,AllowAll模式下可自动补全，否则拒绝接收当前物品
+                if(target.ownerType == InventoryOwnerType.NPC){
+                    if(target.currentStacks.Count > 0){
+                        if(target.currentStacks[0].amount != 0){
+                            continue;
+                        }
+                    }
+                }
                 Debug.Log($"[Work] {target.ownerType} {item.resourceConfig.name} 背包插槽不存在");
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
@@ -407,6 +430,12 @@ public class Inventory : ISaveable
             var targetCurrent = target.GetCurrent(item.resourceConfig);
             if (targetCurrent == null)
             {
+                // NPC仅能持有一种资源,若已有一种资源,但资源数量为0,AllowAll模式下可自动补全，否则拒绝接收当前物品
+                if(target.ownerType == InventoryOwnerType.NPC && target.currentStacks.Count > 0){
+                        if(target.currentStacks[0].amount != 0){
+                            continue;
+                        }
+                }
                 if (target.acceptMode == InventoryAcceptMode.AllowAll)
                 {
                     targetCurrent = new ResourceStack(item.resourceConfig, 0, defaultMaxValue);
@@ -608,7 +637,10 @@ public class Inventory : ISaveable
         if (totalLimit == 0) return 0f;
         return count / (float)totalLimit;
     }
-
+    /// <summary>
+    /// 当前背包有多渴望将这些资源输出给其他背包
+    /// </summary>
+    /// <returns>资源输出分数</returns>
     public float GetResourceRatioLimitAgainstList(HashSet<ResourceConfig> resourceConfigs)
     {
         int count = 0;
@@ -649,6 +681,10 @@ public class Inventory : ISaveable
         return (involving, against);
     }
 
+    /// <summary>
+    /// 返回其他背包对当前背包的资源需求的匹配程度,匹配程度越高,当前背包越渴望获得这些资源
+    /// </summary>
+    /// <returns></returns>
     public float GetResourceMappingWithFilter(
         Inventory others, HashSet<ResourceConfig> filter)
     {

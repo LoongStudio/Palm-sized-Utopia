@@ -659,9 +659,10 @@ public class BuildingManager : SingletonManager<BuildingManager>, ISaveable
                 else 
                     slotRatio = (float)(building.NPCSlotAmount - building.assignedNPCs?.Count ?? 0) / building.NPCSlotAmount;
             }
-
+            // 资源输出分数
             float resourceRatioAgainst =
                 building.inventory.GetResourceRatioLimitAgainstList(building.AcceptResources);
+            // 资源需求分数
             float resourceRatioInvolving = building.inventory.GetResourceMappingWithFilter(npc.inventory, building.AcceptResources);
 
             // 距离惩罚分数
