@@ -32,6 +32,12 @@ public abstract class ProductionBuilding : Building, IResourceProducer
     {
         UpdateProduction();
     }
+    
+    public override void OnDestroyed()
+    {
+        base.OnDestroyed();
+        StopProduction();
+    }
     // TODO: 重写Building的SetBuildingData方法，设置生产数据, 不用SetupProductionRule
     protected virtual void SetupProductionRule() { }
 
