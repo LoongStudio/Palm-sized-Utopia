@@ -12,7 +12,8 @@ public enum NPCState
     Working,        // 进行工作
     WorkComplete,   // 完成工作
     MovingHome,     // 回家阶段
-    Sleeping        // 休眠阶段
+    Sleeping,       // 休眠阶段
+    Dragging,       // 被玩家拖动
 }
 
 // NPC性格
