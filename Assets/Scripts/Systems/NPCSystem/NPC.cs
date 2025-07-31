@@ -5,7 +5,14 @@ using System.Collections;
 using UnityEditor;
 using Sirenix.OdinInspector;
 
-public class NPC : MonoBehaviour, ISaveable, ISelectable
+[System.Serializable]
+public class ComponentDisableEntry
+{
+    public Behaviour component;
+    public bool disableDuringDrag = true;
+}
+
+public class NPC : MonoBehaviour, ISaveable, IDraggable
 {
     #region 字段声明
     [Header("调试信息")]
@@ -66,6 +73,20 @@ public class NPC : MonoBehaviour, ISaveable, ISelectable
     public float CurrentIdleWeight => currentIdleWeight;
     public bool IsLocked => isLocked;
 
+
+    [Header("拖动设置")]
+    [SerializeField] private float dragPlaneHeight = 0f; // 拖动平面的Y轴高度
+    [SerializeField] private bool useFixedDragPlane = true; // 是否使用固定高度平面
+    
+    [Header("拖动期间禁用的组件")]
+    [SerializeField] private List<ComponentDisableEntry> componentsToDisable = new List<ComponentDisableEntry>();
+    
+    private Camera mainCamera;
+    private bool isDragging = false;
+    private Vector3 offset;
+    private float originalY;
+    private float dragPlaneDistance; // 拖动平面距离相机的距离
+    public Outline outline;
     #endregion
 
     #region Unity生命周期
@@ -94,6 +115,23 @@ public class NPC : MonoBehaviour, ISaveable, ISelectable
 
 
         SubscribeToEvents();
+
+        // 初始化拖动相关字段
+        mainCamera = Camera.main;
+        originalY = transform.position.y;
+        outline.enabled = false;
+        
+        if (useFixedDragPlane)
+        {
+            // 计算拖动平面到相机的距离
+            dragPlaneDistance = Mathf.Abs(dragPlaneHeight - mainCamera.transform.position.y);
+        }
+        else
+        {
+            // 使用物体当前的Y轴位置作为拖动平面
+            dragPlaneHeight = originalY;
+            dragPlaneDistance = Vector3.Dot(transform.position - mainCamera.transform.position, mainCamera.transform.forward);
+        }
     }
 
     private void Update()
@@ -659,7 +697,8 @@ public class NPC : MonoBehaviour, ISaveable, ISelectable
     public void OnSelect()
     {
         Debug.Log($"[NPC] {data.npcName} 被选中");
-        GameEvents.TriggerNPCSelected(this);
+        // 不再在这里触发UI打开事件
+        // GameEvents.TriggerNPCSelected(this);
         HighlightSelf();
     }
     public void OnDeselect()
@@ -819,5 +858,83 @@ public class NPC : MonoBehaviour, ISaveable, ISelectable
         currentIdleWeight += idleTimeWeight * Time.deltaTime;
     }
 
+    #region 拖动接口实现
+    
+    public void OnDragStart()
+    {
+        if (mainCamera == null) return;
+        
+        isDragging = true;
+        outline.enabled = true;
 
-} 
+        // 计算鼠标点击位置与物体位置的偏移
+        Vector3 mousePosition = GetMouseWorldPositionOnDragPlane();
+        offset = transform.position - mousePosition;
+        
+        // 状态切换时的细节调整：保存当前工作、拆散当前情侣等
+        if (currentState == NPCState.Working) SetPendingWork(assignedTask);
+        stateMachine.ChangeState(NPCState.Dragging);
+        
+        // 禁用指定的组件
+        foreach (var entry in componentsToDisable)
+        {
+            if (entry.component != null && entry.disableDuringDrag)
+            {
+                entry.component.enabled = false;
+            }
+        }
+    }
+    
+    public void OnDrag()
+    {
+        if (!isDragging || mainCamera == null) return;
+        
+        Vector3 mousePosition = GetMouseWorldPositionOnDragPlane();
+        Vector3 targetPosition = mousePosition + offset;
+        
+        // 保持Y轴在拖动平面上
+        targetPosition.y = dragPlaneHeight;
+        
+        transform.position = targetPosition;
+    }
+    
+    public void OnDragEnd()
+    {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        outline.enabled = false;
+
+        // 重新启用指定的组件
+        foreach (var entry in componentsToDisable)
+        {
+            if (entry.component != null && entry.disableDuringDrag)
+            {
+                entry.component.enabled = true;
+            }
+        }
+        
+        stateMachine.ChangeState(NPCState.Idle);
+    }
+    
+    public bool IsBeingDragged => isDragging;
+    
+    private Vector3 GetMouseWorldPositionOnDragPlane()
+    {
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        
+        // 创建一个在指定高度的平面
+        Plane plane = new Plane(Vector3.up, new Vector3(0, dragPlaneHeight, 0));
+        
+        // 计算射线与平面的交点
+        if (plane.Raycast(ray, out float distance))
+        {
+            return ray.GetPoint(distance);
+        }
+        
+        // 如果没有交点，返回默认位置
+        return mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragPlaneDistance));
+    }
+    
+    #endregion
+}
