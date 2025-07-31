@@ -86,7 +86,8 @@ public class DraggableObject : MonoBehaviour
         // 计算鼠标点击位置与物体位置的偏移
         Vector3 mousePosition = GetMouseWorldPositionOnDragPlane();
         offset = transform.position - mousePosition;
-
+        // 状态切换时 的细节调整：保存当前工作、拆散当前情侣、等
+        if (npc.currentState == NPCState.Working) npc.SetPendingWork(npc.AssignedTask);
         npc.stateMachine.ChangeState(NPCState.Dragging);
 
         // 禁用指定的组件
