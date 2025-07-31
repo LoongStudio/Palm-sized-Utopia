@@ -9,56 +9,51 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "MaterialConfig", menuName = "Utopia/MaterialConfig")]
 public class MaterialConfig : ScriptableObject
 {
-	[Serializable]
-	public class RealisticSceneMaterial
-	{
-		public string name;
-		public Material material;
-	}
-	public List<RealisticSceneMaterial> materials = new List<RealisticSceneMaterial>();
-	public Material GetMaterial(string name)
-	{
-		foreach (var sceneMaterial in materials)
-			if (sceneMaterial.name == name) return sceneMaterial.material;
-		return null;
-	}
+    [Serializable]
+    public class RealisticSceneMaterial
+    {
+        public string name;
+        public Material material;
+    }
+    public List<RealisticSceneMaterial> materials = new List<RealisticSceneMaterial>();
+    public Material GetMaterial(string name)
+    {
+        foreach (var sceneMaterial in materials)
+            if (sceneMaterial.name == name) return sceneMaterial.material;
+        return null;
+    }
 }
 public class RealisticSceneColors : SingletonManager<RealisticSceneColors>
 {
-	public MaterialConfig materialConfig;
-	public GameTime lastUpdateGameTime;
-	public float updateRate = 5f;
-	public float currentTime = 0f;
-	
-	public void Start()
-	{
-		UpdateMaterials();
-	}
-	public void FixedUpdate()
-	{
-		currentTime += Time.fixedDeltaTime;
-		if (currentTime >= updateRate)
-		{
-			currentTime = 0f;
-			UpdateMaterials();
-		}
-	}
+    public MaterialConfig materialConfig;
+    public GameTime lastUpdateGameTime;
+    public float updateRate = 5f;
+    public float currentTime = 0f;
+    
+    public void Start()
+    {
+        UpdateMaterials();
+    }
+    public void FixedUpdate()
+    {
+        currentTime += Time.fixedDeltaTime;
+        if (currentTime >= updateRate)
+        {
+            currentTime = 0f;
+            UpdateMaterials();
+        }
+    }
 
-	public void UpdateMaterials()
-	{
-		if (TimeManager.Instance.CurrentTime.Equals(lastUpdateGameTime)) return; 
-		lastUpdateGameTime = TimeManager.Instance.CurrentTime;
-		float interval = (lastUpdateGameTime.month * 30 + lastUpdateGameTime.day) / 360.0f;
-		foreach (var meshRenderer in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None))
-		{
-			if (meshRenderer.CompareTag("Grass"))
-			{
-				// Debug.Log(meshRenderer.name);
-				meshRenderer.material.SetFloat("_SeasonFloat", interval);
-				// break;
-			}
-		}
-		// foreach (var realisticSceneMaterial in materialConfig.materials)
-		// 	realisticSceneMaterial.material.SetFloat("_SeasonFloat", interval);
-	}
+    public void UpdateMaterials()
+    {
+        if (TimeManager.Instance.CurrentTime.Equals(lastUpdateGameTime)) return; 
+        lastUpdateGameTime = TimeManager.Instance.CurrentTime;
+        float interval = (lastUpdateGameTime.month * 30 + lastUpdateGameTime.day) / 360.0f;
+        
+        // 遍历材质配置中的共享材质来更新，而不是遍历所有 MeshRenderer
+        foreach (var realisticSceneMaterial in materialConfig.materials)
+        {
+            realisticSceneMaterial.material.SetFloat("_SeasonFloat", interval);
+        }
+    }
 }
