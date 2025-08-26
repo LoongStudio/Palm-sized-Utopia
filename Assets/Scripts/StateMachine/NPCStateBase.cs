@@ -35,6 +35,7 @@ public abstract class NPCStateBase
     {
         if (showDebugInfo)
             Debug.Log($"[NPCStateBase] {npc.data.npcName} 进入状态: {npcState}");
+        AudioManager.Instance.PlayNPCSFX();
         OnEnterState();
     }
     
