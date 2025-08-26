@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public class Ranch : ProductionBuilding
 {
+    [SerializeField,ReadOnly,LabelText("当前优先生产的动物类型")] private LivestockSubType currentAnimalType;
     public override void OnUpgraded()
     {
         Debug.Log($"牧场升级到等级 {currentLevel}");
@@ -12,67 +15,44 @@ public class Ranch : ProductionBuilding
     public override void OnDestroyed()
     {
         base.OnDestroyed();
-        StopProduction();
         Debug.Log($"牧场被摧毁，位置: {string.Join(" ", positions)}");
     }
 
     public override void InitialSelfStorage()
     {
-        AcceptResources = new HashSet<ResourceConfig>()
-        {
-            ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed),
-            ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle),
-            ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep),
-        };
-        inventory = new Inventory(
-            new List<ResourceStack>()
-            {
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Cattle), 0),
-                ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Sheep), 0),
-            },
-            Inventory.InventoryAcceptMode.OnlyDefined,
-            Inventory.InventoryListFilterMode.AcceptList,
-            AcceptResources,
-            null,
-            Inventory.InventoryOwnerType.Building
-        );
+
     }
     protected override void SetupProductionRule()
     {
         base.SetupProductionRule();
-        productionRules = new List<ConversionRule>()
-        {
-            new ConversionRule()
-            {
-                inputs = new List<ResourceStack>
-                {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 2),
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Cattle), 1)
-                },
-                outputs = new List<ResourceStack>
-                {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Cattle), 1)
-                }
-            },
-            new ConversionRule()
-            {
-                inputs = new List<ResourceStack>
-                {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Feed, (int)FeedSubType.Feed), 2),
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.BreedingStock, (int)BreedingStockSubType.Sheep), 1)
-                },
-                outputs = new List<ResourceStack>
-                {
-                    ResourceStack.CreateFromData(ResourceManager.Instance.GetResourceConfig(ResourceType.Livestock, (int)LivestockSubType.Sheep), 1)
-                }
-            }
-        };
+
     }
     
     public void ChangeAnimalType(LivestockSubType newAnimalType)
     {
+        if(newAnimalType == currentAnimalType) return;
+        currentAnimalType = newAnimalType;
+    }
+
+    public override void ProduceResources()
+    {
+        // // 优先生产当前允许生产的动物，从生产规则中找到第一个产出物包括currentAnimalType的rule，然后生产
+        // foreach (var rule in productionRules)
+        // {
+        //     List<ResourceStack> outputs = rule.outputs;
+        //     if (outputs.Any(output => output.resourceConfig.type == ResourceType.Livestock 
+        //     && output.resourceConfig.subType == (int)currentAnimalType))
+        //     {
+        //         bool exchanged = inventory.InternalProductionExchange(rule.inputs, rule.outputs);
+        //         if (exchanged)
+        //         {
+        //             Debug.Log($"牧场生产了一次{currentAnimalType}");
+        //             productionTimer = 0f; // 重置全局cd
+        //             return;
+        //         }
+        //     }
+        // }
+        // 如果找不到，则进行正常生产
+        base.ProduceResources();
     }
 } 

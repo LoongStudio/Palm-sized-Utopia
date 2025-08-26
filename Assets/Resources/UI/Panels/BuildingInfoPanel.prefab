@@ -296,8 +296,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: NPC Slots
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 38cb9293eceef114fb793f313544f306, type: 2}
+  m_sharedMaterial: {fileID: 7242523649196990620, guid: 38cb9293eceef114fb793f313544f306, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1249,7 +1249,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 28, y: 30}
+  m_SizeDelta: {x: 34.3575, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8840326547559365364
 CanvasRenderer:
@@ -3247,6 +3247,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 149134757916368475, guid: f9894da4963a1144597e66d89b526700, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 149134757916368475, guid: f9894da4963a1144597e66d89b526700, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -3260,6 +3264,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1293946156339350887, guid: f9894da4963a1144597e66d89b526700, type: 3}
       propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1293946156339350887, guid: f9894da4963a1144597e66d89b526700, type: 3}
+      propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1293946156339350887, guid: f9894da4963a1144597e66d89b526700, type: 3}
@@ -3380,6 +3388,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6156132012383174526, guid: f9894da4963a1144597e66d89b526700, type: 3}
       propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156132012383174526, guid: f9894da4963a1144597e66d89b526700, type: 3}
+      propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6156132012383174526, guid: f9894da4963a1144597e66d89b526700, type: 3}
