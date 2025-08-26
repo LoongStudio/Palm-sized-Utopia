@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 6802671182719644152}
   - component: {fileID: 7628788800457839329}
   - component: {fileID: -7587831731371656279}
+  - component: {fileID: 3612847455249770586}
   m_Layer: 11
   m_Name: SlimePBR
   m_TagString: Untagged
@@ -229,6 +230,12 @@ MonoBehaviour:
     taskType: 0
   idleTimeWeight: 0.1
   currentIdleWeight: 0
+  dragPlaneHeight: 1.3
+  useFixedDragPlane: 1
+  componentsToDisable:
+  - component: {fileID: 7628788800457839329}
+    disableDuringDrag: 1
+  outline: {fileID: 3612847455249770586}
 --- !u!114 &6222079410607490007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -337,6 +344,24 @@ CapsuleCollider:
   m_Height: 0.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &3612847455249770586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4704072471082765480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.24012107, g: 0.57576966, b: 0.7169812, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &5962199970355141228
 GameObject:
   m_ObjectHideFlags: 0

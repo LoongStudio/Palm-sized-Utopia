@@ -35,23 +35,13 @@ namespace Grass.Script
             // Debug.Log(output);
             if (_poss != null && _poss.Count > 0)
             {
-                
-                // _material.SetVectorArray("_Players", _poss.ToArray());
-                // _material.SetPass(0);
-                var possArray = _poss.ToArray();
-                foreach (var meshRenderer in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None))
+                // 直接更新共享材质，而不是遍历所有 MeshRenderer
+                if (_material != null)
                 {
-                    if (meshRenderer.CompareTag("Grass"))
-                    {
-                        // Debug.Log(meshRenderer.name);
-                        meshRenderer.material.SetVectorArray("_Players",  possArray);
-                        meshRenderer.material.SetPass(0);
-                        // break;
-                    }
+                    _material.SetVectorArray("_Players", _poss.ToArray());
+                    _material.SetPass(0);
                 }
             }
-            
-            
         }
     }
 }
