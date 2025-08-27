@@ -243,15 +243,15 @@ MonoBehaviour:
       description: A ranch consumes breedings into livestocks.
       icon: {fileID: 21300000, guid: b4c3724c5569e9a4b84681ad4de4a8f7, type: 3}
       buildingType: 0
-      subType: 0
-      purchasePrice: 0
+      subType: 1
+      purchasePrice: 200
       upgradePrices: 
-      maxLevel: 0
-      size: {x: 0, y: 0}
-      npcSlots: 0
-      npcTempSlots: 3
+      maxLevel: 3
+      size: {x: 2, y: 2}
+      npcSlots: 2
+      npcTempSlots: 2
       equipmentSlots: 0
-      baseProductionSpeedMultiplier: 0
+      baseProductionSpeedMultiplier: 1
       fitWeightData:
         weightSlot: 0.5
         weightResourceAgainst: 0.5

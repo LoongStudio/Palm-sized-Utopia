@@ -4,15 +4,22 @@ using UnityEngine.UI;
 public class TestPanel : BasePanel
 {
     [SerializeField] private Button shopButton;
+    [SerializeField] private Button saveButton;
+    [SerializeField] private Button loadButton;
+
 
     private void OnEnable()
     {
         shopButton.onClick.AddListener(OnOpenShopPanel);
+        saveButton.onClick.AddListener(OnSaveGame);
+        loadButton.onClick.AddListener(OnLoadGame);
         GameEvents.OnEditModeChanged += OnEditModeChanged;
     }
     private void OnDisable()
     {
         shopButton.onClick.RemoveListener(OnOpenShopPanel);
+        saveButton.onClick.RemoveListener(OnSaveGame);
+        loadButton.onClick.RemoveListener(OnLoadGame);
         GameEvents.OnEditModeChanged -= OnEditModeChanged;
     }
     private void Start()
@@ -22,6 +29,14 @@ public class TestPanel : BasePanel
     private void OnOpenShopPanel()
     {
         UIManager.Instance.OpenPanel("ShopPanel");
+    }
+    private void OnSaveGame()
+    {
+        GameManager.Instance.SaveGame();
+    }
+    private void OnLoadGame()
+    {
+        GameManager.Instance.LoadGame();
     }
     protected override void OnHide()
     {
